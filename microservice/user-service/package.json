@@ -1,0 +1,24 @@
+{
+  "name": "user-service",
+  "version": "1.0.0",
+  "description": "User Management Microservice",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
+    "dev:pure": "ts-node src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "switch:local": "rm -rf node_modules package-lock.json && npm install file:../../../MoroJS",
+    "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
+  },
+  "dependencies": {
+    "@morojs/moro": "file:../../../MoroJS"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.0.0"
+  }
+}

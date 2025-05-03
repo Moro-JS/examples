@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Chat Test Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .chat-messages {
+            height: 300px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            background-color: #fafafa;
+            border-radius: 5px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .message.sent { background-color: #007bff; color: white; text-align: right; }
+        .message.received { background-color: #e9ecef; }
+        .message.system { background-color: #fff3cd; color: #856404; font-style: italic; }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        input, button, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        label {
+            min-width: 80px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Real-time Chat Test Client</h1>
+        
+        <div id="status" class="status disconnected">
+            ❌ Disconnected
+        </div>
+
+                 <div class="form-row">
+             <label>Connection:</label>
+             <input type="text" value="Socket.IO - Real-time chat working! ✅" style="flex: 1;" readonly>
+             <button id="connectBtn" onclick="connect()">Connect</button>
+             <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+         </div>
+
+        <div class="form-row">
+            <label>Username:</label>
+            <input type="text" id="username" value="TestUser" style="flex: 1;">
+        </div>
+
+        <div class="form-row">
+            <label>Room:</label>
+            <select id="roomSelect">
+                <option value="general">General</option>
+                <option value="random">Random</option>
+            </select>
+            <button id="joinBtn" onclick="joinRoom()" disabled>Join Room</button>
+            <button id="leaveBtn" onclick="leaveRoom()" disabled>Leave Room</button>
+        </div>
+
+        <div class="chat-messages" id="messages"></div>
+
+        <div class="input-group">
+            <input type="text" id="messageInput" placeholder="Type your message..." style="flex: 1;" disabled>
+            <button id="sendBtn" onclick="sendMessage()" disabled>Send</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>Click <strong>Connect</strong> to establish WebSocket connection</li>
+                <li>Enter your username and click <strong>Join Room</strong></li>
+                <li>Type messages and click <strong>Send</strong> to test real-time chat</li>
+                <li>Open multiple browser tabs to test multi-user chat</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentRoom = null;
+        let username = 'TestUser';
+
+        function log(message, type = 'system') {
+            const messagesDiv = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.innerHTML = `<small>${new Date().toLocaleTimeString()}</small><br>${message}`;
+            messagesDiv.appendChild(messageEl);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            const statusEl = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const joinBtn = document.getElementById('joinBtn');
+            const leaveBtn = document.getElementById('leaveBtn');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+
+            if (connected) {
+                statusEl.textContent = '✅ Connected';
+                statusEl.className = 'status connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                joinBtn.disabled = false;
+            } else {
+                statusEl.textContent = '❌ Disconnected';
+                statusEl.className = 'status disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                joinBtn.disabled = true;
+                leaveBtn.disabled = true;
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
+                currentRoom = null;
+            }
+        }
+
+        function connect() {
+            username = document.getElementById('username').value || 'Anonymous';
+            
+            // Socket.IO connection (the working approach!)
+            log('🚀 Connecting to real-time chat via Socket.IO...');
+            
+            // Use local Socket.IO implementation
+            const script = document.createElement('script');
+            script.src = '/socket.io/socket.io.js';
+            script.onload = function() {
+                if (typeof io !== 'undefined') {
+                    socket = io('http://localhost:3000');
+                    
+                    socket.on('connect', function() {
+                        log('✅ Connected to real-time chat server!');
+                        updateStatus(true);
+                    });
+                    
+                    socket.on('disconnect', function() {
+                        log('❌ Disconnected from chat server');
+                        updateStatus(false);
+                    });
+                    
+                    socket.on('user-joined', function(data) {
+                        log(`👋 ${data.message}`, 'system');
+                    });
+                    
+                    socket.on('new-message', function(data) {
+                        log(`💬 ${data.sender}: ${data.content}`, 'received');
+                    });
+                    
+                    socket.on('user-left', function(data) {
+                        log(`👋 ${data.message}`, 'system');
+                    });
+                    
+                    socket.on('connect_error', function(error) {
+                        log(`💥 Connection error: ${error}`, 'system');
+                        updateStatus(false);
+                    });
+                } else {
+                    log('❌ Socket.IO library not available');
+                }
+            };
+            script.onerror = function() {
+                log('❌ Failed to load Socket.IO library');
+                updateStatus(false);
+            };
+            document.head.appendChild(script);
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        }
+
+        function joinRoom() {
+            if (!socket) return;
+            
+            const roomId = document.getElementById('roomSelect').value;
+            currentRoom = roomId;
+            
+            log(`📝 Joining room: ${roomId}`);
+            
+            // Use Socket.IO to emit join event
+            if (socket && socket.emit) {
+                socket.emit('join', {
+                    username: username,
+                    roomId: roomId
+                });
+            } else {
+                log('❌ Socket not connected or emit not available');
+            }
+            
+            document.getElementById('leaveBtn').disabled = false;
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+        }
+
+        function leaveRoom() {
+            if (!socket || !currentRoom) return;
+            
+            log(`👋 Leaving room: ${currentRoom}`);
+            
+            try {
+                socket.send(JSON.stringify({
+                    event: 'leave',
+                    data: {
+                        username: username,
+                        roomId: currentRoom
+                    }
+                }));
+            } catch (e) {
+                log(`Error sending leave message: ${e}`);
+            }
+            
+            currentRoom = null;
+            document.getElementById('leaveBtn').disabled = true;
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+        }
+
+        function sendMessage() {
+            if (!socket || !currentRoom) return;
+            
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText) return;
+            
+            log(`💬 ${username}: ${messageText}`, 'sent');
+            
+            // Use Socket.IO to emit message
+            if (socket && socket.emit) {
+                socket.emit('message', {
+                    username: username,
+                    message: messageText,
+                    roomId: currentRoom
+                });
+            } else {
+                log('❌ Socket not connected or emit not available');
+            }
+            
+            messageInput.value = '';
+        }
+
+        // Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initial setup
+        updateStatus(false);
+        log('🚀 Chat client loaded. Click Connect to start!');
+    </script>
+</body>
+</html> 

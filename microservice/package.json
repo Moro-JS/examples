@@ -1,0 +1,28 @@
+{
+  "name": "microservice-example",
+  "version": "1.0.0",
+  "description": "Microservice Architecture Example - Demonstrates service mesh patterns with Moro",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:user\" \"npm run dev:payment\" \"npm run dev:order\"",
+    "dev:user": "cd user-service && npm run dev",
+    "dev:payment": "cd payment-service && npm run dev",
+    "dev:order": "cd order-service && npm run dev",
+    "install:all": "npm install && cd user-service && npm install && cd ../payment-service && npm install && cd ../order-service && npm install",
+    "build:all": "cd user-service && npm run build && cd ../payment-service && npm run build && cd ../order-service && npm run build",
+    "start:all": "concurrently \"cd user-service && npm start\" \"cd payment-service && npm start\" \"cd order-service && npm start\"",
+    "clean:all": "cd user-service && npm run clean && cd ../payment-service && npm run clean && cd ../order-service && npm run clean"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  },
+  "keywords": [
+    "microservices",
+    "moro",
+    "service-mesh",
+    "distributed-systems",
+    "nodejs",
+    "typescript"
+  ],
+  "author": "Moro",
+  "license": "MIT"
+} 

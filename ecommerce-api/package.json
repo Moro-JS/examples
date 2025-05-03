@@ -1,0 +1,59 @@
+{
+  "name": "@morojs/example-ecommerce-api",
+  "version": "1.0.0",
+  "description": "Complete e-commerce API built with MoroJS featuring products, cart, and payment processing",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "db:migrate": "node -r ts-node/register database/migrate.ts",
+    "db:seed": "node -r ts-node/register database/seed.ts",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "switch:local": "rm -rf node_modules package-lock.json && npm install file:../../MoroJS",
+    "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
+  },
+  "dependencies": {
+    "@morojs/moro": "file:../../MoroJS",
+    "zod": "^3.22.0",
+    "pg": "^8.11.0",
+    "redis": "^4.6.0",
+    "stripe": "^14.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "uuid": "^9.0.0",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.10.0",
+    "@types/bcryptjs": "^2.4.0",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/uuid": "^9.0.0",
+    "@types/multer": "^1.4.7",
+    "@types/jest": "^29.5.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "ts-node-dev": "^2.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.45.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0"
+  },
+  "keywords": [
+    "morojs",
+    "ecommerce",
+    "api",
+    "payments",
+    "stripe",
+    "shopping-cart",
+    "example"
+  ],
+  "author": "MoroJS Team",
+  "license": "MIT"
+}

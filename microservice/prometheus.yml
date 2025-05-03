@@ -1,0 +1,46 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Moro Framework Services
+  - job_name: 'user-service'
+    static_configs:
+      - targets: ['user-service:3010']
+    metrics_path: '/health'
+    scrape_interval: 30s
+
+  - job_name: 'payment-service'
+    static_configs:
+      - targets: ['payment-service:3011']
+    metrics_path: '/health'
+    scrape_interval: 30s
+
+  - job_name: 'order-service'
+    static_configs:
+      - targets: ['order-service:3012']
+    metrics_path: '/health'
+    scrape_interval: 30s
+
+  # Nginx Gateway
+  - job_name: 'nginx-gateway'
+    static_configs:
+      - targets: ['nginx:80']
+    metrics_path: '/status'
+    scrape_interval: 30s
+
+  # Consul Service Discovery (if enabled)
+  - job_name: 'consul'
+    static_configs:
+      - targets: ['consul:8500']
+    metrics_path: '/v1/status/leader'
+    scrape_interval: 60s 

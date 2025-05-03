@@ -1,0 +1,113 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moro-microservices-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # Load balancing algorithm
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+    # Health checks
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: moro-microservices.local
+    http:
+      paths:
+      # User Service routes
+      - path: /users
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 3010
+      
+      # Payment Service routes
+      - path: /payments
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 3011
+      
+      # Order Service routes
+      - path: /orders
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port:
+              number: 3012
+      
+      # Health check route (can go to any service)
+      - path: /health
+        pathType: Exact
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 3010
+---
+# Alternative: Using Istio Gateway (if using Istio service mesh)
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: moro-microservices-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - moro-microservices.local
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: moro-microservices-vs
+spec:
+  hosts:
+  - moro-microservices.local
+  gateways:
+  - moro-microservices-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /users
+    route:
+    - destination:
+        host: user-service
+        port:
+          number: 3010
+    # Circuit breaker
+    fault:
+      delay:
+        percentage:
+          value: 0.1
+        fixedDelay: 5s
+  - match:
+    - uri:
+        prefix: /payments
+    route:
+    - destination:
+        host: payment-service
+        port:
+          number: 3011
+  - match:
+    - uri:
+        prefix: /orders
+    route:
+    - destination:
+        host: order-service
+        port:
+          number: 3012 

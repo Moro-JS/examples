@@ -1,0 +1,41 @@
+{
+  "name": "feature-showcase-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Comprehensive feature showcase demonstrating advanced Moro framework capabilities",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "dev:pure": "ts-node --transpile-only src/server.ts",
+    "dev:framework": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
+    "dev:validation": "ts-node src/validation-examples.ts",
+    "dev:routing": "ts-node src/intelligent-routing-demo.ts",
+    "dev:docs": "ts-node src/api-docs-demo.ts",
+    "dev:config": "ts-node src/config-demo.ts",
+    "dev:di": "ts-node src/functional-di-demo.ts",
+    "dev:headers": "ts-node src/response-headers-test.ts",
+    "dev:logging": "ts-node -e \"import('./src/advanced-logging-demo').then(m => m.createLoggingDemoServer().listen(3001, () => console.log('Logging demo server running on http://localhost:3001')))\"",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "echo \"No tests specified\"",
+    "switch:local": "rm -rf node_modules package-lock.json && npm install file:../../MoroJS",
+    "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
+  },
+  "dependencies": {
+    "@morojs/moro": "^1.0.0",
+    "reflect-metadata": "^0.2.2",
+    "swagger-ui-dist": "^5.28.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "moro",
+    "api",
+    "typescript",
+    "demo"
+  ],
+  "author": "MoroJS Team"
+}

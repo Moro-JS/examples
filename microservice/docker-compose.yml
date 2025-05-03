@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # API Gateway / Load Balancer
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - user-service
+      - payment-service
+      - order-service
+    networks:
+      - moro-microservices
+
+  # Core Services
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3010
+      - SERVICE_NAME=user-service
+      - DISCOVERY_URL=http://consul:8500
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - moro-microservices
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3011
+      - SERVICE_NAME=payment-service
+      - USER_SERVICE_URL=http://user-service:3010
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - user-service
+    networks:
+      - moro-microservices
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3012
+      - SERVICE_NAME=order-service
+      - USER_SERVICE_URL=http://user-service:3010
+      - PAYMENT_SERVICE_URL=http://payment-service:3011
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3012/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - user-service
+      - payment-service
+    networks:
+      - moro-microservices
+
+  # Service Discovery (Optional - for demo)
+  consul:
+    image: consul:latest
+    ports:
+      - "8500:8500"
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    networks:
+      - moro-microservices
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - moro-microservices
+
+networks:
+  moro-microservices:
+    driver: bridge 
