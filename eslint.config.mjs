@@ -50,7 +50,7 @@ export default [
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/no-require-imports': 'warn', // Needed for optional deps in adapters
-      '@typescript-eslint/no-unsafe-function-type': 'warn', // TODO: Fix for v1.1.0
+              '@typescript-eslint/no-unsafe-function-type': 'warn', // Will be addressed in framework v1.1.0
       '@typescript-eslint/no-namespace': 'warn',
       
       // General rules

@@ -4,11 +4,12 @@
     "description": "MoroJS Framework Examples - Comprehensive demonstrations and tutorials",
     "private": true,
     "scripts": {
-        "setup:npm": "node scripts/setup-npm.js",
+        "setup:npm": "node scripts/switch-npm.js",
         "setup:local": "node scripts/setup-local.js",
         "update:imports": "node scripts/update-imports.js",
-        "install:all": "npm install --workspaces",
-        "install:external": "npm run install:external --workspaces",
+        "install:all": "node scripts/install-all.js",
+        "switch:npm": "node scripts/switch-npm.js",
+        "switch:local": "node scripts/switch-local.js",
         "dev:simple-api": "npm run dev -w simple-api",
         "dev:feature-showcase": "npm run dev -w feature-showcase",
         "dev:enterprise-app": "npm run dev -w enterprise-app",
@@ -18,8 +19,9 @@
         "dev:payment-service": "npm run dev -w microservice/payment-service",
         "dev:all": "concurrently \"npm run dev:simple-api\" \"npm run dev:feature-showcase\" \"npm run dev:enterprise-app\" \"npm run dev:enterprise-events\"",
         "dev:microservices": "concurrently \"npm run dev:user-service\" \"npm run dev:order-service\" \"npm run dev:payment-service\"",
-        "build:all": "npm run build --workspaces",
-        "clean:all": "npm run clean --workspaces"
+        "build:all": "node scripts/build-all.js",
+        "test:all": "node scripts/test-all.js",
+        "clean:all": "node scripts/clean-all.js"
     },
     "devDependencies": {
         "@eslint/js": "^9.18.0",
