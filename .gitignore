@@ -10,4 +10,3 @@ dist
 .DS_Store
 .prettierrc
 .cursorignore
-package-lock.json
