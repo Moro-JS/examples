@@ -21,7 +21,13 @@
         "dev:microservices": "concurrently \"npm run dev:user-service\" \"npm run dev:order-service\" \"npm run dev:payment-service\"",
         "build:all": "node scripts/build-all.js",
         "test:all": "node scripts/test-all.js",
-        "clean:all": "node scripts/clean-all.js"
+        "clean:all": "node scripts/clean-all.js",
+        "lint": "eslint . --ext .ts,.js,.mjs",
+        "lint:fix": "eslint . --ext .ts,.js,.mjs --fix",
+        "format": "prettier --write \"**/*.{ts,js,mjs,json,md}\"",
+        "format:check": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
+        "audit:security": "npm audit --audit-level moderate",
+        "check:deps": "depcheck --ignores=\"@types/*,ts-node*,typescript,concurrently\""
     },
     "devDependencies": {
         "@eslint/js": "^9.18.0",

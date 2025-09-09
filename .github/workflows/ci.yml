@@ -1,0 +1,287 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-format:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run ESLint
+        run: npx eslint . --ext .ts,.js,.mjs --max-warnings 0
+        
+      - name: Check Prettier formatting
+        run: npx prettier --check "**/*.{ts,js,mjs,json,md}"
+        
+      - name: Run lint on all examples
+        run: |
+          for dir in */; do
+            if [ -f "$dir/package.json" ] && [ -f "$dir/tsconfig.json" ]; then
+              echo "Linting $dir..."
+              cd "$dir"
+              if npm list eslint &>/dev/null || grep -q '"lint"' package.json; then
+                npm run lint || echo "Lint script not found or failed in $dir"
+              fi
+              cd ..
+            fi
+          done
+          
+          # Lint microservices
+          for service in microservice/*/; do
+            if [ -f "$service/package.json" ] && [ -f "$service/tsconfig.json" ]; then
+              echo "Linting $service..."
+              cd "$service"
+              if npm list eslint &>/dev/null || grep -q '"lint"' package.json; then
+                npm run lint || echo "Lint script not found or failed in $service"
+              fi
+              cd ../..
+            fi
+          done
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install root dependencies
+        run: npm ci
+        
+      - name: Install all example dependencies
+        run: npm run install:all
+        
+      - name: Run tests for all examples
+        run: npm run test:all
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install root dependencies
+        run: npm ci
+        
+      - name: Install all example dependencies
+        run: npm run install:all
+        
+      - name: Build all examples
+        run: |
+          echo "Building all TypeScript examples..."
+          build_errors=0
+          
+          # Build main examples
+          for dir in simple-api feature-showcase enterprise-app enterprise-events runtime-examples real-time-chat ecommerce-api mcp-server; do
+            if [ -d "$dir" ] && [ -f "$dir/package.json" ] && [ -f "$dir/tsconfig.json" ]; then
+              echo "Building $dir..."
+              cd "$dir"
+              npm run build || { echo "Build failed for $dir"; ((build_errors++)); }
+              cd ..
+            fi
+          done
+          
+          # Build microservices
+          for service in microservice/user-service microservice/order-service microservice/payment-service; do
+            if [ -d "$service" ] && [ -f "$service/package.json" ] && [ -f "$service/tsconfig.json" ]; then
+              echo "Building $service..."
+              cd "$service"
+              npm run build || { echo "Build failed for $service"; ((build_errors++)); }
+              cd ../..
+            fi
+          done
+          
+          if [ $build_errors -gt 0 ]; then
+            echo "Build completed with $build_errors errors"
+            exit 1
+          fi
+          
+          echo "All builds completed successfully!"
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install root dependencies
+        run: npm ci
+        
+      - name: Run npm audit on root
+        run: npm audit --audit-level moderate
+        
+      - name: Install all example dependencies for audit
+        run: npm run install:all
+        
+      - name: Run security audit on all examples
+        run: |
+          echo "Running security audits on all examples..."
+          audit_errors=0
+          
+          # Audit main examples
+          for dir in simple-api feature-showcase enterprise-app enterprise-events runtime-examples real-time-chat ecommerce-api mcp-server; do
+            if [ -d "$dir" ] && [ -f "$dir/package.json" ]; then
+              echo "Auditing $dir..."
+              cd "$dir"
+              npm audit --audit-level moderate || { echo "Security issues found in $dir"; ((audit_errors++)); }
+              cd ..
+            fi
+          done
+          
+          # Audit microservices
+          for service in microservice/user-service microservice/order-service microservice/payment-service; do
+            if [ -d "$service" ] && [ -f "$service/package.json" ]; then
+              echo "Auditing $service..."
+              cd "$service"
+              npm audit --audit-level moderate || { echo "Security issues found in $service"; ((audit_errors++)); }
+              cd ../..
+            fi
+          done
+          
+          if [ $audit_errors -gt 0 ]; then
+            echo "Security audit completed with issues in $audit_errors packages"
+            echo "Please review and fix security vulnerabilities"
+            exit 1
+          fi
+          
+          echo "All security audits passed!"
+          
+      - name: Check for known vulnerabilities with audit-ci
+        run: |
+          npx audit-ci --config .audit-ci.json || echo "audit-ci not configured, using npm audit results"
+
+  dependency-check:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Check for unused dependencies
+        run: |
+          echo "Checking for unused dependencies..."
+          npx depcheck --ignores="@types/*,ts-node*,typescript,concurrently" || echo "Some unused dependencies found - review recommended"
+          
+      - name: Check for outdated dependencies
+        run: |
+          echo "Checking for outdated dependencies..."
+          npm outdated || echo "Some dependencies are outdated - updates recommended"
+
+  validate-examples:
+    name: Validate Examples
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Validate package.json files
+        run: |
+          echo "Validating package.json files..."
+          find . -name "package.json" -not -path "./node_modules/*" | while read -r file; do
+            echo "Validating $file..."
+            if ! jq empty "$file" 2>/dev/null; then
+              echo "Invalid JSON in $file"
+              exit 1
+            fi
+          done
+          
+      - name: Validate TypeScript configurations
+        run: |
+          echo "Validating tsconfig.json files..."
+          find . -name "tsconfig.json" -not -path "./node_modules/*" | while read -r file; do
+            echo "Validating $file..."
+            if ! jq empty "$file" 2>/dev/null; then
+              echo "Invalid JSON in $file"
+              exit 1
+            fi
+          done
+          
+      - name: Check for required files
+        run: |
+          echo "Checking for required files in examples..."
+          missing_files=0
+          
+          for dir in simple-api feature-showcase enterprise-app enterprise-events runtime-examples real-time-chat ecommerce-api mcp-server; do
+            if [ -d "$dir" ]; then
+              echo "Checking $dir..."
+              
+              if [ ! -f "$dir/package.json" ]; then
+                echo "Missing package.json in $dir"
+                ((missing_files++))
+              fi
+              
+              if [ ! -f "$dir/tsconfig.json" ]; then
+                echo "Missing tsconfig.json in $dir"
+                ((missing_files++))
+              fi
+              
+              if [ ! -f "$dir/README.md" ]; then
+                echo "Missing README.md in $dir"
+                ((missing_files++))
+              fi
+            fi
+          done
+          
+          if [ $missing_files -gt 0 ]; then
+            echo "Found $missing_files missing required files"
+            exit 1
+          fi
+          
+          echo "All required files present!" 
