@@ -8,11 +8,11 @@ const app = createApp();
 
 // Service Discovery Setup
 const serviceRegistry = new ServiceRegistry({
-  type: process.env.DISCOVERY_TYPE as any || 'memory',
+  type: (process.env.DISCOVERY_TYPE as any) || 'memory',
   consulUrl: process.env.CONSUL_URL || 'http://consul:8500',
   kubernetesNamespace: process.env.K8S_NAMESPACE || 'default',
   healthCheckInterval: 30000,
-  tags: ['order-management', 'fulfillment', 'v1']
+  tags: ['order-management', 'fulfillment', 'v1'],
 });
 
 // Register this service
@@ -26,8 +26,8 @@ const serviceInfo = {
   metadata: {
     environment: process.env.NODE_ENV || 'development',
     startTime: new Date().toISOString(),
-    dependencies: ['user-service', 'payment-service']
-  }
+    dependencies: ['user-service', 'payment-service'],
+  },
 };
 
 // Service URLs for inter-service communication
@@ -47,7 +47,7 @@ const ORDER_STATUSES = {
   SHIPPED: 'shipped',
   DELIVERED: 'delivered',
   CANCELLED: 'cancelled',
-  REFUNDED: 'refunded'
+  REFUNDED: 'refunded',
 };
 
 // Mock inventory
@@ -56,17 +56,17 @@ const inventory = new Map([
   ['phone', { id: 'phone', name: 'Smartphone', price: 699.99, stock: 10 }],
   ['monitor', { id: 'monitor', name: '4K Monitor', price: 399.99, stock: 8 }],
   ['keyboard', { id: 'keyboard', name: 'Mechanical Keyboard', price: 129.99, stock: 15 }],
-  ['mouse', { id: 'mouse', name: 'Gaming Mouse', price: 79.99, stock: 20 }]
+  ['mouse', { id: 'mouse', name: 'Gaming Mouse', price: 79.99, stock: 20 }],
 ]);
 
 // Service health check
 app.get('/health', async (req, res) => {
   // Check dependency health
   const dependencies: any = {};
-  
+
   try {
-    const userServiceResponse = await fetch(`${USER_SERVICE_URL}/health`, { 
-      timeout: 5000 
+    const userServiceResponse = await fetch(`${USER_SERVICE_URL}/health`, {
+      timeout: 5000,
     } as any);
     dependencies.userService = userServiceResponse.ok ? 'healthy' : 'unhealthy';
   } catch {
@@ -74,8 +74,8 @@ app.get('/health', async (req, res) => {
   }
 
   try {
-    const paymentServiceResponse = await fetch(`${PAYMENT_SERVICE_URL}/health`, { 
-      timeout: 5000 
+    const paymentServiceResponse = await fetch(`${PAYMENT_SERVICE_URL}/health`, {
+      timeout: 5000,
     } as any);
     dependencies.paymentService = paymentServiceResponse.ok ? 'healthy' : 'unhealthy';
   } catch {
@@ -83,7 +83,7 @@ app.get('/health', async (req, res) => {
   }
 
   const isHealthy = Object.values(dependencies).every(status => status === 'healthy');
-  
+
   const healthStatus = {
     service: 'order-service',
     status: isHealthy ? 'healthy' : 'degraded',
@@ -92,17 +92,21 @@ app.get('/health', async (req, res) => {
     uptime: process.uptime(),
     memory: {
       used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024)
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
     },
     environment: process.env.NODE_ENV || 'development',
     dependencies,
     metrics: {
       totalOrders: orders.size,
-      pendingOrders: Array.from(orders.values()).filter((o: any) => o.status === ORDER_STATUSES.PENDING).length,
-      completedOrders: Array.from(orders.values()).filter((o: any) => o.status === ORDER_STATUSES.DELIVERED).length
-    }
+      pendingOrders: Array.from(orders.values()).filter(
+        (o: any) => o.status === ORDER_STATUSES.PENDING
+      ).length,
+      completedOrders: Array.from(orders.values()).filter(
+        (o: any) => o.status === ORDER_STATUSES.DELIVERED
+      ).length,
+    },
   };
-  
+
   res.statusCode = isHealthy ? 200 : 503;
   return healthStatus;
 });
@@ -122,31 +126,31 @@ app.get('/', (req, res) => {
       'PUT /orders/:id/status',
       'GET /inventory',
       'POST /orders/:id/cancel',
-      'GET /services'
+      'GET /services',
     ],
     dependencies: [
       { service: 'user-service', url: USER_SERVICE_URL },
-      { service: 'payment-service', url: PAYMENT_SERVICE_URL }
+      { service: 'payment-service', url: PAYMENT_SERVICE_URL },
     ],
     serviceDiscovery: {
       type: serviceRegistry.constructor.name,
       registered: true,
-      tags: serviceInfo.tags
+      tags: serviceInfo.tags,
     },
-    port: serviceInfo.port
+    port: serviceInfo.port,
   };
 });
 
 // Get inventory
 app.get('/inventory', (req, res) => {
   const inventoryList = Array.from(inventory.values());
-  
+
   return {
     success: true,
     data: inventoryList,
     total: inventoryList.length,
     service: 'order-service',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 });
 
@@ -155,7 +159,7 @@ app.get('/orders', (req, res) => {
   const orderList = Array.from(orders.values());
   const status = req.query.status as string;
   const userId = req.query.userId as string;
-  
+
   let filteredOrders = orderList;
   if (status) {
     filteredOrders = filteredOrders.filter((o: any) => o.status === status);
@@ -170,7 +174,7 @@ app.get('/orders', (req, res) => {
     total: filteredOrders.length,
     filters: { status, userId },
     service: 'order-service',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 });
 
@@ -178,33 +182,33 @@ app.get('/orders', (req, res) => {
 app.get('/orders/:id', (req, res) => {
   const orderId = parseInt(req.params.id);
   const order = orders.get(orderId);
-  
+
   if (!order) {
     res.statusCode = 404;
     return {
       success: false,
       error: 'Order not found',
-      service: 'order-service'
+      service: 'order-service',
     };
   }
-  
+
   return {
     success: true,
     data: order,
-    service: 'order-service'
+    service: 'order-service',
   };
 });
 
 // Create new order
 app.post('/orders', async (req, res) => {
   const { userId, items, shippingAddress, paymentMethod = 'stripe' } = req.body || {};
-  
+
   if (!userId || !items || !Array.isArray(items) || items.length === 0) {
     res.statusCode = 400;
     return {
       success: false,
       error: 'User ID and items are required',
-      service: 'order-service'
+      service: 'order-service',
     };
   }
 
@@ -216,15 +220,15 @@ app.post('/orders', async (req, res) => {
       return {
         success: false,
         error: 'Invalid user ID',
-        service: 'order-service'
+        service: 'order-service',
       };
     }
     const userData = await userResponse.json();
 
-         // 2. Validate and calculate order total
-     let totalAmount = 0;
-     const orderItems: any[] = [];
-    
+    // 2. Validate and calculate order total
+    let totalAmount = 0;
+    const orderItems: any[] = [];
+
     for (const item of items) {
       const product = inventory.get(item.productId);
       if (!product) {
@@ -232,7 +236,7 @@ app.post('/orders', async (req, res) => {
         return {
           success: false,
           error: `Product not found: ${item.productId}`,
-          service: 'order-service'
+          service: 'order-service',
         };
       }
 
@@ -241,19 +245,19 @@ app.post('/orders', async (req, res) => {
         return {
           success: false,
           error: `Insufficient stock for ${product.name}. Available: ${product.stock}`,
-          service: 'order-service'
+          service: 'order-service',
         };
       }
 
       const itemTotal = product.price * item.quantity;
       totalAmount += itemTotal;
-      
+
       orderItems.push({
         productId: item.productId,
         name: product.name,
         price: product.price,
         quantity: item.quantity,
-        total: itemTotal
+        total: itemTotal,
       });
 
       // Reserve inventory
@@ -274,7 +278,7 @@ app.post('/orders', async (req, res) => {
       paymentMethod,
       status: ORDER_STATUSES.PENDING,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     orders.set(orderId, order);
@@ -294,13 +298,13 @@ app.post('/orders', async (req, res) => {
           metadata: {
             orderId,
             userId,
-            description: `Order #${orderId} - ${orderItems.length} items`
-          }
-        })
+            description: `Order #${orderId} - ${orderItems.length} items`,
+          },
+        }),
       });
 
       const paymentData = await paymentResponse.json();
-      
+
       if (paymentData.success) {
         // Payment successful
         order.status = ORDER_STATUSES.CONFIRMED;
@@ -316,7 +320,7 @@ app.post('/orders', async (req, res) => {
             inventory.set(item.productId, product);
           }
         }
-        
+
         order.status = ORDER_STATUSES.CANCELLED;
         order.cancelReason = 'Payment failed';
         order.paymentError = paymentData.error || 'Unknown payment error';
@@ -330,7 +334,7 @@ app.post('/orders', async (req, res) => {
           inventory.set(item.productId, product);
         }
       }
-      
+
       order.status = ORDER_STATUSES.CANCELLED;
       order.cancelReason = 'Payment service unavailable';
       order.paymentError = error instanceof Error ? error.message : 'Payment service error';
@@ -345,23 +349,22 @@ app.post('/orders', async (req, res) => {
       userId,
       totalAmount,
       status: order.status,
-      service: 'order-service'
+      service: 'order-service',
     });
 
     res.statusCode = 201;
     return {
       success: true,
       data: order,
-      service: 'order-service'
+      service: 'order-service',
     };
-
   } catch (error) {
     res.statusCode = 500;
     return {
       success: false,
       error: 'Failed to create order',
       message: error instanceof Error ? error.message : 'Unknown error',
-      service: 'order-service'
+      service: 'order-service',
     };
   }
 });
@@ -371,13 +374,13 @@ app.put('/orders/:id/status', async (req, res) => {
   const orderId = parseInt(req.params.id);
   const { status, reason } = req.body || {};
   const order = orders.get(orderId);
-  
+
   if (!order) {
     res.statusCode = 404;
     return {
       success: false,
       error: 'Order not found',
-      service: 'order-service'
+      service: 'order-service',
     };
   }
 
@@ -387,14 +390,14 @@ app.put('/orders/:id/status', async (req, res) => {
       success: false,
       error: 'Invalid status',
       validStatuses: Object.values(ORDER_STATUSES),
-      service: 'order-service'
+      service: 'order-service',
     };
   }
 
   const previousStatus = order.status;
   order.status = status;
   order.updatedAt = new Date().toISOString();
-  
+
   if (reason) {
     order.statusReason = reason;
   }
@@ -416,14 +419,14 @@ app.put('/orders/:id/status', async (req, res) => {
     previousStatus,
     newStatus: status,
     userId: order.userId,
-    service: 'order-service'
+    service: 'order-service',
   });
 
   return {
     success: true,
     data: order,
     message: `Order status updated to ${status}`,
-    service: 'order-service'
+    service: 'order-service',
   };
 });
 
@@ -432,22 +435,26 @@ app.post('/orders/:id/cancel', async (req, res) => {
   const orderId = parseInt(req.params.id);
   const { reason = 'Customer request' } = req.body || {};
   const order = orders.get(orderId);
-  
+
   if (!order) {
     res.statusCode = 404;
     return {
       success: false,
       error: 'Order not found',
-      service: 'order-service'
+      service: 'order-service',
     };
   }
 
-  if ([ORDER_STATUSES.SHIPPED, ORDER_STATUSES.DELIVERED, ORDER_STATUSES.CANCELLED].includes(order.status)) {
+  if (
+    [ORDER_STATUSES.SHIPPED, ORDER_STATUSES.DELIVERED, ORDER_STATUSES.CANCELLED].includes(
+      order.status
+    )
+  ) {
     res.statusCode = 400;
     return {
       success: false,
       error: `Cannot cancel order with status: ${order.status}`,
-      service: 'order-service'
+      service: 'order-service',
     };
   }
 
@@ -475,8 +482,8 @@ app.post('/orders/:id/cancel', async (req, res) => {
         body: JSON.stringify({
           paymentId: order.paymentId,
           amount: order.totalAmount,
-          reason: `Order cancellation: ${reason}`
-        })
+          reason: `Order cancellation: ${reason}`,
+        }),
       });
 
       if (refundResponse.ok) {
@@ -501,14 +508,14 @@ app.post('/orders/:id/cancel', async (req, res) => {
     userId: order.userId,
     reason,
     refunded: !!order.refundId,
-    service: 'order-service'
+    service: 'order-service',
   });
 
   return {
     success: true,
     data: order,
     message: 'Order cancelled successfully',
-    service: 'order-service'
+    service: 'order-service',
   };
 });
 
@@ -521,16 +528,16 @@ app.get('/services', async (req, res) => {
       services: allServices,
       registry: {
         type: 'memory',
-        healthChecks: true
+        healthChecks: true,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   } catch (error) {
     res.statusCode = 500;
     return {
       success: false,
       error: 'Failed to retrieve services',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 });
@@ -540,10 +547,10 @@ async function startService() {
   try {
     // Register with service discovery
     await serviceRegistry.register(serviceInfo);
-    
+
     // Start the HTTP server
     app.listen(serviceInfo.port);
-    
+
     console.log(`
 Order Service (Microservice-Ready)
 =====================================
@@ -572,7 +579,6 @@ Containerized: ${!!process.env.KUBERNETES_SERVICE_HOST}
       serviceRegistry.destroy();
       process.exit(0);
     });
-    
   } catch (error) {
     console.error('Failed to start order service:', error);
     process.exit(1);
@@ -580,4 +586,4 @@ Containerized: ${!!process.env.KUBERNETES_SERVICE_HOST}
 }
 
 // Start the service
-startService(); 
+startService();

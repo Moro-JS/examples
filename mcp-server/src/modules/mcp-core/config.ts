@@ -2,20 +2,20 @@
 export const config = {
   server: {
     name: 'moro-mcp-server',
-    version: '1.0.0'
+    version: '1.0.0',
   },
   capabilities: {
     resources: true,
     tools: true,
-    prompts: true
+    prompts: true,
   },
   transport: {
     stdio: true,
-    http: true
+    http: true,
   },
   metadata: {
     description: 'Model Context Protocol server built with MoroJS',
     author: 'MoroJS Team',
-    tags: ['mcp', 'ai', 'protocol', 'morojs']
-  }
-}; 
+    tags: ['mcp', 'ai', 'protocol', 'morojs'],
+  },
+};

@@ -7,7 +7,7 @@ export default defineModule({
   name: 'health',
   version: '1.0.0',
   config,
-  routes
+  routes,
   // No sockets for health module
 });
 

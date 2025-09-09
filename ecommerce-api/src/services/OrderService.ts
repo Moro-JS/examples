@@ -56,7 +56,8 @@ export class OrderService {
 
   constructor() {
     this.db = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/ecommerce_db'
+      connectionString:
+        process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/ecommerce_db',
     });
     this.cartService = new CartService();
     this.paymentService = new PaymentService();
@@ -70,7 +71,7 @@ export class OrderService {
     try {
       // Get cart items
       const cart = await this.cartService.getCart(userId);
-      
+
       if (cart.items.length === 0) {
         throw new Error('Cart is empty');
       }
@@ -88,17 +89,20 @@ export class OrderService {
 
       // Apply coupon if provided
       if (orderData.couponCode) {
-        const couponResult = await this.db.query(`
+        const couponResult = await this.db.query(
+          `
           SELECT id, type, value, minimum_amount
           FROM coupons
           WHERE code = $1 AND active = true 
             AND (expires_at IS NULL OR expires_at > NOW())
             AND (usage_limit IS NULL OR usage_count < usage_limit)
-        `, [orderData.couponCode]);
+        `,
+          [orderData.couponCode]
+        );
 
         if (couponResult.rows.length > 0) {
           const coupon = couponResult.rows[0];
-          
+
           if (subtotal >= (coupon.minimum_amount || 0)) {
             if (coupon.type === 'percentage') {
               discount = subtotal * (coupon.value / 100);
@@ -107,11 +111,14 @@ export class OrderService {
             }
 
             // Update coupon usage
-            await this.db.query(`
+            await this.db.query(
+              `
               UPDATE coupons 
               SET usage_count = usage_count + 1 
               WHERE id = $1
-            `, [coupon.id]);
+            `,
+              [coupon.id]
+            );
           }
         }
       }
@@ -121,41 +128,39 @@ export class OrderService {
       const total = subtotal - discount + tax;
 
       // Create order
-      const orderResult = await this.db.query(`
+      const orderResult = await this.db.query(
+        `
         INSERT INTO orders (
           id, user_id, subtotal, discount, tax, total, status, 
           shipping_address, payment_status, created_at, updated_at
         )
         VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, 'pending', NOW(), NOW())
         RETURNING *
-      `, [
-        orderId,
-        userId,
-        subtotal,
-        discount,
-        tax,
-        total,
-        JSON.stringify(orderData.shippingAddress)
-      ]);
+      `,
+        [orderId, userId, subtotal, discount, tax, total, JSON.stringify(orderData.shippingAddress)]
+      );
 
       // Create order items
       const orderItems: OrderItem[] = [];
       for (const cartItem of cart.items) {
-        const orderItemResult = await this.db.query(`
+        const orderItemResult = await this.db.query(
+          `
           INSERT INTO order_items (
             id, order_id, product_id, product_name, product_price, quantity, subtotal
           )
           VALUES ($1, $2, $3, $4, $5, $6, $7)
           RETURNING *
-        `, [
-          uuidv4(),
-          orderId,
-          cartItem.productId,
-          cartItem.productName,
-          cartItem.productPrice,
-          cartItem.quantity,
-          cartItem.subtotal
-        ]);
+        `,
+          [
+            uuidv4(),
+            orderId,
+            cartItem.productId,
+            cartItem.productName,
+            cartItem.productPrice,
+            cartItem.quantity,
+            cartItem.subtotal,
+          ]
+        );
 
         orderItems.push({
           id: orderItemResult.rows[0].id,
@@ -164,15 +169,18 @@ export class OrderService {
           productName: cartItem.productName,
           productPrice: cartItem.productPrice,
           quantity: cartItem.quantity,
-          subtotal: cartItem.subtotal
+          subtotal: cartItem.subtotal,
         });
 
         // Update inventory
-        await this.db.query(`
+        await this.db.query(
+          `
           UPDATE inventory
           SET quantity = quantity - $1, updated_at = NOW()
           WHERE product_id = $2
-        `, [cartItem.quantity, cartItem.productId]);
+        `,
+          [cartItem.quantity, cartItem.productId]
+        );
       }
 
       // Process payment
@@ -182,15 +190,18 @@ export class OrderService {
           currency: 'usd',
           paymentMethodId: orderData.paymentMethodId,
           orderId: orderId,
-          description: `Order ${orderId}`
+          description: `Order ${orderId}`,
         });
 
         // Update order with payment info
-        await this.db.query(`
+        await this.db.query(
+          `
           UPDATE orders
           SET payment_id = $1, payment_status = $2, status = $3, updated_at = NOW()
           WHERE id = $4
-        `, [paymentResult.paymentId, 'succeeded', 'processing', orderId]);
+        `,
+          [paymentResult.paymentId, 'succeeded', 'processing', orderId]
+        );
 
         // Clear cart
         await this.cartService.clearCart(userId);
@@ -211,15 +222,18 @@ export class OrderService {
           paymentStatus: 'succeeded',
           items: orderItems,
           createdAt: order.created_at,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
       } catch (paymentError) {
         // Payment failed, update order status
-        await this.db.query(`
+        await this.db.query(
+          `
           UPDATE orders
           SET payment_status = 'failed', updated_at = NOW()
           WHERE id = $1
-        `, [orderId]);
+        `,
+          [orderId]
+        );
 
         await this.db.query('COMMIT');
         throw new Error(`Payment failed: ${paymentError.message}`);
@@ -230,19 +244,23 @@ export class OrderService {
     }
   }
 
-  async getUserOrders(userId: string, query: OrderQuery): Promise<{ orders: Order[]; total: number; page: number; totalPages: number }> {
+  async getUserOrders(
+    userId: string,
+    query: OrderQuery
+  ): Promise<{ orders: Order[]; total: number; page: number; totalPages: number }> {
     const offset = (query.page - 1) * query.limit;
-    
+
     let whereClause = 'WHERE o.user_id = $1';
     const queryParams: any[] = [userId];
-    
+
     if (query.status) {
       whereClause += ' AND o.status = $2';
       queryParams.push(query.status);
     }
 
     const [ordersResult, countResult] = await Promise.all([
-      this.db.query(`
+      this.db.query(
+        `
         SELECT 
           o.id, o.user_id, o.subtotal, o.discount, o.tax, o.total,
           o.status, o.shipping_address, o.payment_id, o.payment_status,
@@ -251,24 +269,32 @@ export class OrderService {
         ${whereClause}
         ORDER BY o.created_at DESC
         LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}
-      `, [...queryParams, query.limit, offset]),
-      
-      this.db.query(`
+      `,
+        [...queryParams, query.limit, offset]
+      ),
+
+      this.db.query(
+        `
         SELECT COUNT(*) as total
         FROM orders o
         ${whereClause}
-      `, queryParams)
+      `,
+        queryParams
+      ),
     ]);
 
     const orders: Order[] = [];
-    
+
     for (const orderRow of ordersResult.rows) {
       // Get order items
-      const itemsResult = await this.db.query(`
+      const itemsResult = await this.db.query(
+        `
         SELECT id, order_id, product_id, product_name, product_price, quantity, subtotal
         FROM order_items
         WHERE order_id = $1
-      `, [orderRow.id]);
+      `,
+        [orderRow.id]
+      );
 
       const items = itemsResult.rows.map((item: any) => ({
         id: item.id,
@@ -277,7 +303,7 @@ export class OrderService {
         productName: item.product_name,
         productPrice: parseFloat(item.product_price),
         quantity: item.quantity,
-        subtotal: parseFloat(item.subtotal)
+        subtotal: parseFloat(item.subtotal),
       }));
 
       orders.push({
@@ -293,7 +319,7 @@ export class OrderService {
         paymentStatus: orderRow.payment_status,
         items,
         createdAt: orderRow.created_at,
-        updatedAt: orderRow.updated_at
+        updatedAt: orderRow.updated_at,
       });
     }
 
@@ -304,19 +330,22 @@ export class OrderService {
       orders,
       total,
       page: query.page,
-      totalPages
+      totalPages,
     };
   }
 
   async getOrder(orderId: string, userId: string): Promise<Order | null> {
-    const orderResult = await this.db.query(`
+    const orderResult = await this.db.query(
+      `
       SELECT 
         o.id, o.user_id, o.subtotal, o.discount, o.tax, o.total,
         o.status, o.shipping_address, o.payment_id, o.payment_status,
         o.created_at, o.updated_at
       FROM orders o
       WHERE o.id = $1 AND o.user_id = $2
-    `, [orderId, userId]);
+    `,
+      [orderId, userId]
+    );
 
     if (orderResult.rows.length === 0) {
       return null;
@@ -325,11 +354,14 @@ export class OrderService {
     const order = orderResult.rows[0];
 
     // Get order items
-    const itemsResult = await this.db.query(`
+    const itemsResult = await this.db.query(
+      `
       SELECT id, order_id, product_id, product_name, product_price, quantity, subtotal
       FROM order_items
       WHERE order_id = $1
-    `, [orderId]);
+    `,
+      [orderId]
+    );
 
     const items = itemsResult.rows.map((item: any) => ({
       id: item.id,
@@ -338,7 +370,7 @@ export class OrderService {
       productName: item.product_name,
       productPrice: parseFloat(item.product_price),
       quantity: item.quantity,
-      subtotal: parseFloat(item.subtotal)
+      subtotal: parseFloat(item.subtotal),
     }));
 
     return {
@@ -354,15 +386,18 @@ export class OrderService {
       paymentStatus: order.payment_status,
       items,
       createdAt: order.created_at,
-      updatedAt: order.updated_at
+      updatedAt: order.updated_at,
     };
   }
 
   async updateOrderStatus(orderId: string, status: Order['status']): Promise<void> {
-    await this.db.query(`
+    await this.db.query(
+      `
       UPDATE orders
       SET status = $1, updated_at = NOW()
       WHERE id = $2
-    `, [status, orderId]);
+    `,
+      [status, orderId]
+    );
   }
-} 
+}

@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
     message: 'Hello from MoroJS on Vercel Edge!',
     runtime: 'vercel-edge',
     timestamp: new Date().toISOString(),
-    region: process.env.VERCEL_REGION || 'unknown'
+    region: process.env.VERCEL_REGION || 'unknown',
   };
 });
 
@@ -17,7 +17,7 @@ app.get('/api/health', (req, res) => {
   return {
     status: 'healthy',
     runtime: 'vercel-edge',
-    edge: true
+    edge: true,
   };
 });
 
@@ -26,7 +26,7 @@ app.post('/api/data', (req, res) => {
     received: req.body,
     runtime: 'vercel-edge',
     method: req.method,
-    headers: req.headers
+    headers: req.headers,
   };
 });
 
@@ -34,7 +34,7 @@ app.get('/api/user/:id', (req, res) => {
   return {
     userId: req.params.id,
     runtime: 'vercel-edge',
-    query: req.query
+    query: req.query,
   };
 });
 
@@ -57,4 +57,4 @@ To deploy to Vercel Edge:
     }
   }
 }
-*/ 
+*/

@@ -43,11 +43,11 @@ app.get('/test/status', (req, res) => {
 app.get('/test/headers/:method', (req, res) => {
   const method = req.params.method;
   const testUrl = `http://localhost:3010/test/${method}`;
-  
+
   res.json({
     message: `Test the ${method} endpoint`,
     testUrl,
-    instructions: `curl -I ${testUrl} to see headers`
+    instructions: `curl -I ${testUrl} to see headers`,
   });
 });
 
@@ -56,16 +56,16 @@ app.get('/test', (req, res) => {
   res.json({
     message: 'Response Headers Test Suite',
     endpoints: {
-      'json': '/test/json - JSON response with res.json()',
+      json: '/test/json - JSON response with res.json()',
       'send-text': '/test/send-text - Text response with res.send()',
       'send-json': '/test/send-json - JSON string with res.send()',
       'send-buffer': '/test/send-buffer - Buffer with res.send()',
       'manual-type': '/test/manual-type - Manual Content-Type header',
-      'redirect': '/test/redirect - Redirect test',
-      'status': '/test/status - Status chaining',
-      'headers': '/test/headers/:method - Get test instructions'
+      redirect: '/test/redirect - Redirect test',
+      status: '/test/status - Status chaining',
+      headers: '/test/headers/:method - Get test instructions',
     },
-    usage: 'Use curl -I to check headers for each endpoint'
+    usage: 'Use curl -I to check headers for each endpoint',
   });
 });
 
@@ -98,4 +98,4 @@ Expected Headers:
   `);
 });
 
-export default app; 
+export default app;

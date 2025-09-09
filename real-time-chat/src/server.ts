@@ -9,7 +9,7 @@ const app = createApp();
 let users: any[] = [];
 let rooms: any[] = [
   { id: 'general', name: 'General Chat', description: 'Main chat room' },
-  { id: 'random', name: 'Random', description: 'Random discussions' }
+  { id: 'random', name: 'Random', description: 'Random discussions' },
 ];
 let messages: any[] = [];
 
@@ -27,127 +27,145 @@ app.get('/', (req, res) => {
       'GET /test - WebSocket test client (open in browser)',
       'POST /auth/register - Simple user registration (no persistence)',
       'POST /auth/login - Simple user login (no persistence)',
-      'WebSocket /chat - Real-time chat functionality'
+      'WebSocket /chat - Real-time chat functionality',
     ],
     websocket: {
       url: 'ws://localhost:3000/chat',
-      events: ['join', 'message', 'leave']
-    }
+      events: ['join', 'message', 'leave'],
+    },
   };
 });
 
 // Simple authentication endpoints (no database)
-app.post('/auth/register', 
-  validate({
-    body: z.object({
-      username: z.string().min(3).max(20),
-      email: z.string().email(),
-      password: z.string().min(6)
-    })
-  }, async (req, res) => {
-    // Check if user already exists
-    const existingUser = users.find(u => u.email === req.body.email || u.username === req.body.username);
-    if (existingUser) {
-      res.status(400);
-      return { error: 'User already exists with this email or username' };
-    }
+app.post(
+  '/auth/register',
+  validate(
+    {
+      body: z.object({
+        username: z.string().min(3).max(20),
+        email: z.string().email(),
+        password: z.string().min(6),
+      }),
+    },
+    async (req, res) => {
+      // Check if user already exists
+      const existingUser = users.find(
+        u => u.email === req.body.email || u.username === req.body.username
+      );
+      if (existingUser) {
+        res.status(400);
+        return { error: 'User already exists with this email or username' };
+      }
 
-    // Create user (in memory)
-    const user = {
-      id: Date.now().toString(),
-      username: req.body.username,
-      email: req.body.email,
-      createdAt: new Date().toISOString()
-    };
-    
-    users.push(user);
-    
-    return { 
-      user, 
-      token: `demo-token-${user.id}`,
-      message: 'User registered successfully (demo mode - no persistence)'
-    };
-  })
+      // Create user (in memory)
+      const user = {
+        id: Date.now().toString(),
+        username: req.body.username,
+        email: req.body.email,
+        createdAt: new Date().toISOString(),
+      };
+
+      users.push(user);
+
+      return {
+        user,
+        token: `demo-token-${user.id}`,
+        message: 'User registered successfully (demo mode - no persistence)',
+      };
+    }
+  )
 );
 
-app.post('/auth/login',
-  validate({
-    body: z.object({
-      email: z.string().email(),
-      password: z.string()
-    })
-  }, async (req, res) => {
-    // Find user (in memory)
-    const user = users.find(u => u.email === req.body.email);
-    if (!user) {
-      res.status(401);
-      return { error: 'Invalid credentials' };
-    }
+app.post(
+  '/auth/login',
+  validate(
+    {
+      body: z.object({
+        email: z.string().email(),
+        password: z.string(),
+      }),
+    },
+    async (req, res) => {
+      // Find user (in memory)
+      const user = users.find(u => u.email === req.body.email);
+      if (!user) {
+        res.status(401);
+        return { error: 'Invalid credentials' };
+      }
 
-    return { 
-      user, 
-      token: `demo-token-${user.id}`,
-      message: 'Login successful (demo mode)'
-    };
-  })
+      return {
+        user,
+        token: `demo-token-${user.id}`,
+        message: 'Login successful (demo mode)',
+      };
+    }
+  )
 );
 
 // Simple WebSocket handler for testing
 app.get('/socket.io/', (req, res) => {
   console.log('🔌 WebSocket endpoint accessed via HTTP');
   res.setHeader('Content-Type', 'application/json');
-  return { 
+  return {
     message: 'WebSocket endpoint active',
-    note: 'This should be accessed via WebSocket protocol' 
+    note: 'This should be accessed via WebSocket protocol',
   };
 });
 
 // Since MoroJS WebSocket might not be working, let's add a simple message endpoint for testing
-app.post('/api/chat/join', 
-  validate({
-    body: z.object({
-      username: z.string(),
-      roomId: z.string().optional()
-    })
-  }, (req, res) => {
-    console.log(`📝 Join via HTTP:`, req.body);
-    const roomId = req.body.roomId || 'general';
-    const username = req.body.username || 'Anonymous';
-    
-    return { 
-      success: true, 
-      message: `${username} would join room ${roomId}`,
-      room: rooms.find(r => r.id === roomId) || { id: roomId, name: roomId }
-    };
-  })
+app.post(
+  '/api/chat/join',
+  validate(
+    {
+      body: z.object({
+        username: z.string(),
+        roomId: z.string().optional(),
+      }),
+    },
+    (req, res) => {
+      console.log(`📝 Join via HTTP:`, req.body);
+      const roomId = req.body.roomId || 'general';
+      const username = req.body.username || 'Anonymous';
+
+      return {
+        success: true,
+        message: `${username} would join room ${roomId}`,
+        room: rooms.find(r => r.id === roomId) || { id: roomId, name: roomId },
+      };
+    }
+  )
 );
 
-app.post('/api/chat/message', 
-  validate({
-    body: z.object({
-      username: z.string(),
-      message: z.string(),
-      roomId: z.string().optional()
-    })
-  }, (req, res) => {
-    console.log(`💬 Message via HTTP:`, req.body);
-    const roomId = req.body.roomId || 'general';
-    const username = req.body.username || 'Anonymous';
-    
-    const message = {
-      id: Date.now(),
-      content: req.body.message,
-      sender: username,
-      roomId,
-      timestamp: new Date().toISOString()
-    };
-    
-    // Store message in memory
-    messages.push(message);
-    console.log(`📨 Message stored:`, message);
-    
-    return { success: true, message: 'Message sent', data: message };
-  })
+app.post(
+  '/api/chat/message',
+  validate(
+    {
+      body: z.object({
+        username: z.string(),
+        message: z.string(),
+        roomId: z.string().optional(),
+      }),
+    },
+    (req, res) => {
+      console.log(`💬 Message via HTTP:`, req.body);
+      const roomId = req.body.roomId || 'general';
+      const username = req.body.username || 'Anonymous';
+
+      const message = {
+        id: Date.now(),
+        content: req.body.message,
+        sender: username,
+        roomId,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Store message in memory
+      messages.push(message);
+      console.log(`📨 Message stored:`, message);
+
+      return { success: true, message: 'Message sent', data: message };
+    }
+  )
 );
 
 // Try the MoroJS WebSocket API as well (might not work)
@@ -158,44 +176,44 @@ try {
     connect: (socket: any) => {
       console.log(`🔗 MoroJS WebSocket client connected: ${socket.id}`);
     },
-    
+
     disconnect: (socket: any) => {
       console.log(`❌ MoroJS WebSocket client disconnected: ${socket.id}`);
     },
-    
+
     join: (socket: any, data: any) => {
       console.log(`📝 Join event received via MoroJS WebSocket:`, data);
       const roomId = data.roomId || 'general';
       const username = data.username || 'Anonymous';
-      
+
       console.log(`👥 ${username} joined room ${roomId}`);
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         message: `Joined room ${roomId}`,
-        room: rooms.find(r => r.id === roomId) || { id: roomId, name: roomId }
+        room: rooms.find(r => r.id === roomId) || { id: roomId, name: roomId },
       };
     },
-    
+
     message: (socket: any, data: any) => {
       console.log(`💬 Message event received via MoroJS WebSocket:`, data);
       const roomId = data.roomId || 'general';
       const username = data.username || 'Anonymous';
-      
+
       const message = {
         id: Date.now(),
         content: data.message,
         sender: username,
         roomId,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
-      
+
       // Store message in memory
       messages.push(message);
       console.log(`📨 Broadcasting message to room ${roomId}:`, message);
-      
+
       return { success: true, message: 'Message sent' };
-    }
+    },
   });
   console.log('✅ MoroJS WebSocket endpoint setup successful');
 } catch (error) {
@@ -204,31 +222,35 @@ try {
 
 // Simple REST endpoints
 app.get('/rooms', (req, res) => {
-  return { 
+  return {
     rooms,
-    message: 'Available chat rooms'
+    message: 'Available chat rooms',
   };
 });
 
-app.get('/rooms/:roomId/messages',
-  validate({
-    params: z.object({
-      roomId: z.string()
-    }),
-    query: z.object({
-      limit: z.coerce.number().max(100).default(50)
-    })
-  }, async (req, res) => {
-    const roomMessages = messages
-      .filter(m => m.roomId === req.params.roomId)
-      .slice(-req.query.limit);
-    
-    return { 
-      messages: roomMessages,
-      roomId: req.params.roomId,
-      count: roomMessages.length
-    };
-  })
+app.get(
+  '/rooms/:roomId/messages',
+  validate(
+    {
+      params: z.object({
+        roomId: z.string(),
+      }),
+      query: z.object({
+        limit: z.coerce.number().max(100).default(50),
+      }),
+    },
+    async (req, res) => {
+      const roomMessages = messages
+        .filter(m => m.roomId === req.params.roomId)
+        .slice(-req.query.limit);
+
+      return {
+        messages: roomMessages,
+        roomId: req.params.roomId,
+        count: roomMessages.length,
+      };
+    }
+  )
 );
 
 // Serve Socket.IO client library locally
@@ -307,20 +329,23 @@ app.get('/test', (req, res) => {
   const html = fs.readFileSync(htmlPath, 'utf8');
   res.setHeader('Content-Type', 'text/html');
   // Allow local Socket.IO script
-  res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' ws: wss: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:");
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self' 'unsafe-inline' 'unsafe-eval' ws: wss: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:"
+  );
   res.end(html);
 });
 
 // Health check
 app.get('/health', (req, res) => {
-  return { 
-    status: 'healthy', 
+  return {
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     stats: {
       users: users.length,
       rooms: rooms.length,
-      messages: messages.length
-    }
+      messages: messages.length,
+    },
   };
 });
 
@@ -339,4 +364,4 @@ app.listen(PORT, () => {
   console.log(`  WebSocket events: join, message, leave`);
   console.log(`\n🎯 To test real-time chat: Open http://localhost:${PORT}/test in your browser!`);
   console.log(`Note: This is a simplified demo without database persistence`);
-}); 
+});

@@ -77,31 +77,35 @@ app.get('/', (req, res) => {
 export default {
   async fetch(request, env, ctx) {
     return app.getHandler()(request, env, ctx);
-  }
+  },
 };
 ```
 
 ## Runtime-Specific Features
 
 ### Node.js
+
 - Full HTTP server capabilities
 - WebSocket support
 - File system access
 - Process management
 
 ### Vercel Edge
+
 - Global edge deployment
 - Fast cold starts
 - Streaming responses
 - Geographic routing
 
 ### AWS Lambda
+
 - Auto-scaling
 - Pay-per-request
 - VPC integration
 - Event-driven architecture
 
 ### Cloudflare Workers
+
 - Global edge network
 - Instant deployment
 - KV storage integration
@@ -119,8 +123,8 @@ const app = createApp({
     type: 'vercel-edge', // 'node' | 'vercel-edge' | 'aws-lambda' | 'cloudflare-workers'
     options: {
       // Runtime-specific options
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -129,19 +133,21 @@ const app = createApp({
 ### From Node.js to Other Runtimes
 
 1. **Change the import**:
+
    ```typescript
    // From
    import { createApp } from '@morojs/moro';
-   
+
    // To (for example, Vercel Edge)
    import { createAppEdge } from '@morojs/moro';
    ```
 
 2. **Replace `listen()` with `getHandler()`**:
+
    ```typescript
    // From
    app.listen(3000);
-   
+
    // To
    export default app.getHandler();
    ```
@@ -186,4 +192,4 @@ Each example includes deployment instructions and runtime-specific configuration
 - [MoroJS Documentation](https://morojs.com)
 - [Report Issues](https://github.com/morojs/moro/issues)
 - [Community Discord](https://discord.gg/morojs)
-- [Email Support](mailto:support@morojs.com) 
+- [Email Support](mailto:support@morojs.com)

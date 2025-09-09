@@ -18,4 +18,4 @@ export interface UpdateUserRequest {
   name?: string;
   email?: string;
   role?: 'admin' | 'user' | 'moderator';
-} 
+}

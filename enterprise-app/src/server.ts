@@ -11,28 +11,40 @@ async function createEnterpriseApp() {
   const app = createApp({
     cors: true,
     compression: true,
-    helmet: true
+    helmet: true,
   });
 
   // Simulated database (in real app, use MySQLAdapter)
   const mockDatabase = {
     users: [
       { id: 1, name: 'John Doe', email: 'john@example.com', role: 'admin' },
-      { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user' }
+      { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user' },
     ],
     orders: [
       { id: 1, userId: 1, product: 'Laptop', amount: 999.99, status: 'completed' },
-      { id: 2, userId: 2, product: 'Mouse', amount: 29.99, status: 'pending' }
+      { id: 2, userId: 2, product: 'Mouse', amount: 29.99, status: 'pending' },
     ],
     todos: [
-      { id: 1, title: 'Learn MoroJS', description: 'Explore the new functional module architecture', completed: false, priority: 'high' },
-      { id: 2, title: 'Build API', description: 'Create a REST API using the new module structure', completed: false, priority: 'medium' }
-    ]
+      {
+        id: 1,
+        title: 'Learn MoroJS',
+        description: 'Explore the new functional module architecture',
+        completed: false,
+        priority: 'high',
+      },
+      {
+        id: 2,
+        title: 'Build API',
+        description: 'Create a REST API using the new module structure',
+        completed: false,
+        priority: 'medium',
+      },
+    ],
   };
 
   // Register database
   app.database(mockDatabase);
-  
+
   console.log('Database registered:', !!mockDatabase);
   console.log('Mock users:', mockDatabase.users?.length || 0);
 
@@ -48,7 +60,7 @@ async function createEnterpriseApp() {
       success: true,
       message: 'Direct route works!',
       database: !!req.database,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   });
 
@@ -65,7 +77,7 @@ async function createEnterpriseApp() {
       message: 'Enterprise API is working with NEW FUNCTIONAL MODULES!',
       timestamp: new Date().toISOString(),
       modules: ['health', 'users', 'orders', 'todos'],
-      architecture: 'functional-event-driven'
+      architecture: 'functional-event-driven',
     };
   });
 
@@ -75,7 +87,7 @@ async function createEnterpriseApp() {
       status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      architecture: 'NEW FUNCTIONAL MODULES ACTIVE'
+      architecture: 'NEW FUNCTIONAL MODULES ACTIVE',
     };
   });
 
@@ -86,17 +98,17 @@ async function createEnterpriseApp() {
       modulesLoaded: ['health', 'users', 'orders', 'todos'],
       expectedRoutes: [
         '/api/v1.0.0/health/',
-        '/api/v1.0.0/users/', 
+        '/api/v1.0.0/users/',
         '/api/v1.0.0/orders/',
-        '/api/v1.0.0/todos/'
+        '/api/v1.0.0/todos/',
       ],
       changes: [
         'Removed decorators (@Controller, @Route, @Injectable)',
         'Added defineModule() functional API',
         'Separated routes.ts and sockets.ts',
         'Converted .model.ts to types.ts',
-        'Pure actions.ts for business logic'
-      ]
+        'Pure actions.ts for business logic',
+      ],
     };
   });
 
@@ -134,11 +146,10 @@ async function bootstrap() {
       console.log('🏢 Enterprise app shutting down gracefully...');
       process.exit(0);
     });
-
   } catch (error) {
     console.error('❌ Failed to start enterprise application:', error);
     process.exit(1);
   }
 }
 
-bootstrap(); 
+bootstrap();

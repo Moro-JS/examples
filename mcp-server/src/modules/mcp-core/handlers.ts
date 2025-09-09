@@ -30,10 +30,14 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
             properties: {
               title: { type: 'string', description: 'Task title' },
               description: { type: 'string', description: 'Task description (optional)' },
-              priority: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Task priority' }
+              priority: {
+                type: 'string',
+                enum: ['low', 'medium', 'high'],
+                description: 'Task priority',
+              },
             },
-            required: ['title']
-          }
+            required: ['title'],
+          },
         },
         {
           name: 'list-tasks',
@@ -42,9 +46,13 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
             type: 'object',
             properties: {
               completed: { type: 'boolean', description: 'Filter by completion status (optional)' },
-              priority: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Filter by priority (optional)' }
-            }
-          }
+              priority: {
+                type: 'string',
+                enum: ['low', 'medium', 'high'],
+                description: 'Filter by priority (optional)',
+              },
+            },
+          },
         },
         {
           name: 'update-task',
@@ -56,10 +64,14 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
               title: { type: 'string', description: 'New title (optional)' },
               description: { type: 'string', description: 'New description (optional)' },
               completed: { type: 'boolean', description: 'Completion status (optional)' },
-              priority: { type: 'string', enum: ['low', 'medium', 'high'], description: 'New priority (optional)' }
+              priority: {
+                type: 'string',
+                enum: ['low', 'medium', 'high'],
+                description: 'New priority (optional)',
+              },
             },
-            required: ['id']
-          }
+            required: ['id'],
+          },
         },
         {
           name: 'delete-task',
@@ -67,10 +79,10 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
           inputSchema: {
             type: 'object',
             properties: {
-              id: { type: 'string', description: 'Task ID to delete' }
+              id: { type: 'string', description: 'Task ID to delete' },
             },
-            required: ['id']
-          }
+            required: ['id'],
+          },
         },
         // Weather Tools
         {
@@ -80,11 +92,15 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
             type: 'object',
             properties: {
               location: { type: 'string', description: 'City name or location' },
-              units: { type: 'string', enum: ['celsius', 'fahrenheit'], description: 'Temperature units' },
-              includeForecast: { type: 'boolean', description: 'Include 5-day forecast' }
+              units: {
+                type: 'string',
+                enum: ['celsius', 'fahrenheit'],
+                description: 'Temperature units',
+              },
+              includeForecast: { type: 'boolean', description: 'Include 5-day forecast' },
             },
-            required: ['location']
-          }
+            required: ['location'],
+          },
         },
         // System Tools
         {
@@ -93,17 +109,21 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
           inputSchema: {
             type: 'object',
             properties: {
-              command: { type: 'string', enum: ['memory', 'uptime', 'load', 'cpu', 'all'], description: 'Type of info to retrieve' }
-            }
-          }
-        }
-      ]
+              command: {
+                type: 'string',
+                enum: ['memory', 'uptime', 'load', 'cpu', 'all'],
+                description: 'Type of info to retrieve',
+              },
+            },
+          },
+        },
+      ],
     };
   });
 
-  mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
+  mcpServer.setRequestHandler(CallToolRequestSchema, async request => {
     const { name, arguments: args } = request.params;
-    
+
     if (!args) {
       throw new Error('Tool arguments are required');
     }
@@ -112,61 +132,85 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
       switch (name) {
         // Task Tools
         case 'create-task':
-          const newTask = await taskActions.createTask({
-            title: args.title as string,
-            description: (args.description as string) || '',
-            priority: (args.priority as 'low' | 'medium' | 'high') || 'medium'
-          }, database, events);
+          const newTask = await taskActions.createTask(
+            {
+              title: args.title as string,
+              description: (args.description as string) || '',
+              priority: (args.priority as 'low' | 'medium' | 'high') || 'medium',
+            },
+            database,
+            events
+          );
           return {
-            content: [{ type: 'text', text: `Created task: ${newTask.title} (ID: ${newTask.id})` }]
+            content: [{ type: 'text', text: `Created task: ${newTask.title} (ID: ${newTask.id})` }],
           };
 
         case 'list-tasks':
           const filters = {
             completed: args.completed as boolean | undefined,
             priority: args.priority as 'low' | 'medium' | 'high' | undefined,
-            limit: (args.limit as number) || 10
+            limit: (args.limit as number) || 10,
           };
           const tasks = await taskActions.getTasksWithFilters(filters, database);
           return {
-            content: [{ type: 'text', text: JSON.stringify(tasks, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(tasks, null, 2) }],
           };
 
         case 'update-task':
-          const updatedTask = await taskActions.updateTask(args.id as string, {
-            title: args.title as string | undefined,
-            description: args.description as string | undefined,
-            completed: args.completed as boolean | undefined,
-            priority: args.priority as 'low' | 'medium' | 'high' | undefined
-          }, database, events);
+          const updatedTask = await taskActions.updateTask(
+            args.id as string,
+            {
+              title: args.title as string | undefined,
+              description: args.description as string | undefined,
+              completed: args.completed as boolean | undefined,
+              priority: args.priority as 'low' | 'medium' | 'high' | undefined,
+            },
+            database,
+            events
+          );
           return {
-            content: [{
-              type: 'text',
-              text: updatedTask ? `Updated task: ${updatedTask.title}` : `Task with ID ${args.id as string} not found`
-            }]
+            content: [
+              {
+                type: 'text',
+                text: updatedTask
+                  ? `Updated task: ${updatedTask.title}`
+                  : `Task with ID ${args.id as string} not found`,
+              },
+            ],
           };
 
         case 'delete-task':
           const deleted = await taskActions.deleteTask(args.id as string, database, events);
           return {
-            content: [{
-              type: 'text',
-              text: deleted ? `Deleted task with ID: ${args.id as string}` : `Task with ID ${args.id as string} not found`
-            }]
+            content: [
+              {
+                type: 'text',
+                text: deleted
+                  ? `Deleted task with ID: ${args.id as string}`
+                  : `Task with ID ${args.id as string} not found`,
+              },
+            ],
           };
 
         // Weather Tools
         case 'get-weather':
-          const weather = await weatherActions.getWeather({
-            location: args.location as string,
-            units: (args.units as 'celsius' | 'fahrenheit') || 'celsius',
-            includeForecast: (args.includeForecast as boolean) !== false
-          }, database);
+          const weather = await weatherActions.getWeather(
+            {
+              location: args.location as string,
+              units: (args.units as 'celsius' | 'fahrenheit') || 'celsius',
+              includeForecast: (args.includeForecast as boolean) !== false,
+            },
+            database
+          );
           return {
-            content: [{
-              type: 'text',
-              text: weather ? JSON.stringify(weather, null, 2) : `Weather data not available for: ${args.location as string}`
-            }]
+            content: [
+              {
+                type: 'text',
+                text: weather
+                  ? JSON.stringify(weather, null, 2)
+                  : `Weather data not available for: ${args.location as string}`,
+              },
+            ],
           };
 
         // System Tools
@@ -191,7 +235,7 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
               break;
           }
           return {
-            content: [{ type: 'text', text: JSON.stringify(systemInfo, null, 2) }]
+            content: [{ type: 'text', text: JSON.stringify(systemInfo, null, 2) }],
           };
 
         default:
@@ -199,11 +243,13 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
       }
     } catch (error) {
       return {
-        content: [{
-          type: 'text',
-          text: `Error executing tool ${name}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        }],
-        isError: true
+        content: [
+          {
+            type: 'text',
+            text: `Error executing tool ${name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          },
+        ],
+        isError: true,
       };
     }
   });
@@ -217,39 +263,39 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
           uri: 'tasks://all',
           name: 'All Tasks',
           description: 'Complete list of all tasks in the system',
-          mimeType: 'application/json'
+          mimeType: 'application/json',
         },
         {
           uri: 'tasks://pending',
           name: 'Pending Tasks',
           description: 'List of uncompleted tasks',
-          mimeType: 'application/json'
+          mimeType: 'application/json',
         },
         {
           uri: 'tasks://completed',
           name: 'Completed Tasks',
           description: 'List of completed tasks',
-          mimeType: 'application/json'
+          mimeType: 'application/json',
         },
         // Weather Resources
         {
           uri: 'weather://locations',
           name: 'Available Weather Locations',
           description: 'List of cities with available weather data',
-          mimeType: 'application/json'
+          mimeType: 'application/json',
         },
         // System Resources
         {
           uri: 'system://info',
           name: 'System Information',
           description: 'Current system status and information',
-          mimeType: 'application/json'
-        }
-      ]
+          mimeType: 'application/json',
+        },
+      ],
     };
   });
 
-  mcpServer.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+  mcpServer.setRequestHandler(ReadResourceRequestSchema, async request => {
     const { uri } = request.params;
 
     try {
@@ -258,40 +304,52 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
         case 'tasks://all':
           const allTasks = await taskActions.getAllTasks(database);
           return {
-            contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(allTasks, null, 2) }]
+            contents: [
+              { uri, mimeType: 'application/json', text: JSON.stringify(allTasks, null, 2) },
+            ],
           };
 
         case 'tasks://pending':
           const pendingTasks = await taskActions.getPendingTasks(database);
           return {
-            contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(pendingTasks, null, 2) }]
+            contents: [
+              { uri, mimeType: 'application/json', text: JSON.stringify(pendingTasks, null, 2) },
+            ],
           };
 
         case 'tasks://completed':
           const completedTasks = await taskActions.getCompletedTasks(database);
           return {
-            contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(completedTasks, null, 2) }]
+            contents: [
+              { uri, mimeType: 'application/json', text: JSON.stringify(completedTasks, null, 2) },
+            ],
           };
 
         // Weather Resources
         case 'weather://locations':
           const locations = await weatherActions.getAvailableLocations(database);
           return {
-            contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(locations, null, 2) }]
+            contents: [
+              { uri, mimeType: 'application/json', text: JSON.stringify(locations, null, 2) },
+            ],
           };
 
         // System Resources
         case 'system://info':
           const sysInfo = await systemActions.getSystemInfo(database);
           return {
-            contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(sysInfo, null, 2) }]
+            contents: [
+              { uri, mimeType: 'application/json', text: JSON.stringify(sysInfo, null, 2) },
+            ],
           };
 
         default:
           throw new Error(`Unknown resource: ${uri}`);
       }
     } catch (error) {
-      throw new Error(`Error reading resource ${uri}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Error reading resource ${uri}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   });
 
@@ -306,9 +364,9 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
             {
               name: 'focus',
               description: 'Focus area: "priority", "completion", or "overview"',
-              required: false
-            }
-          ]
+              required: false,
+            },
+          ],
         },
         {
           name: 'weather-advice',
@@ -317,14 +375,14 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
             {
               name: 'location',
               description: 'City or location name',
-              required: true
+              required: true,
             },
             {
               name: 'activity',
               description: 'Planned activity (e.g., "work", "outdoor", "travel")',
-              required: false
-            }
-          ]
+              required: false,
+            },
+          ],
         },
         {
           name: 'system-analysis',
@@ -333,15 +391,15 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
             {
               name: 'focus',
               description: 'Analysis focus: "performance", "memory", or "general"',
-              required: false
-            }
-          ]
-        }
-      ]
+              required: false,
+            },
+          ],
+        },
+      ],
     };
   });
 
-  mcpServer.setRequestHandler(GetPromptRequestSchema, async (request) => {
+  mcpServer.setRequestHandler(GetPromptRequestSchema, async request => {
     const { name, arguments: args } = request.params;
 
     try {
@@ -356,59 +414,67 @@ export function setupMCPHandlers(mcpServer: Server, context: { database: any; ev
             priorities: {
               high: (await taskActions.getTasksByPriority('high', database)).length,
               medium: (await taskActions.getTasksByPriority('medium', database)).length,
-              low: (await taskActions.getTasksByPriority('low', database)).length
-            }
+              low: (await taskActions.getTasksByPriority('low', database)).length,
+            },
           };
 
           return {
-            messages: [{
-              role: 'user',
-              content: {
-                type: 'text',
-                text: `Please analyze the following task data with focus on "${focus}":\n\n${JSON.stringify(taskData, null, 2)}\n\nProvide insights and recommendations for task management.`
-              }
-            }]
+            messages: [
+              {
+                role: 'user',
+                content: {
+                  type: 'text',
+                  text: `Please analyze the following task data with focus on "${focus}":\n\n${JSON.stringify(taskData, null, 2)}\n\nProvide insights and recommendations for task management.`,
+                },
+              },
+            ],
           };
 
         case 'weather-advice':
           const location = args?.location;
           const activity = args?.activity || 'general';
-          
+
           if (!location) {
             throw new Error('Location is required for weather advice');
           }
 
           const weather = await weatherActions.getWeather({ location }, database);
-          
+
           return {
-            messages: [{
-              role: 'user',
-              content: {
-                type: 'text',
-                text: `Based on the weather data for ${location} and planned activity "${activity}":\n\n${JSON.stringify(weather, null, 2)}\n\nProvide practical advice for clothing, activities, and any weather-related precautions.`
-              }
-            }]
+            messages: [
+              {
+                role: 'user',
+                content: {
+                  type: 'text',
+                  text: `Based on the weather data for ${location} and planned activity "${activity}":\n\n${JSON.stringify(weather, null, 2)}\n\nProvide practical advice for clothing, activities, and any weather-related precautions.`,
+                },
+              },
+            ],
           };
 
         case 'system-analysis':
           const analysisFocus = args?.focus || 'general';
           const systemInfo = await systemActions.getSystemInfo(database);
-          
+
           return {
-            messages: [{
-              role: 'user',
-              content: {
-                type: 'text',
-                text: `Analyze the following system information with focus on "${analysisFocus}":\n\n${JSON.stringify(systemInfo, null, 2)}\n\nProvide performance insights, potential issues, and optimization recommendations.`
-              }
-            }]
+            messages: [
+              {
+                role: 'user',
+                content: {
+                  type: 'text',
+                  text: `Analyze the following system information with focus on "${analysisFocus}":\n\n${JSON.stringify(systemInfo, null, 2)}\n\nProvide performance insights, potential issues, and optimization recommendations.`,
+                },
+              },
+            ],
           };
 
         default:
           throw new Error(`Unknown prompt: ${name}`);
       }
     } catch (error) {
-      throw new Error(`Error generating prompt ${name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Error generating prompt ${name}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   });
-} 
+}

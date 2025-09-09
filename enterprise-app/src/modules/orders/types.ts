@@ -27,4 +27,4 @@ export interface CreateOrderRequest {
 export interface UpdateOrderRequest {
   status?: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   items?: OrderItem[];
-} 
+}

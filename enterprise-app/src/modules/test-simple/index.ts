@@ -10,7 +10,7 @@ export default defineModule({
       path: '/simple',
       handler: async (req: any, res: any) => {
         return { message: 'Simple test module working!', timestamp: new Date() };
-      }
-    }
-  ]
-}); 
+      },
+    },
+  ],
+});

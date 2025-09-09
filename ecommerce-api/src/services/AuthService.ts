@@ -25,18 +25,18 @@ export class AuthService {
 
   constructor() {
     this.db = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/ecommerce_db'
+      connectionString:
+        process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/ecommerce_db',
     });
-    
+
     this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
   }
 
   async register(userData: CreateUserData): Promise<User> {
     // Check if user already exists
-    const existingUser = await this.db.query(
-      'SELECT id FROM users WHERE email = $1',
-      [userData.email]
-    );
+    const existingUser = await this.db.query('SELECT id FROM users WHERE email = $1', [
+      userData.email,
+    ]);
 
     if (existingUser.rows.length > 0) {
       throw new Error('User already exists with this email');
@@ -48,11 +48,14 @@ export class AuthService {
 
     // Create user
     const userId = uuidv4();
-    const result = await this.db.query(`
+    const result = await this.db.query(
+      `
       INSERT INTO users (id, email, first_name, last_name, password_hash, role, created_at)
       VALUES ($1, $2, $3, $4, $5, 'customer', NOW())
       RETURNING id, email, first_name, last_name, role, created_at
-    `, [userId, userData.email, userData.firstName, userData.lastName, hashedPassword]);
+    `,
+      [userId, userData.email, userData.firstName, userData.lastName, hashedPassword]
+    );
 
     return {
       id: result.rows[0].id,
@@ -60,7 +63,7 @@ export class AuthService {
       firstName: result.rows[0].first_name,
       lastName: result.rows[0].last_name,
       role: result.rows[0].role,
-      createdAt: result.rows[0].created_at
+      createdAt: result.rows[0].created_at,
     };
   }
 
@@ -89,7 +92,7 @@ export class AuthService {
       firstName: user.first_name,
       lastName: user.last_name,
       role: user.role,
-      createdAt: user.created_at
+      createdAt: user.created_at,
     };
   }
 
@@ -122,7 +125,7 @@ export class AuthService {
       firstName: result.rows[0].first_name,
       lastName: result.rows[0].last_name,
       role: result.rows[0].role,
-      createdAt: result.rows[0].created_at
+      createdAt: result.rows[0].created_at,
     };
   }
 
@@ -134,15 +137,15 @@ export class AuthService {
     }
 
     const token = authHeader.substring(7);
-    
+
     try {
       const { userId } = this.verifyToken(token);
       const user = await this.getUserById(userId);
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       context.user = user;
       await next();
     } catch (error) {
@@ -162,4 +165,4 @@ export class AuthService {
 
     await next();
   };
-} 
+}

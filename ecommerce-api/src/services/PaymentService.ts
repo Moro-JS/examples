@@ -24,7 +24,7 @@ export class PaymentService {
     }
 
     this.stripe = new Stripe(secretKey, {
-      apiVersion: '2023-10-16'
+      apiVersion: '2023-10-16',
     });
   }
 
@@ -37,26 +37,26 @@ export class PaymentService {
         payment_method: paymentData.paymentMethodId,
         description: paymentData.description,
         metadata: {
-          orderId: paymentData.orderId
+          orderId: paymentData.orderId,
         },
         confirm: true,
         return_url: `${process.env.FRONTEND_URL}/orders/${paymentData.orderId}`,
         automatic_payment_methods: {
           enabled: true,
-          allow_redirects: 'never'
-        }
+          allow_redirects: 'never',
+        },
       });
 
       if (paymentIntent.status === 'succeeded') {
         return {
           paymentId: paymentIntent.id,
-          status: 'succeeded'
+          status: 'succeeded',
         };
       } else if (paymentIntent.status === 'requires_action') {
         return {
           paymentId: paymentIntent.id,
           status: 'pending',
-          clientSecret: paymentIntent.client_secret || undefined
+          clientSecret: paymentIntent.client_secret || undefined,
         };
       } else {
         throw new Error(`Payment failed with status: ${paymentIntent.status}`);
@@ -74,11 +74,7 @@ export class PaymentService {
     }
 
     try {
-      const event = this.stripe.webhooks.constructEvent(
-        body,
-        signature,
-        webhookSecret
-      );
+      const event = this.stripe.webhooks.constructEvent(body, signature, webhookSecret);
 
       console.log('Received Stripe webhook:', event.type);
 
@@ -109,11 +105,11 @@ export class PaymentService {
     }
 
     console.log(`Payment succeeded for order: ${orderId}`);
-    
+
     // Here you would typically update the order status in your database
     // Since we don't have the database connection here, we'll emit an event
     // or call the OrderService directly in a real implementation
-    
+
     // Example of what you might do:
     // await this.orderService.updateOrderPaymentStatus(orderId, 'succeeded');
   }
@@ -126,14 +122,14 @@ export class PaymentService {
     }
 
     console.log(`Payment failed for order: ${orderId}`);
-    
+
     // Update order status to reflect payment failure
     // await this.orderService.updateOrderPaymentStatus(orderId, 'failed');
   }
 
   private async handleChargeDispute(dispute: Stripe.Dispute): Promise<void> {
     console.log(`Charge dispute created: ${dispute.id}`);
-    
+
     // Handle dispute logic here
     // You might want to:
     // - Notify admin team
@@ -145,7 +141,7 @@ export class PaymentService {
     try {
       const refund = await this.stripe.refunds.create({
         payment_intent: paymentIntentId,
-        amount: amount // If not provided, refunds the full amount
+        amount: amount, // If not provided, refunds the full amount
       });
 
       return refund;
@@ -169,7 +165,7 @@ export class PaymentService {
       return await this.stripe.setupIntents.create({
         customer: customerId,
         payment_method_types: ['card'],
-        usage: 'off_session'
+        usage: 'off_session',
       });
     } catch (error: any) {
       console.error('Setup intent creation error:', error);
@@ -181,11 +177,11 @@ export class PaymentService {
     try {
       return await this.stripe.customers.create({
         email,
-        name
+        name,
       });
     } catch (error: any) {
       console.error('Customer creation error:', error);
       throw new Error(`Customer creation failed: ${error.message}`);
     }
   }
-} 
+}

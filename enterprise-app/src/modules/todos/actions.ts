@@ -11,9 +11,13 @@ export async function getTodoById(id: number, database: any): Promise<Todo | nul
   return todos.find((todo: Todo) => todo.id === id) || null;
 }
 
-export async function createTodo(data: CreateTodoRequest, database: any, events: any): Promise<Todo> {
+export async function createTodo(
+  data: CreateTodoRequest,
+  database: any,
+  events: any
+): Promise<Todo> {
   const todos = database.todos || [];
-  
+
   const newTodo: Todo = {
     id: Math.max(...todos.map((t: Todo) => t.id), 0) + 1,
     title: data.title,
@@ -22,21 +26,26 @@ export async function createTodo(data: CreateTodoRequest, database: any, events:
     due_date: data.due_date ? new Date(data.due_date) : undefined,
     completed: false,
     created_at: new Date(),
-    updated_at: new Date()
+    updated_at: new Date(),
   };
 
   todos.push(newTodo);
-  
+
   // Intentional event emission
   await events.emit('todo.created', { todo: newTodo });
-  
+
   return newTodo;
 }
 
-export async function updateTodo(id: number, data: UpdateTodoRequest, database: any, events: any): Promise<Todo | null> {
+export async function updateTodo(
+  id: number,
+  data: UpdateTodoRequest,
+  database: any,
+  events: any
+): Promise<Todo | null> {
   const todos = database.todos || [];
   const todoIndex = todos.findIndex((todo: Todo) => todo.id === id);
-  
+
   if (todoIndex === -1) {
     return null;
   }
@@ -56,27 +65,27 @@ export async function updateTodo(id: number, data: UpdateTodoRequest, database: 
 
   updates.updated_at = new Date();
   todos[todoIndex] = { ...todos[todoIndex], ...updates };
-  
+
   // Intentional event emission
   await events.emit('todo.updated', { todo: todos[todoIndex], changes: updates });
-  
+
   return todos[todoIndex];
 }
 
 export async function deleteTodo(id: number, database: any, events: any): Promise<boolean> {
   const todos = database.todos || [];
   const todoIndex = todos.findIndex((todo: Todo) => todo.id === id);
-  
+
   if (todoIndex === -1) {
     return false;
   }
 
   const todo = todos[todoIndex];
   todos.splice(todoIndex, 1);
-  
+
   // Intentional event emission
   await events.emit('todo.deleted', { todoId: id });
-  
+
   return true;
 }
 
@@ -93,4 +102,4 @@ export async function getCompletedTodos(database: any): Promise<Todo[]> {
 export async function getPendingTodos(database: any): Promise<Todo[]> {
   const todos = database.todos || [];
   return todos.filter((todo: Todo) => todo.completed === false);
-} 
+}

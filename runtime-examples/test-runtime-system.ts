@@ -30,12 +30,18 @@ console.log('   Runtime type:', workerApp.getRuntimeType());
 
 // Test route definition works the same across all runtimes
 [nodeApp, nodeApp2, edgeApp, lambdaApp, workerApp].forEach((app, index) => {
-  const runtimeNames = ['Node.js', 'Node.js (explicit)', 'Vercel Edge', 'AWS Lambda', 'Cloudflare Workers'];
-  
+  const runtimeNames = [
+    'Node.js',
+    'Node.js (explicit)',
+    'Vercel Edge',
+    'AWS Lambda',
+    'Cloudflare Workers',
+  ];
+
   app.get('/test', (req, res) => {
     return { message: `Hello from ${runtimeNames[index]}!` };
   });
-  
+
   app.post('/echo', (req, res) => {
     return { echo: req.body, runtime: app.getRuntimeType() };
   });
@@ -78,7 +84,7 @@ try {
 
 try {
   edgeApp.listen(3000, () => {});
-  console.log('❌ Vercel Edge listen() should have failed but didn\'t');
+  console.log("❌ Vercel Edge listen() should have failed but didn't");
 } catch (error) {
   console.log('✅ Vercel Edge listen() correctly throws error:', (error as Error).message);
 }
@@ -90,4 +96,4 @@ console.log('- ✅ Compatibility with standard Node.js code');
 console.log('- ✅ Runtime-specific app creation functions');
 console.log('- ✅ Same API across all runtimes');
 console.log('- ✅ Proper error handling for runtime-specific methods');
-console.log('- ✅ Handler creation for serverless runtimes'); 
+console.log('- ✅ Handler creation for serverless runtimes');

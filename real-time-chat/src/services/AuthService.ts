@@ -22,9 +22,10 @@ export class AuthService {
 
   constructor() {
     this.db = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/chat_app'
+      connectionString:
+        process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/chat_app',
     });
-    
+
     this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
   }
 
@@ -45,17 +46,20 @@ export class AuthService {
 
     // Create user
     const userId = uuidv4();
-    const result = await this.db.query(`
+    const result = await this.db.query(
+      `
       INSERT INTO users (id, username, email, password_hash, created_at)
       VALUES ($1, $2, $3, $4, NOW())
       RETURNING id, username, email, created_at
-    `, [userId, userData.username, userData.email, hashedPassword]);
+    `,
+      [userId, userData.username, userData.email, hashedPassword]
+    );
 
     return {
       id: result.rows[0].id,
       username: result.rows[0].username,
       email: result.rows[0].email,
-      createdAt: result.rows[0].created_at
+      createdAt: result.rows[0].created_at,
     };
   }
 
@@ -82,7 +86,7 @@ export class AuthService {
       id: user.id,
       username: user.username,
       email: user.email,
-      createdAt: user.created_at
+      createdAt: user.created_at,
     };
   }
 
@@ -113,7 +117,7 @@ export class AuthService {
       id: result.rows[0].id,
       username: result.rows[0].username,
       email: result.rows[0].email,
-      createdAt: result.rows[0].created_at
+      createdAt: result.rows[0].created_at,
     };
   }
 
@@ -125,15 +129,15 @@ export class AuthService {
     }
 
     const token = authHeader.substring(7);
-    
+
     try {
       const { userId } = this.verifyToken(token);
       const user = await this.getUserById(userId);
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       context.user = user;
       await next();
     } catch (error) {
@@ -145,7 +149,7 @@ export class AuthService {
   authenticateWS = async (context: any, next: any) => {
     // For WebSocket, we'll get the token from query params or headers
     const token = context.query?.token || context.headers?.authorization?.substring(7);
-    
+
     if (!token) {
       throw new Error('Authentication required');
     }
@@ -153,15 +157,15 @@ export class AuthService {
     try {
       const { userId } = this.verifyToken(token);
       const user = await this.getUserById(userId);
-      
+
       if (!user) {
         throw new Error('User not found');
       }
-      
+
       context.user = user;
       await next();
     } catch (error) {
       throw new Error('Invalid authentication token');
     }
   };
-} 
+}

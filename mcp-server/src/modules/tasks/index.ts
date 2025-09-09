@@ -7,10 +7,10 @@ export default defineModule({
   name: 'tasks',
   version: '1.0.0',
   config,
-  routes
+  routes,
 });
 
 // Re-export types and actions for direct usage
 export * from './types';
 export * from './actions';
-export * from './schemas'; 
+export * from './schemas';

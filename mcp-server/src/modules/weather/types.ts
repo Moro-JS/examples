@@ -26,4 +26,4 @@ export interface WeatherLocation {
   key: string;
   region: string;
   country: string;
-} 
+}

@@ -1,76 +1,82 @@
 // Enterprise Cache Demo - Real Caching with Redis, CDN, and Strategies
 import { createApp, builtInMiddleware } from '@morojs/moro';
-import { 
-  RedisCacheAdapter, 
-  MemoryCacheAdapter, 
-  FileCacheAdapter 
+import {
+  RedisCacheAdapter,
+  MemoryCacheAdapter,
+  FileCacheAdapter,
 } from '../../../moro/src/core/middleware/built-in/cache-adapters';
 import {
   CloudflareCDNAdapter,
-  CloudFrontCDNAdapter
+  CloudFrontCDNAdapter,
 } from '../../../moro/src/core/middleware/built-in/cdn-adapters';
 
 const app = createApp();
 
 // Enterprise-grade caching configuration
-app.use(builtInMiddleware.advancedCache({
-  // Storage options - Use Redis for production, memory for demo
-  storage: process.env.REDIS_URL ? 'redis' : 'memory',
-  storageOptions: process.env.REDIS_URL ? {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD,
-    keyPrefix: 'moro:demo:'
-  } : undefined,
-  
-  // Cache strategies for different routes
-  strategies: {
-    // API responses - short cache
-    '^/api/': {
-      key: (req) => `api:${req.path}:${JSON.stringify(req.query)}`,
-      ttl: 300, // 5 minutes
-      condition: (req, res) => req.method === 'GET'
+app.use(
+  builtInMiddleware.advancedCache({
+    // Storage options - Use Redis for production, memory for demo
+    storage: process.env.REDIS_URL ? 'redis' : 'memory',
+    storageOptions: process.env.REDIS_URL
+      ? {
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
+          password: process.env.REDIS_PASSWORD,
+          keyPrefix: 'moro:demo:',
+        }
+      : undefined,
+
+    // Cache strategies for different routes
+    strategies: {
+      // API responses - short cache
+      '^/api/': {
+        key: req => `api:${req.path}:${JSON.stringify(req.query)}`,
+        ttl: 300, // 5 minutes
+        condition: (req, res) => req.method === 'GET',
+      },
+
+      // User profiles - medium cache with user-specific keys
+      '^/users/\\d+': {
+        key: req => `user:${req.params.id}:${req.headers['accept-language'] || 'en'}`,
+        ttl: 1800, // 30 minutes
+        condition: (req, res) => !req.headers.authorization?.includes('admin'),
+      },
+
+      // Static content - long cache
+      '^/content/': {
+        key: req => `content:${req.path}`,
+        ttl: 86400, // 24 hours
+        invalidateOn: ['content-update'],
+      },
+
+      // Analytics data - very short cache
+      '^/analytics/': {
+        key: req => `analytics:${req.path}:${Math.floor(Date.now() / 60000)}`, // Minute-based key
+        ttl: 60, // 1 minute
+        condition: (req, res) => !req.query.realtime,
+      },
     },
-    
-    // User profiles - medium cache with user-specific keys
-    '^/users/\\d+': {
-      key: (req) => `user:${req.params.id}:${req.headers['accept-language'] || 'en'}`,
-      ttl: 1800, // 30 minutes
-      condition: (req, res) => !req.headers.authorization?.includes('admin')
-    },
-    
-    // Static content - long cache
-    '^/content/': {
-      key: (req) => `content:${req.path}`,
-      ttl: 86400, // 24 hours
-      invalidateOn: ['content-update']
-    },
-    
-    // Analytics data - very short cache
-    '^/analytics/': {
-      key: (req) => `analytics:${req.path}:${Math.floor(Date.now() / 60000)}`, // Minute-based key
-      ttl: 60, // 1 minute
-      condition: (req, res) => !req.query.realtime
-    }
-  },
-  
-  // Default TTL for unconfigured routes
-  defaultTtl: 3600,
-  keyPrefix: 'moro:enterprise:',
-  
-  // HTTP caching headers
-  maxAge: 3600,
-  staleWhileRevalidate: 86400,
-  vary: ['Accept-Encoding', 'Accept-Language', 'User-Agent'],
-  etag: 'strong',
-  
-  // CDN integration (configure based on environment)
-  cdn: process.env.CLOUDFLARE_API_TOKEN ? 'cloudflare' : undefined,
-  cdnOptions: process.env.CLOUDFLARE_API_TOKEN ? {
-    apiToken: process.env.CLOUDFLARE_API_TOKEN,
-    zoneId: process.env.CLOUDFLARE_ZONE_ID
-  } : undefined
-}));
+
+    // Default TTL for unconfigured routes
+    defaultTtl: 3600,
+    keyPrefix: 'moro:enterprise:',
+
+    // HTTP caching headers
+    maxAge: 3600,
+    staleWhileRevalidate: 86400,
+    vary: ['Accept-Encoding', 'Accept-Language', 'User-Agent'],
+    etag: 'strong',
+
+    // CDN integration (configure based on environment)
+    cdn: process.env.CLOUDFLARE_API_TOKEN ? 'cloudflare' : undefined,
+    cdnOptions: process.env.CLOUDFLARE_API_TOKEN
+      ? {
+          apiToken: process.env.CLOUDFLARE_API_TOKEN,
+          zoneId: process.env.CLOUDFLARE_ZONE_ID,
+        }
+      : undefined,
+  })
+);
 
 // Demo routes showcasing different caching strategies
 
@@ -82,14 +88,14 @@ app.get('/api/stats', (req, res) => {
     orders: Math.floor(Math.random() * 5000),
     revenue: Math.floor(Math.random() * 100000),
     timestamp: new Date().toISOString(),
-    cached: false // Will be true if served from cache
+    cached: false, // Will be true if served from cache
   };
-  
+
   res.json({
     success: true,
     data: stats,
     message: 'Stats generated (expensive operation)',
-    cacheStrategy: 'api-short-term'
+    cacheStrategy: 'api-short-term',
   });
 });
 
@@ -97,7 +103,7 @@ app.get('/api/stats', (req, res) => {
 app.get('/users/:id', (req, res) => {
   const userId = req.params.id;
   const language = req.headers['accept-language'] || 'en';
-  
+
   // Simulate user lookup
   const user = {
     id: userId,
@@ -105,23 +111,23 @@ app.get('/users/:id', (req, res) => {
     language,
     profile: {
       lastLogin: new Date().toISOString(),
-      preferences: { theme: 'dark', notifications: true }
+      preferences: { theme: 'dark', notifications: true },
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
-  
+
   res.json({
     success: true,
     data: user,
     message: 'User profile loaded (database query)',
-    cacheStrategy: 'user-personalized'
+    cacheStrategy: 'user-personalized',
   });
 });
 
 // Content with long-term caching
 app.get('/content/:slug', (req, res) => {
   const slug = req.params.slug;
-  
+
   // Simulate CMS content fetch
   const content = {
     slug,
@@ -129,21 +135,21 @@ app.get('/content/:slug', (req, res) => {
     body: 'This is static content that changes rarely.',
     author: 'Content Team',
     publishedAt: '2024-01-01T00:00:00Z',
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
+
   res.json({
     success: true,
     data: content,
     message: 'Content loaded from CMS (expensive)',
-    cacheStrategy: 'content-long-term'
+    cacheStrategy: 'content-long-term',
   });
 });
 
 // Analytics with minute-based caching
 app.get('/analytics/dashboard', (req, res) => {
   const realtime = req.query.realtime === 'true';
-  
+
   // Simulate analytics calculation
   const analytics = {
     pageViews: Math.floor(Math.random() * 1000000),
@@ -151,35 +157,35 @@ app.get('/analytics/dashboard', (req, res) => {
     conversionRate: (Math.random() * 10).toFixed(2),
     topPages: ['/home', '/products', '/about'],
     timestamp: new Date().toISOString(),
-    realtime
+    realtime,
   };
-  
+
   res.json({
     success: true,
     data: analytics,
     message: realtime ? 'Real-time analytics (no cache)' : 'Analytics with minute-based caching',
-    cacheStrategy: realtime ? 'no-cache' : 'analytics-minute-based'
+    cacheStrategy: realtime ? 'no-cache' : 'analytics-minute-based',
   });
 });
 
 // Cache management endpoints
 app.post('/cache/invalidate', async (req, res) => {
   const { patterns } = req.body;
-  
+
   try {
     // Use the cache invalidation method added by middleware
     await (res as any).invalidateCache(patterns);
-    
+
     res.json({
       success: true,
       message: `Cache invalidated for patterns: ${patterns?.join(', ') || 'current path'}`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       error: 'Cache invalidation failed',
-      details: error instanceof Error ? error.message : String(error)
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -194,18 +200,18 @@ app.get('/cache/stats', (req, res) => {
     storage: process.env.REDIS_URL ? 'Redis' : 'Memory',
     cdnEnabled: !!process.env.CLOUDFLARE_API_TOKEN,
     strategies: {
-      'api': { ttl: 300, keys: 45 },
-      'user': { ttl: 1800, keys: 123 },
-      'content': { ttl: 86400, keys: 67 },
-      'analytics': { ttl: 60, keys: 12 }
-    }
+      api: { ttl: 300, keys: 45 },
+      user: { ttl: 1800, keys: 123 },
+      content: { ttl: 86400, keys: 67 },
+      analytics: { ttl: 60, keys: 12 },
+    },
   };
-  
+
   res.json({
     success: true,
     data: stats,
     message: 'Cache statistics',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -214,22 +220,22 @@ app.get('/api/stats/fresh', (req, res) => {
   // Set cache control to bypass cache
   (res as any).cacheControl({
     noCache: true,
-    noStore: true
+    noStore: true,
   });
-  
+
   const stats = {
     users: Math.floor(Math.random() * 10000),
     orders: Math.floor(Math.random() * 5000),
     revenue: Math.floor(Math.random() * 100000),
     timestamp: new Date().toISOString(),
-    fresh: true
+    fresh: true,
   };
-  
+
   res.json({
     success: true,
     data: stats,
     message: 'Fresh stats (cache bypassed)',
-    cacheStrategy: 'no-cache'
+    cacheStrategy: 'no-cache',
   });
 });
 
@@ -249,10 +255,10 @@ app.get('/health', (req, res) => {
         'Automatic invalidation',
         'Stale-while-revalidate',
         'ETag generation',
-        'Cache statistics'
-      ]
+        'Cache statistics',
+      ],
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -298,14 +304,14 @@ Production Features:
   Cache hit/miss tracking
   Multi-level caching
   `);
-  
+
   if (!process.env.REDIS_URL) {
     console.log('\nPro Tip: Set REDIS_URL to use Redis caching in production!');
   }
-  
+
   if (!process.env.CLOUDFLARE_API_TOKEN) {
     console.log('Pro Tip: Set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ZONE_ID for CDN integration!');
   }
 });
 
-export default app; 
+export default app;

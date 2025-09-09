@@ -36,6 +36,7 @@ A complete e-commerce backend API built with MoroJS, featuring product catalog, 
 ### Installation
 
 1. **Clone and install:**
+
    ```bash
    git clone https://github.com/MoroJS/examples.git
    cd examples/ecommerce-api
@@ -43,12 +44,14 @@ A complete e-commerce backend API built with MoroJS, featuring product catalog, 
    ```
 
 2. **Environment setup:**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 3. **Database setup:**
+
    ```bash
    createdb ecommerce_db
    psql -d ecommerce_db -f database/schema.sql
@@ -63,15 +66,18 @@ A complete e-commerce backend API built with MoroJS, featuring product catalog, 
 ## API Endpoints
 
 ### Authentication
+
 - `POST /auth/register` - Register new user
 - `POST /auth/login` - Login user
 
 ### Products
+
 - `GET /products` - Get products (with filtering)
 - `GET /products/:id` - Get single product
 - `GET /categories` - Get all categories
 
 ### Shopping Cart
+
 - `GET /cart` - Get user's cart
 - `POST /cart/items` - Add item to cart
 - `PUT /cart/items/:productId` - Update item quantity
@@ -79,16 +85,19 @@ A complete e-commerce backend API built with MoroJS, featuring product catalog, 
 - `DELETE /cart` - Clear cart
 
 ### Orders
+
 - `POST /checkout` - Create order and process payment
 - `GET /orders` - Get user's orders
 - `GET /orders/:id` - Get specific order
 
 ### Webhooks
+
 - `POST /webhooks/stripe` - Stripe payment webhooks
 
 ## Example Usage
 
 ### Register and Login
+
 ```bash
 # Register
 curl -X POST http://localhost:3000/auth/register \
@@ -110,6 +119,7 @@ curl -X POST http://localhost:3000/auth/login \
 ```
 
 ### Browse Products
+
 ```bash
 # Get all products
 curl http://localhost:3000/products
@@ -122,6 +132,7 @@ curl http://localhost:3000/categories
 ```
 
 ### Shopping Cart
+
 ```bash
 # Add to cart (requires auth token)
 curl -X POST http://localhost:3000/cart/items \
@@ -135,6 +146,7 @@ curl http://localhost:3000/cart \
 ```
 
 ### Checkout
+
 ```bash
 curl -X POST http://localhost:3000/checkout \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
@@ -153,6 +165,7 @@ curl -X POST http://localhost:3000/checkout \
 ## Database Schema
 
 Key tables:
+
 - **users** - Customer accounts
 - **categories** - Product categories
 - **products** - Product catalog
@@ -186,6 +199,7 @@ This example integrates with Stripe for secure payment processing:
 ## Development
 
 ### Available Scripts
+
 - `npm run dev` - Development server with hot reload
 - `npm run build` - Build for production
 - `npm run start` - Start production server
@@ -194,6 +208,7 @@ This example integrates with Stripe for secure payment processing:
 - `npm run db:seed` - Seed sample data
 
 ### Project Structure
+
 ```
 src/
 ├── services/
@@ -225,10 +240,10 @@ async function addToCart(productId, quantity) {
   const response = await fetch('/cart/items', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ productId, quantity })
+    body: JSON.stringify({ productId, quantity }),
   });
   return response.json();
 }
@@ -238,10 +253,10 @@ async function checkout(shippingAddress, paymentMethodId) {
   const response = await fetch('/checkout', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ shippingAddress, paymentMethodId })
+    body: JSON.stringify({ shippingAddress, paymentMethodId }),
   });
   return response.json();
 }
@@ -250,6 +265,7 @@ async function checkout(shippingAddress, paymentMethodId) {
 ## Production Deployment
 
 ### Environment Variables
+
 ```bash
 NODE_ENV=production
 DATABASE_URL=postgresql://user:pass@host:port/db
@@ -260,6 +276,7 @@ JWT_SECRET=your-super-secret-key
 ```
 
 ### Security Checklist
+
 - [ ] Use HTTPS/TLS in production
 - [ ] Validate all user inputs
 - [ ] Rate limit API endpoints
@@ -279,4 +296,4 @@ JWT_SECRET=your-super-secret-key
 
 ## License
 
-MIT License - see LICENSE file for details. 
+MIT License - see LICENSE file for details.

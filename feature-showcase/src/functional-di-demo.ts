@@ -1,13 +1,13 @@
 // Functional DI Container Demo - Advanced Dependency Injection with HOFs
 import { createApp } from '@morojs/moro';
-import { 
-  FunctionalContainer, 
-  withLogging, 
-  withCaching, 
-  withRetry, 
+import {
+  FunctionalContainer,
+  withLogging,
+  withCaching,
+  withRetry,
   withTimeout,
   ServiceScope,
-  ServiceLifecycle 
+  ServiceLifecycle,
 } from '../../../moro/src/core/utilities/container';
 import { createFrameworkLogger } from '../../../moro/src/core/logger';
 
@@ -49,10 +49,13 @@ interface DatabaseConnection {
 class MockUserRepository implements IUserRepository {
   private users: User[] = [
     { id: '1', name: 'John Doe', email: 'john@example.com', createdAt: new Date() },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com', createdAt: new Date() }
+    { id: '2', name: 'Jane Smith', email: 'jane@example.com', createdAt: new Date() },
   ];
 
-  constructor(private db: DatabaseConnection, private analytics: IAnalyticsService) {
+  constructor(
+    private db: DatabaseConnection,
+    private analytics: IAnalyticsService
+  ) {
     logger.info('UserRepository initialized with dependencies');
   }
 
@@ -74,7 +77,7 @@ class MockUserRepository implements IUserRepository {
     const user: User = {
       id: Date.now().toString(),
       ...userData,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
     this.users.push(user);
     this.analytics.track('user.created', { id: user.id });
@@ -187,7 +190,7 @@ async function setupContainer() {
     .singleton()
     .factory(() => ({
       apiKey: process.env.EMAIL_API_KEY || 'demo-key',
-      from: process.env.EMAIL_FROM || 'noreply@example.com'
+      from: process.env.EMAIL_FROM || 'noreply@example.com',
     }))
     .tags('config')
     .build();
@@ -205,17 +208,13 @@ async function setupContainer() {
     .register<IEmailService>('emailService')
     .singleton()
     .dependsOn('emailConfig')
-    .factory(async (deps) => new MockEmailService(deps.emailConfig))
-    .compose(
-      withLogging(logger),
-      withRetry(3, 1000),
-      withTimeout(5000)
-    )
+    .factory(async deps => new MockEmailService(deps.emailConfig))
+    .compose(withLogging(logger), withRetry(3, 1000), withTimeout(5000))
     .fallback(() => ({
       send: async () => {
         logger.warn('Using fallback email service');
         return false;
-      }
+      },
     }))
     .tags('communication', 'email')
     .build();
@@ -225,7 +224,7 @@ async function setupContainer() {
     .register<IUserRepository>('userRepository')
     .singleton()
     .dependsOn('database', 'analytics')
-    .factory(async (deps) => {
+    .factory(async deps => {
       const database = deps.database as DatabaseConnection;
       const analytics = deps.analytics as IAnalyticsService;
       return new MockUserRepository(database, analytics);
@@ -241,7 +240,7 @@ async function setupContainer() {
     .dependsOn('userRepository')
     .factory(async (deps, ctx) => ({
       userId: ctx?.metadata.userId || 'anonymous',
-      repository: deps.userRepository
+      repository: deps.userRepository,
     }))
     .tags('service', 'users')
     .build();
@@ -252,14 +251,14 @@ async function setupContainer() {
     .transient()
     .dependsOn('emailService')
     .optionalDependsOn('smsService') // Optional dependency
-    .factory(async (deps) => ({
+    .factory(async deps => ({
       send: async (message: string) => {
         await deps.emailService.send('user@example.com', 'Notification', message);
         if (deps.smsService) {
           // SMS service is optional
           await deps.smsService.send('Notification: ' + message);
         }
-      }
+      },
     }))
     .tags('notification', 'communication')
     .build();
@@ -267,11 +266,11 @@ async function setupContainer() {
 
 // Global interceptors for cross-cutting concerns
 container.addInterceptor(async (serviceName, dependencies, context, next) => {
-  logger.debug(`Creating service: ${serviceName}`, 'Interceptor', { 
+  logger.debug(`Creating service: ${serviceName}`, 'Interceptor', {
     deps: Object.keys(dependencies),
-    context: context.requestId 
+    context: context.requestId,
   });
-  
+
   const start = Date.now();
   try {
     const result = await next();
@@ -288,34 +287,36 @@ app.get('/users', async (req, res) => {
   try {
     const userRepository = await container.resolve<IUserRepository>('userRepository');
     const users = await userRepository.findAll();
-    
+
     res.json({
       success: true,
       data: users,
-      serviceInfo: container.getServiceInfo()
+      serviceInfo: container.getServiceInfo(),
     });
   } catch (error) {
     res.status(500).json({ success: false, error: (error as Error).message });
   }
 });
 
-
 app.get('/users/:id', async (req, res) => {
   try {
     const context = {
-      requestId: req.headers['x-request-id'] as string || Date.now().toString(),
+      requestId: (req.headers['x-request-id'] as string) || Date.now().toString(),
       moduleId: 'users',
       metadata: { userId: req.params.id },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
-    const userService = await container.resolve<{ userId: string; repository: IUserRepository }>('userService', context);
+    const userService = await container.resolve<{ userId: string; repository: IUserRepository }>(
+      'userService',
+      context
+    );
     const user = await userService.repository.findById(req.params.id);
-    
+
     res.json({
       success: true,
       data: user,
-      context: context.requestId
+      context: context.requestId,
     });
   } catch (error) {
     res.status(404).json({ success: false, error: (error as Error).message });
@@ -326,14 +327,16 @@ app.post('/users', async (req, res) => {
   try {
     const userRepository = await container.resolve<IUserRepository>('userRepository');
     const user = await userRepository.create(req.body);
-    
+
     // Send notification
-    const notificationService = await container.resolve<{ send: (message: string) => Promise<void> }>('notificationService');
+    const notificationService = await container.resolve<{
+      send: (message: string) => Promise<void>;
+    }>('notificationService');
     await notificationService.send(`New user created: ${user.name}`);
-    
+
     res.status(201).json({
       success: true,
-      data: user
+      data: user,
     });
   } catch (error) {
     res.status(500).json({ success: false, error: (error as Error).message });
@@ -344,7 +347,7 @@ app.get('/container/health', async (req, res) => {
   try {
     const health = await container.healthCheck();
     const serviceInfo = container.getServiceInfo();
-    
+
     res.json({
       success: true,
       health,
@@ -352,8 +355,8 @@ app.get('/container/health', async (req, res) => {
       summary: {
         total: Object.keys(serviceInfo).length,
         healthy: Object.values(health).filter(Boolean).length,
-        unhealthy: Object.values(health).filter(h => !h).length
-      }
+        unhealthy: Object.values(health).filter(h => !h).length,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: (error as Error).message });
@@ -364,14 +367,14 @@ app.get('/container/analytics', async (req, res) => {
   try {
     const analytics = await container.resolve<MockAnalyticsService>('analytics');
     const events = analytics.getEvents();
-    
+
     res.json({
       success: true,
       analytics: {
         totalEvents: events.length,
         recentEvents: events.slice(-10),
-        eventTypes: [...new Set(events.map(e => e.event))]
-      }
+        eventTypes: [...new Set(events.map(e => e.event))],
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, error: (error as Error).message });
@@ -383,7 +386,7 @@ app.delete('/container/request/:requestId', (req, res) => {
     container.clearRequestScope(req.params.requestId);
     res.json({
       success: true,
-      message: `Request scope ${req.params.requestId} cleared`
+      message: `Request scope ${req.params.requestId} cleared`,
     });
   } catch (error) {
     res.status(500).json({ success: false, error: (error as Error).message });
@@ -394,7 +397,7 @@ app.delete('/container/request/:requestId', (req, res) => {
 async function startDemo() {
   try {
     await setupContainer();
-    
+
     const PORT = parseInt(process.env.PORT || '3009');
     app.listen(PORT, () => {
       logger.info(`Functional DI Demo running on http://localhost:${PORT}`);
@@ -457,4 +460,4 @@ process.on('SIGINT', async () => {
 
 startDemo();
 
-export default app; 
+export default app;

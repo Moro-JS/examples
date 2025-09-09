@@ -34,13 +34,13 @@ npm run dev               # Runs with published package
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/` | Welcome message and API overview |
-| `GET` | `/health` | Health check |
-| `GET` | `/users` | List all users (with optional filtering) |
-| `POST` | `/users` | Create a new user |
-| `GET` | `/users/:id` | Get user by ID |
+| Method | Endpoint     | Description                              |
+| ------ | ------------ | ---------------------------------------- |
+| `GET`  | `/`          | Welcome message and API overview         |
+| `GET`  | `/health`    | Health check                             |
+| `GET`  | `/users`     | List all users (with optional filtering) |
+| `POST` | `/users`     | Create a new user                        |
+| `GET`  | `/users/:id` | Get user by ID                           |
 
 ## Testing the API
 
@@ -70,7 +70,7 @@ curl "http://localhost:3001/users?search=john&limit=5"
   "users": [
     {
       "id": 1,
-      "name": "John Doe", 
+      "name": "John Doe",
       "email": "john@example.com",
       "age": 30
     }
@@ -102,4 +102,4 @@ curl "http://localhost:3001/users?search=john&limit=5"
 
 - Explore [Feature Showcase](../feature-showcase) for advanced patterns
 - Try [Enterprise App](../enterprise-app) for modular architecture
-- Check out [Microservices](../microservice) for distributed systems 
+- Check out [Microservices](../microservice) for distributed systems

@@ -8,7 +8,7 @@ The following status checks must be configured as required:
 
 1. **lint-and-format** - Ensures code quality and consistent formatting
 2. **test** - Ensures all tests pass
-3. **build** - Ensures all examples compile successfully  
+3. **build** - Ensures all examples compile successfully
 4. **security-audit** - Ensures no security vulnerabilities
 
 ## ⚙️ Setting Up Branch Protection
@@ -25,21 +25,19 @@ The following status checks must be configured as required:
    - Enter branch name pattern: `main` (or `master` if using master branch)
 
 3. **Configure Protection Settings**
-   
+
    #### Required Settings:
    - ✅ **Require a pull request before merging**
      - ✅ Require approvals: `1` (minimum)
      - ✅ Dismiss stale PR approvals when new commits are pushed
      - ✅ Require review from code owners (if CODEOWNERS file exists)
-   
    - ✅ **Require status checks to pass before merging**
      - ✅ Require branches to be up to date before merging
      - **Add the following status checks:**
        - `lint-and-format`
-       - `test` 
+       - `test`
        - `build`
        - `security-audit`
-   
    - ✅ **Require conversation resolution before merging**
    - ✅ **Restrict pushes that create files larger than 100MB**
 
@@ -80,7 +78,7 @@ curl -X PUT \
       "strict": true,
       "contexts": [
         "lint-and-format",
-        "test", 
+        "test",
         "build",
         "security-audit"
       ]
@@ -105,15 +103,16 @@ After setting up branch protection:
    - Confirm PR cannot be merged until all checks pass
 
 2. **Test Each Status Check**
+
    ```bash
    # Test lint-and-format (should fail)
    echo "console.log('bad formatting'   )" >> simple-api/src/server.ts
    git add . && git commit -m "test: bad formatting"
-   
-   # Test build (should fail) 
+
+   # Test build (should fail)
    echo "invalid typescript syntax" >> simple-api/src/server.ts
    git add . && git commit -m "test: build failure"
-   
+
    # Test security-audit (check for vulnerabilities)
    npm audit
    ```
@@ -121,21 +120,25 @@ After setting up branch protection:
 ## 📋 Status Check Details
 
 ### lint-and-format
+
 - **Job Name**: `Lint and Format`
 - **Checks**: ESLint rules, Prettier formatting
 - **Fix Command**: `npm run lint:fix && npm run format`
 
-### test  
+### test
+
 - **Job Name**: `Test`
 - **Checks**: Jest tests across all examples
 - **Fix Command**: Fix failing tests or add missing tests
 
 ### build
-- **Job Name**: `Build` 
+
+- **Job Name**: `Build`
 - **Checks**: TypeScript compilation for all examples
 - **Fix Command**: Fix TypeScript errors
 
 ### security-audit
+
 - **Job Name**: `Security Audit`
 - **Checks**: npm audit for vulnerabilities
 - **Fix Command**: `npm audit fix` or update dependencies
@@ -143,16 +146,19 @@ After setting up branch protection:
 ## 🚨 Troubleshooting
 
 ### Status Checks Not Appearing
+
 - Ensure the workflow file is in `.github/workflows/ci.yml`
 - Check that job names match exactly: `lint-and-format`, `test`, `build`, `security-audit`
 - Verify the workflow runs on `pull_request` events
 
 ### Status Checks Failing
+
 - Check the Actions tab for detailed error logs
 - Run checks locally first: `npm run lint && npm run test:all && npm run build:all && npm run audit:security`
 - Ensure all dependencies are installed: `npm run install:all`
 
 ### Permission Issues
+
 - Ensure you have admin access to the repository
 - Check that the GitHub token has the necessary permissions
 - Verify the repository settings allow the required actions
@@ -165,4 +171,4 @@ After setting up branch protection:
 
 ---
 
-**Note**: After setting up branch protection, all contributors must follow the process outlined in [CONTRIBUTING.md](.github/CONTRIBUTING.md) to ensure their PRs pass all required checks. 
+**Note**: After setting up branch protection, all contributors must follow the process outlined in [CONTRIBUTING.md](.github/CONTRIBUTING.md) to ensure their PRs pass all required checks.

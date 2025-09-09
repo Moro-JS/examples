@@ -5,7 +5,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 ## Examples Overview
 
 ### [Simple API](./simple-api/)
+
 **Perfect for beginners**
+
 - Basic REST API setup
 - Route handlers and middleware
 - Request validation with Zod
@@ -14,7 +16,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 **Use when**: Learning MoroJS basics or building simple APIs
 
 ### 🏢 [Enterprise Application](./enterprise-app/)
+
 **Production-ready enterprise system**
+
 - Modular architecture with dependency injection
 - Multi-module organization (users, orders, products)
 - JWT authentication with role-based access control
@@ -25,7 +29,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 **Use when**: Building large-scale business applications
 
 ### [Real-time Chat](./real-time-chat/)
+
 **WebSocket-powered real-time application**
+
 - WebSocket integration for instant messaging
 - User authentication and presence tracking
 - Room-based chat system
@@ -36,7 +42,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 **Use when**: Building real-time features like chat, notifications, or live updates
 
 ### 🛒 [E-commerce API](./ecommerce-api/)
+
 **Complete online store backend**
+
 - Product catalog with search and filtering
 - Shopping cart management
 - Stripe payment integration
@@ -47,7 +55,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 **Use when**: Building e-commerce platforms or payment-enabled applications
 
 ### [Microservices](./microservice/)
+
 **Distributed system architecture**
+
 - Multiple interconnected services
 - Docker containerization
 - Service discovery and communication
@@ -58,7 +68,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 **Use when**: Building scalable distributed systems
 
 ### [Feature Showcase](./feature-showcase/)
+
 **Comprehensive framework features**
+
 - Advanced caching strategies
 - File upload handling
 - Rate limiting and security
@@ -69,7 +81,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 **Use when**: Exploring advanced MoroJS capabilities
 
 ### [Runtime Examples](./runtime-examples/)
+
 **Multi-runtime deployment**
+
 - Node.js traditional deployment
 - Vercel Edge Functions
 - AWS Lambda serverless
@@ -79,7 +93,9 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 **Use when**: Deploying to different hosting platforms
 
 ### [Enterprise Events](./enterprise-events/)
+
 **Event-driven architecture**
+
 - Complex event sourcing patterns
 - Message queues and processing
 - Saga pattern implementation
@@ -106,16 +122,19 @@ npm run dev
 ## Learning Path
 
 **For beginners:**
+
 1. Start with [Simple API](./simple-api/) to learn basics
 2. Move to [Feature Showcase](./feature-showcase/) for advanced concepts
 3. Try [Real-time Chat](./real-time-chat/) for WebSocket features
 
 **For production apps:**
+
 1. Study [Enterprise Application](./enterprise-app/) for architecture patterns
 2. Explore [E-commerce API](./ecommerce-api/) for payment integration
 3. Review [Microservices](./microservice/) for scaling strategies
 
 **For specific use cases:**
+
 - **Real-time features**: [Real-time Chat](./real-time-chat/)
 - **Payment processing**: [E-commerce API](./ecommerce-api/)
 - **Distributed systems**: [Microservices](./microservice/)
@@ -171,6 +190,7 @@ npm run dev
 ```
 
 ### Prerequisites
+
 - Node.js 18+
 - PostgreSQL 14+ (for database examples)
 - Redis 6+ (for caching examples)
@@ -179,6 +199,7 @@ npm run dev
 ### Development Modes
 
 This repository supports two modes:
+
 - **NPM Mode** (default): Uses `@morojs/moro` from npm - perfect for trying examples
 - **Local Mode**: Uses local framework files - perfect for framework development
 
@@ -186,13 +207,14 @@ This repository supports two modes:
 # Switch to NPM mode (GitHub ready)
 npm run setup:npm
 
-# Switch to Local mode (framework development)  
+# Switch to Local mode (framework development)
 npm run setup:local
 ```
 
 See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed setup instructions.
 
 ### Common Commands
+
 ```bash
 # Install dependencies
 npm install
@@ -226,6 +248,7 @@ nano .env
 ```
 
 Common environment variables:
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `REDIS_URL` - Redis connection string
 - `JWT_SECRET` - Secret for JWT token signing
@@ -235,6 +258,7 @@ Common environment variables:
 ## Testing
 
 Run tests for all examples:
+
 ```bash
 # Install dependencies for all examples
 npm run install:all
@@ -283,4 +307,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-Built with ❤️ by the MoroJS team and community. 
+Built with ❤️ by the MoroJS team and community.

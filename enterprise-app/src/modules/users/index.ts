@@ -9,9 +9,9 @@ export default defineModule({
   version: '1.0.0',
   config,
   routes,
-  sockets
+  sockets,
 });
 
 // Re-export types and actions for direct usage
 export * from './types';
-export * from './actions'; 
+export * from './actions';

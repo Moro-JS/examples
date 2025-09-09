@@ -47,13 +47,16 @@ export class ProductService {
 
   constructor() {
     this.db = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/ecommerce_db'
+      connectionString:
+        process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/ecommerce_db',
     });
   }
 
-  async getProducts(query: ProductSearchQuery): Promise<{ products: Product[]; total: number; page: number; totalPages: number }> {
+  async getProducts(
+    query: ProductSearchQuery
+  ): Promise<{ products: Product[]; total: number; page: number; totalPages: number }> {
     const offset = (query.page - 1) * query.limit;
-    
+
     let whereClause = 'WHERE p.active = true';
     const queryParams: any[] = [];
     let paramIndex = 1;
@@ -107,13 +110,16 @@ export class ProductService {
 
     const [productsResult, countResult] = await Promise.all([
       this.db.query(productsQuery, queryParams),
-      this.db.query(`
+      this.db.query(
+        `
         SELECT COUNT(*) as total
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
         LEFT JOIN inventory i ON p.id = i.product_id
         ${whereClause}
-      `, queryParams.slice(0, -2)) // Remove limit and offset params for count
+      `,
+        queryParams.slice(0, -2)
+      ), // Remove limit and offset params for count
     ]);
 
     const products = productsResult.rows.map(row => ({
@@ -126,7 +132,7 @@ export class ProductService {
       inventory: row.inventory || 0,
       images: row.images || [],
       active: row.active,
-      createdAt: row.created_at
+      createdAt: row.created_at,
     }));
 
     const total = parseInt(countResult.rows[0].total);
@@ -136,12 +142,13 @@ export class ProductService {
       products,
       total,
       page: query.page,
-      totalPages
+      totalPages,
     };
   }
 
   async getProductById(productId: string): Promise<Product | null> {
-    const result = await this.db.query(`
+    const result = await this.db.query(
+      `
       SELECT 
         p.id, p.name, p.description, p.price, p.category_id, c.name as category_name,
         i.quantity as inventory, p.images, p.active, p.created_at
@@ -149,7 +156,9 @@ export class ProductService {
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN inventory i ON p.id = i.product_id
       WHERE p.id = $1 AND p.active = true
-    `, [productId]);
+    `,
+      [productId]
+    );
 
     if (result.rows.length === 0) {
       return null;
@@ -166,7 +175,7 @@ export class ProductService {
       inventory: row.inventory || 0,
       images: row.images || [],
       active: row.active,
-      createdAt: row.created_at
+      createdAt: row.created_at,
     };
   }
 
@@ -182,7 +191,7 @@ export class ProductService {
       id: row.id,
       name: row.name,
       description: row.description,
-      active: row.active
+      active: row.active,
     }));
   }
 
@@ -193,25 +202,31 @@ export class ProductService {
 
     try {
       // Create product
-      const productResult = await this.db.query(`
+      const productResult = await this.db.query(
+        `
         INSERT INTO products (id, name, description, price, category_id, images, active, created_at, created_by)
         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $7)
         RETURNING *
-      `, [
-        productId,
-        productData.name,
-        productData.description,
-        productData.price,
-        productData.categoryId,
-        JSON.stringify(productData.images || []),
-        createdBy
-      ]);
+      `,
+        [
+          productId,
+          productData.name,
+          productData.description,
+          productData.price,
+          productData.categoryId,
+          JSON.stringify(productData.images || []),
+          createdBy,
+        ]
+      );
 
       // Create inventory record
-      await this.db.query(`
+      await this.db.query(
+        `
         INSERT INTO inventory (product_id, quantity, updated_at)
         VALUES ($1, $2, NOW())
-      `, [productId, productData.inventory]);
+      `,
+        [productId, productData.inventory]
+      );
 
       await this.db.query('COMMIT');
 
@@ -224,7 +239,10 @@ export class ProductService {
     }
   }
 
-  async updateProduct(productId: string, updates: Partial<CreateProductData & { active: boolean }>): Promise<Product> {
+  async updateProduct(
+    productId: string,
+    updates: Partial<CreateProductData & { active: boolean }>
+  ): Promise<Product> {
     const setClauses: string[] = [];
     const values: any[] = [];
     let paramIndex = 1;
@@ -260,19 +278,25 @@ export class ProductService {
     setClauses.push(`updated_at = NOW()`);
     values.push(productId);
 
-    await this.db.query(`
+    await this.db.query(
+      `
       UPDATE products 
       SET ${setClauses.join(', ')}
       WHERE id = $${paramIndex}
-    `, values);
+    `,
+      values
+    );
 
     // Update inventory if provided
     if (updates.inventory !== undefined) {
-      await this.db.query(`
+      await this.db.query(
+        `
         UPDATE inventory
         SET quantity = $1, updated_at = NOW()
         WHERE product_id = $2
-      `, [updates.inventory, productId]);
+      `,
+        [updates.inventory, productId]
+      );
     }
 
     const product = await this.getProductById(productId);
@@ -284,10 +308,9 @@ export class ProductService {
   }
 
   async checkInventory(productId: string, requestedQuantity: number): Promise<boolean> {
-    const result = await this.db.query(
-      'SELECT quantity FROM inventory WHERE product_id = $1',
-      [productId]
-    );
+    const result = await this.db.query('SELECT quantity FROM inventory WHERE product_id = $1', [
+      productId,
+    ]);
 
     if (result.rows.length === 0) {
       return false;
@@ -297,10 +320,13 @@ export class ProductService {
   }
 
   async updateInventory(productId: string, quantityChange: number): Promise<void> {
-    await this.db.query(`
+    await this.db.query(
+      `
       UPDATE inventory
       SET quantity = quantity + $1, updated_at = NOW()
       WHERE product_id = $2
-    `, [quantityChange, productId]);
+    `,
+      [quantityChange, productId]
+    );
   }
-} 
+}

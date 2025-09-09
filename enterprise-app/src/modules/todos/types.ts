@@ -23,4 +23,4 @@ export interface UpdateTodoRequest {
   completed?: boolean;
   priority?: 'low' | 'medium' | 'high';
   due_date?: string;
-} 
+}

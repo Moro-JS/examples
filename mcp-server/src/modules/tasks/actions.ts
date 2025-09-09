@@ -11,7 +11,7 @@ const mockTasks: Task[] = [
     completed: false,
     priority: 'high',
     createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01')
+    updatedAt: new Date('2024-01-01'),
   },
   {
     id: uuidv4(),
@@ -20,7 +20,7 @@ const mockTasks: Task[] = [
     completed: true,
     priority: 'medium',
     createdAt: new Date('2024-01-02'),
-    updatedAt: new Date('2024-01-03')
+    updatedAt: new Date('2024-01-03'),
   },
   {
     id: uuidv4(),
@@ -29,8 +29,8 @@ const mockTasks: Task[] = [
     completed: false,
     priority: 'medium',
     createdAt: new Date('2024-01-04'),
-    updatedAt: new Date('2024-01-04')
-  }
+    updatedAt: new Date('2024-01-04'),
+  },
 ];
 
 export async function getAllTasks(database: any): Promise<Task[]> {
@@ -44,12 +44,12 @@ export async function getTaskById(id: string, database: any): Promise<Task | nul
 }
 
 export async function createTask(
-  taskData: CreateTaskRequest, 
-  database: any, 
+  taskData: CreateTaskRequest,
+  database: any,
   events: any
 ): Promise<Task> {
   const tasks = database?.tasks || mockTasks;
-  
+
   const newTask: Task = {
     id: uuidv4(),
     title: taskData.title,
@@ -57,28 +57,28 @@ export async function createTask(
     completed: false,
     priority: taskData.priority || 'medium',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
-  
+
   tasks.push(newTask);
-  
+
   // Emit event for other modules
   if (events) {
     await events.emit('task:created', { task: newTask });
   }
-  
+
   return newTask;
 }
 
 export async function updateTask(
-  id: string, 
-  updates: Partial<Omit<Task, 'id' | 'createdAt'>>, 
-  database: any, 
+  id: string,
+  updates: Partial<Omit<Task, 'id' | 'createdAt'>>,
+  database: any,
   events: any
 ): Promise<Task | null> {
   const tasks = database?.tasks || mockTasks;
   const taskIndex = tasks.findIndex((task: Task) => task.id === id);
-  
+
   if (taskIndex === -1) {
     return null;
   }
@@ -86,11 +86,11 @@ export async function updateTask(
   const updatedTask = {
     ...tasks[taskIndex],
     ...updates,
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
-  
+
   tasks[taskIndex] = updatedTask;
-  
+
   // Emit event for other modules
   if (events) {
     await events.emit('task:updated', { task: updatedTask });
@@ -102,14 +102,14 @@ export async function updateTask(
 export async function deleteTask(id: string, database: any, events: any): Promise<boolean> {
   const tasks = database?.tasks || mockTasks;
   const taskIndex = tasks.findIndex((task: Task) => task.id === id);
-  
+
   if (taskIndex === -1) {
     return false;
   }
 
   const deletedTask = tasks[taskIndex];
   tasks.splice(taskIndex, 1);
-  
+
   // Emit event for other modules
   if (events) {
     await events.emit('task:deleted', { task: deletedTask });
@@ -118,7 +118,10 @@ export async function deleteTask(id: string, database: any, events: any): Promis
   return true;
 }
 
-export async function getTasksByPriority(priority: Task['priority'], database: any): Promise<Task[]> {
+export async function getTasksByPriority(
+  priority: Task['priority'],
+  database: any
+): Promise<Task[]> {
   const tasks = database?.tasks || mockTasks;
   return tasks.filter((task: Task) => task.priority === priority);
 }
@@ -135,18 +138,18 @@ export async function getPendingTasks(database: any): Promise<Task[]> {
 
 export async function getTasksWithFilters(filters: TaskFilters, database: any): Promise<Task[]> {
   let tasks = database?.tasks || mockTasks;
-  
+
   if (filters.completed !== undefined) {
     tasks = tasks.filter((task: Task) => task.completed === filters.completed);
   }
-  
+
   if (filters.priority) {
     tasks = tasks.filter((task: Task) => task.priority === filters.priority);
   }
-  
+
   if (filters.limit) {
     tasks = tasks.slice(0, filters.limit);
   }
-  
+
   return tasks;
-} 
+}

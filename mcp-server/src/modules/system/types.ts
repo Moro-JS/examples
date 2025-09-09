@@ -32,4 +32,4 @@ export interface CpuInfo {
   architecture: string;
 }
 
-export type SystemCommand = 'memory' | 'uptime' | 'load' | 'cpu' | 'all'; 
+export type SystemCommand = 'memory' | 'uptime' | 'load' | 'cpu' | 'all';

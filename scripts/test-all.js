@@ -8,7 +8,7 @@ console.log('🧪 Running tests for all examples...\n');
 
 const examples = [
   'simple-api',
-  'enterprise-app', 
+  'enterprise-app',
   'enterprise-events',
   'feature-showcase',
   'runtime-examples',
@@ -16,8 +16,8 @@ const examples = [
   'ecommerce-api',
   'mcp-server',
   'microservice/user-service',
-  'microservice/order-service', 
-  'microservice/payment-service'
+  'microservice/order-service',
+  'microservice/payment-service',
 ];
 
 let successCount = 0;
@@ -27,7 +27,7 @@ let skippedCount = 0;
 for (const example of examples) {
   const examplePath = path.join(process.cwd(), example);
   const packageJsonPath = path.join(examplePath, 'package.json');
-  
+
   if (!fs.existsSync(examplePath)) {
     console.log(`⚠️  Skipping ${example} - directory not found`);
     continue;
@@ -41,7 +41,7 @@ for (const example of examples) {
   // Check if example has test script
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   const testScript = packageJson.scripts && packageJson.scripts.test;
-  
+
   if (!testScript || testScript.includes('echo') || testScript.includes('No tests')) {
     console.log(`⏭️  Skipping ${example} - no tests configured`);
     skippedCount++;
@@ -49,16 +49,15 @@ for (const example of examples) {
   }
 
   console.log(`🧪 Running tests for ${example}...`);
-  
+
   try {
-    execSync('npm test', { 
-      cwd: examplePath, 
-      stdio: ['inherit', 'pipe', 'pipe'] 
+    execSync('npm test', {
+      cwd: examplePath,
+      stdio: ['inherit', 'pipe', 'pipe'],
     });
-    
+
     console.log(`✅ ${example} - Tests passed`);
     successCount++;
-    
   } catch (error) {
     console.log(`❌ ${example} - Tests failed`);
     console.log(`   Error: ${error.message.split('\n')[0]}`);
@@ -72,4 +71,4 @@ console.log(`✅ Success: ${successCount} examples`);
 console.log(`⏭️  Skipped: ${skippedCount} examples (no tests configured)`);
 if (errorCount > 0) {
   console.log(`❌ Failed: ${errorCount} examples`);
-} 
+}

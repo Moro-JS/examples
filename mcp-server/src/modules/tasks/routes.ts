@@ -13,27 +13,27 @@ export const routes: any[] = [
       const tasks = await actions.getTasksWithFilters(filters, database);
       return { tasks, total: tasks.length };
     },
-    description: 'Get all tasks with optional filtering'
+    description: 'Get all tasks with optional filtering',
   },
-  
-    {
+
+  {
     method: 'GET',
-    path: '/tasks/:id', 
+    path: '/tasks/:id',
     handler: async (req, res) => {
       const database = req.database || { tasks: [] };
       const { id } = TaskIdSchema.parse({ id: req.params.id });
       const task = await actions.getTaskById(id, database);
-      
+
       if (!task) {
         res.statusCode = 404;
         return { error: 'Task not found' };
       }
-      
+
       return { task };
     },
-    description: 'Get a specific task by ID'
+    description: 'Get a specific task by ID',
   },
-  
+
   {
     method: 'POST',
     path: '/tasks',
@@ -45,9 +45,9 @@ export const routes: any[] = [
       res.statusCode = 201;
       return { task };
     },
-    description: 'Create a new task'
+    description: 'Create a new task',
   },
-  
+
   {
     method: 'PUT',
     path: '/tasks/:id',
@@ -57,17 +57,17 @@ export const routes: any[] = [
       const events = req.events || {};
       const updates = { ...req.body, id: req.params.id };
       const task = await actions.updateTask(req.params.id, updates, database, events);
-      
+
       if (!task) {
         res.statusCode = 404;
         return { error: 'Task not found' };
       }
-      
+
       return { task };
     },
-    description: 'Update an existing task'
+    description: 'Update an existing task',
   },
-  
+
   {
     method: 'DELETE',
     path: '/tasks/:id',
@@ -75,14 +75,14 @@ export const routes: any[] = [
       const database = req.database || { tasks: [] };
       const events = req.events || {};
       const deleted = await actions.deleteTask(req.params.id, database, events);
-      
+
       if (!deleted) {
         res.statusCode = 404;
         return { error: 'Task not found' };
       }
-      
+
       return { success: true };
     },
-    description: 'Delete a task'
-  }
-]; 
+    description: 'Delete a task',
+  },
+];

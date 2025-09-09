@@ -33,33 +33,34 @@ export class ChatService {
 
   constructor() {
     this.db = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/chat_app'
+      connectionString:
+        process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/chat_app',
     });
 
     this.redis = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379'
+      url: process.env.REDIS_URL || 'redis://localhost:6379',
     });
-    
+
     this.redis.connect().catch(console.error);
   }
 
   async joinRoom(roomId: string, userId: string, ws: WebSocket): Promise<void> {
     const connection: WebSocketConnection = { ws, userId, roomId };
-    
+
     if (!this.connections.has(roomId)) {
       this.connections.set(roomId, []);
     }
-    
+
     const roomConnections = this.connections.get(roomId)!;
-    
+
     // Remove any existing connection for this user
     const existingIndex = roomConnections.findIndex(conn => conn.userId === userId);
     if (existingIndex !== -1) {
       roomConnections.splice(existingIndex, 1);
     }
-    
+
     roomConnections.push(connection);
-    
+
     // Update user presence in Redis
     await this.redis.sadd(`room:${roomId}:users`, userId);
     await this.redis.setex(`user:${userId}:last_seen`, 300, Date.now().toString());
@@ -72,12 +73,12 @@ export class ChatService {
       if (index !== -1) {
         roomConnections.splice(index, 1);
       }
-      
+
       if (roomConnections.length === 0) {
         this.connections.delete(roomId);
       }
     }
-    
+
     // Remove user from Redis presence
     await this.redis.srem(`room:${roomId}:users`, userId);
   }
@@ -87,10 +88,10 @@ export class ChatService {
     if (!roomConnections) return;
 
     const messageString = JSON.stringify(message);
-    
+
     roomConnections.forEach(connection => {
       if (excludeUserId && connection.userId === excludeUserId) return;
-      
+
       try {
         connection.ws.send(messageString);
       } catch (error) {
@@ -103,11 +104,8 @@ export class ChatService {
 
   async handleChatMessage(roomId: string, userId: string, messageData: any): Promise<ChatMessage> {
     // Get user info
-    const userResult = await this.db.query(
-      'SELECT username FROM users WHERE id = $1',
-      [userId]
-    );
-    
+    const userResult = await this.db.query('SELECT username FROM users WHERE id = $1', [userId]);
+
     if (!userResult.rows[0]) {
       throw new Error('User not found');
     }
@@ -119,142 +117,186 @@ export class ChatService {
       username: userResult.rows[0].username,
       content: messageData.content,
       type: messageData.type || 'text',
-      createdAt: new Date()
+      createdAt: new Date(),
     };
 
     // Save message to database
-    await this.db.query(`
+    await this.db.query(
+      `
       INSERT INTO messages (id, room_id, user_id, content, type, created_at)
       VALUES ($1, $2, $3, $4, $5, $6)
-    `, [message.id, message.roomId, message.userId, message.content, message.type, message.createdAt]);
+    `,
+      [message.id, message.roomId, message.userId, message.content, message.type, message.createdAt]
+    );
 
     return message;
   }
 
   async getRecentMessages(roomId: string, limit: number = 50): Promise<ChatMessage[]> {
-    const result = await this.db.query(`
+    const result = await this.db.query(
+      `
       SELECT m.id, m.room_id, m.user_id, u.username, m.content, m.type, m.created_at
       FROM messages m
       JOIN users u ON m.user_id = u.id
       WHERE m.room_id = $1
       ORDER BY m.created_at DESC
       LIMIT $2
-    `, [roomId, limit]);
+    `,
+      [roomId, limit]
+    );
 
-    return result.rows.map(row => ({
-      id: row.id,
-      roomId: row.room_id,
-      userId: row.user_id,
-      username: row.username,
-      content: row.content,
-      type: row.type,
-      createdAt: row.created_at
-    })).reverse();
+    return result.rows
+      .map(row => ({
+        id: row.id,
+        roomId: row.room_id,
+        userId: row.user_id,
+        username: row.username,
+        content: row.content,
+        type: row.type,
+        createdAt: row.created_at,
+      }))
+      .reverse();
   }
 
-  async getMessages(roomId: string, options: { page: number; limit: number }): Promise<{ messages: ChatMessage[]; total: number }> {
+  async getMessages(
+    roomId: string,
+    options: { page: number; limit: number }
+  ): Promise<{ messages: ChatMessage[]; total: number }> {
     const offset = (options.page - 1) * options.limit;
-    
+
     const [messagesResult, countResult] = await Promise.all([
-      this.db.query(`
+      this.db.query(
+        `
         SELECT m.id, m.room_id, m.user_id, u.username, m.content, m.type, m.created_at
         FROM messages m
         JOIN users u ON m.user_id = u.id
         WHERE m.room_id = $1
         ORDER BY m.created_at DESC
         LIMIT $2 OFFSET $3
-      `, [roomId, options.limit, offset]),
-      
-      this.db.query(`
+      `,
+        [roomId, options.limit, offset]
+      ),
+
+      this.db.query(
+        `
         SELECT COUNT(*) as total
         FROM messages
         WHERE room_id = $1
-      `, [roomId])
+      `,
+        [roomId]
+      ),
     ]);
 
-    const messages = messagesResult.rows.map(row => ({
-      id: row.id,
-      roomId: row.room_id,
-      userId: row.user_id,
-      username: row.username,
-      content: row.content,
-      type: row.type,
-      createdAt: row.created_at
-    })).reverse();
+    const messages = messagesResult.rows
+      .map(row => ({
+        id: row.id,
+        roomId: row.room_id,
+        userId: row.user_id,
+        username: row.username,
+        content: row.content,
+        type: row.type,
+        createdAt: row.created_at,
+      }))
+      .reverse();
 
     return {
       messages,
-      total: parseInt(countResult.rows[0].total)
+      total: parseInt(countResult.rows[0].total),
     };
   }
 
-  async createMessage(roomId: string, userId: string, messageData: { content: string; type?: string }): Promise<ChatMessage> {
+  async createMessage(
+    roomId: string,
+    userId: string,
+    messageData: { content: string; type?: string }
+  ): Promise<ChatMessage> {
     return this.handleChatMessage(roomId, userId, messageData);
   }
 
   async markMessageAsRead(messageId: string, userId: string): Promise<void> {
-    await this.db.query(`
+    await this.db.query(
+      `
       INSERT INTO message_reads (message_id, user_id, read_at)
       VALUES ($1, $2, NOW())
       ON CONFLICT (message_id, user_id) DO NOTHING
-    `, [messageId, userId]);
+    `,
+      [messageId, userId]
+    );
   }
 
-  async getRoomUsers(roomId: string): Promise<Array<{ id: string; username: string; isOnline: boolean }>> {
+  async getRoomUsers(
+    roomId: string
+  ): Promise<Array<{ id: string; username: string; isOnline: boolean }>> {
     // Get users from Redis (online users)
     const onlineUserIds = await this.redis.smembers(`room:${roomId}:users`);
-    
+
     // Get all room members from database
-    const result = await this.db.query(`
+    const result = await this.db.query(
+      `
       SELECT DISTINCT u.id, u.username
       FROM users u
       JOIN room_members rm ON u.id = rm.user_id
       WHERE rm.room_id = $1
-    `, [roomId]);
+    `,
+      [roomId]
+    );
 
     return result.rows.map(user => ({
       id: user.id,
       username: user.username,
-      isOnline: onlineUserIds.includes(user.id)
+      isOnline: onlineUserIds.includes(user.id),
     }));
   }
 
   async getUserRooms(userId: string): Promise<Room[]> {
-    const result = await this.db.query(`
+    const result = await this.db.query(
+      `
       SELECT r.id, r.name, r.description, r.created_by, r.created_at
       FROM rooms r
       JOIN room_members rm ON r.id = rm.room_id
       WHERE rm.user_id = $1
       ORDER BY r.created_at DESC
-    `, [userId]);
+    `,
+      [userId]
+    );
 
     return result.rows.map(row => ({
       id: row.id,
       name: row.name,
       description: row.description,
       createdBy: row.created_by,
-      createdAt: row.created_at
+      createdAt: row.created_at,
     }));
   }
 
-  async createRoom(roomData: { name: string; description?: string; createdBy: string }): Promise<Room> {
+  async createRoom(roomData: {
+    name: string;
+    description?: string;
+    createdBy: string;
+  }): Promise<Room> {
     const roomId = uuidv4();
-    
+
     await this.db.query('BEGIN');
-    
+
     try {
       // Create room
-      const roomResult = await this.db.query(`
+      const roomResult = await this.db.query(
+        `
         INSERT INTO rooms (id, name, description, created_by, created_at)
         VALUES ($1, $2, $3, $4, NOW())
         RETURNING *
-      `, [roomId, roomData.name, roomData.description, roomData.createdBy]);
+      `,
+        [roomId, roomData.name, roomData.description, roomData.createdBy]
+      );
 
       // Add creator as room member
-      await this.db.query(`
+      await this.db.query(
+        `
         INSERT INTO room_members (room_id, user_id, joined_at)
         VALUES ($1, $2, NOW())
-      `, [roomId, roomData.createdBy]);
+      `,
+        [roomId, roomData.createdBy]
+      );
 
       await this.db.query('COMMIT');
 
@@ -263,11 +305,11 @@ export class ChatService {
         name: roomResult.rows[0].name,
         description: roomResult.rows[0].description,
         createdBy: roomResult.rows[0].created_by,
-        createdAt: roomResult.rows[0].created_at
+        createdAt: roomResult.rows[0].created_at,
       };
     } catch (error) {
       await this.db.query('ROLLBACK');
       throw error;
     }
   }
-} 
+}

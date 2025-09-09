@@ -1,8 +1,5 @@
 // Health Routes - HTTP Handlers with Intelligent Routing
-import { 
-  getHealthStatus, 
-  getSimpleHealth 
-} from './actions';
+import { getHealthStatus, getSimpleHealth } from './actions';
 
 export const routes = [
   {
@@ -15,7 +12,7 @@ export const routes = [
     handler: async (req: any, res: any) => {
       const health = await getSimpleHealth();
       return health;
-    }
+    },
   },
   {
     method: 'GET' as const,
@@ -26,7 +23,7 @@ export const routes = [
     tags: ['health', 'system', 'detailed'],
     handler: async (req: any, res: any) => {
       const health = await getHealthStatus();
-      
+
       // Set appropriate status code based on health
       if (health.status === 'unhealthy') {
         res.status(503);
@@ -37,6 +34,6 @@ export const routes = [
       } else {
         return health;
       }
-    }
-  }
-]; 
+    },
+  },
+];

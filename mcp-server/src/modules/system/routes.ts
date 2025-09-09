@@ -10,7 +10,7 @@ export const routes: any[] = [
     handler: async (req, res) => {
       const database = req.database || {};
       const { command } = SystemCommandSchema.parse(req.query);
-      
+
       switch (command) {
         case 'memory':
           return { data: await actions.getMemoryInfo(database) };
@@ -25,9 +25,9 @@ export const routes: any[] = [
           return { data: await actions.getSystemInfo(database) };
       }
     },
-    description: 'Get system information'
+    description: 'Get system information',
   },
-  
+
   {
     method: 'GET',
     path: '/memory',
@@ -35,9 +35,9 @@ export const routes: any[] = [
       const database = req.database || {};
       return { memory: await actions.getMemoryInfo(database) };
     },
-    description: 'Get detailed memory information'
+    description: 'Get detailed memory information',
   },
-  
+
   {
     method: 'GET',
     path: '/cpu',
@@ -45,6 +45,6 @@ export const routes: any[] = [
       const database = req.database || {};
       return { cpu: await actions.getCpuInfo(database) };
     },
-    description: 'Get CPU information'
-  }
-]; 
+    description: 'Get CPU information',
+  },
+];

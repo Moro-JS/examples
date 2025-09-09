@@ -26,7 +26,7 @@ export function setupAdvancedLogging() {
     apiLogger,
     dbLogger,
     authLogger,
-    cacheLogger
+    cacheLogger,
   };
 }
 
@@ -37,54 +37,55 @@ export function addLoggingDemoRoutes(app: any) {
   const { apiLogger, dbLogger, authLogger, cacheLogger } = setupAdvancedLogging();
 
   // Logging demonstration endpoints
-  app.get('/demo/logging')
+  app
+    .get('/demo/logging')
     .describe('Demonstrate various logging levels and features')
     .tag('demo', 'logging')
     .handler(async (req, res) => {
       const startTime = Date.now();
-      
+
       // Demonstrate different log levels
       apiLogger.debug('Debug message from API logger', 'Demo', { user: 'demo-user' });
-      apiLogger.info('Info message with metadata', 'Demo', { 
+      apiLogger.info('Info message with metadata', 'Demo', {
         endpoint: '/demo/logging',
         method: 'GET',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-      apiLogger.warn('Warning message example', 'Demo', { 
+      apiLogger.warn('Warning message example', 'Demo', {
         reason: 'demonstration',
-        impact: 'none'
+        impact: 'none',
       });
 
       // Simulate database operations with timing
       const dbStart = Date.now();
       await new Promise(resolve => setTimeout(resolve, 100)); // Simulate DB delay
       const dbTime = Date.now() - dbStart;
-      
+
       dbLogger.info('Database query completed', 'Query', {
         query: 'SELECT * FROM demo_table',
         duration: dbTime,
-        rowsAffected: 5
+        rowsAffected: 5,
       });
 
       // Simulate auth operation
       authLogger.info('User authentication', 'Auth', {
         userId: 'demo-123',
         method: 'token',
-        success: true
+        success: true,
       });
 
       // Simulate cache operation
       cacheLogger.debug('Cache lookup', 'Cache', {
         key: 'demo-cache-key',
         hit: false,
-        ttl: 300
+        ttl: 300,
       });
 
       const totalTime = Date.now() - startTime;
-      
+
       apiLogger.info('Request completed', 'Demo', {
         totalDuration: totalTime,
-        components: ['auth', 'database', 'cache']
+        components: ['auth', 'database', 'cache'],
       });
 
       return {
@@ -97,13 +98,14 @@ export function addLoggingDemoRoutes(app: any) {
           'Context-based loggers',
           'Performance timing',
           'Multiple log levels',
-          'Component separation'
-        ]
+          'Component separation',
+        ],
       };
     });
 
   // Error logging demonstration
-  app.get('/demo/logging/error')
+  app
+    .get('/demo/logging/error')
     .describe('Demonstrate error logging with stack traces')
     .tag('demo', 'logging')
     .handler(async (req, res) => {
@@ -115,79 +117,81 @@ export function addLoggingDemoRoutes(app: any) {
           error: error.message,
           stack: error.stack,
           endpoint: '/demo/logging/error',
-          handled: true
+          handled: true,
         });
 
         return {
           message: 'Error logged successfully',
           error: 'Check console for full error details with stack trace',
-          logLevel: 'error'
+          logLevel: 'error',
         };
       }
     });
 
   // Performance logging demonstration
-  app.get('/demo/logging/performance')
+  app
+    .get('/demo/logging/performance')
     .describe('Demonstrate performance monitoring and timing')
     .tag('demo', 'logging')
     .handler(async (req, res) => {
       const operationStart = Date.now();
-      
+
       // Use the logger's built-in timing
       apiLogger.time('demo-operation');
-      
+
       // Simulate slow operation
       const delay = parseInt(req.query.delay as string) || 200;
       await new Promise(resolve => setTimeout(resolve, delay));
-      
+
       apiLogger.timeEnd('demo-operation', 'Performance', {
         operation: 'demo-slow-operation',
-        simulatedDelay: delay
+        simulatedDelay: delay,
       });
-      
+
       const duration = Date.now() - operationStart;
 
       return {
         message: 'Performance logging demonstration',
         operationDuration: duration,
-        note: 'Check console for timing information with context'
+        note: 'Check console for timing information with context',
       };
     });
 
-  // Component-specific logging demonstration  
-  app.get('/demo/logging/components')
+  // Component-specific logging demonstration
+  app
+    .get('/demo/logging/components')
     .describe('Demonstrate component-specific loggers')
     .tag('demo', 'logging')
     .handler(async (req, res) => {
       // Each component logger maintains its own context
       apiLogger.info('API request received', 'Request', {
         endpoint: '/demo/logging/components',
-        userAgent: req.headers['user-agent']
+        userAgent: req.headers['user-agent'],
       });
 
       dbLogger.info('Database connection established', 'Connection', {
         host: 'localhost',
         database: 'demo_db',
-        connectionTime: '45ms'
+        connectionTime: '45ms',
       });
 
       authLogger.info('User authorization check', 'Authorization', {
         userId: 'demo-user',
         permissions: ['read', 'write'],
-        result: 'granted'
+        result: 'granted',
       });
 
       cacheLogger.info('Cache operation', 'Cache', {
         operation: 'get',
         key: 'user:demo-user',
         result: 'miss',
-        fallbackToDb: true
+        fallbackToDb: true,
       });
 
       return {
         message: 'Component logging demonstration completed',
         note: 'Each component has its own colored context in the console',
-        components: ['API', 'Database', 'Auth', 'Cache']
+        components: ['API', 'Database', 'Auth', 'Cache'],
       };
     });
 
@@ -195,7 +199,7 @@ export function addLoggingDemoRoutes(app: any) {
     apiLogger,
     dbLogger,
     authLogger,
-    cacheLogger
+    cacheLogger,
   };
 }
 
@@ -204,9 +208,9 @@ export function addLoggingDemoRoutes(app: any) {
  */
 export function createLoggingDemoServer() {
   const app = createApp();
-  
+
   addLoggingDemoRoutes(app);
-  
+
   app.get('/', (req, res) => {
     return {
       message: 'Advanced Logging Demo Server',
@@ -214,9 +218,9 @@ export function createLoggingDemoServer() {
         'GET /demo/logging - Main logging demonstration',
         'GET /demo/logging/error - Error logging demo',
         'GET /demo/logging/performance - Performance timing demo',
-        'GET /demo/logging/components - Component-specific logging demo'
+        'GET /demo/logging/components - Component-specific logging demo',
       ],
-      note: 'All logs appear in the console with colors and structure'
+      note: 'All logs appear in the console with colors and structure',
     };
   });
 
@@ -227,5 +231,5 @@ export function createLoggingDemoServer() {
 export default {
   setupAdvancedLogging,
   addLoggingDemoRoutes,
-  createLoggingDemoServer
-}; 
+  createLoggingDemoServer,
+};

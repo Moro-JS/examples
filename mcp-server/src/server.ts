@@ -16,7 +16,7 @@ import { setupMCPHandlers } from './modules/mcp-core/handlers';
 
 /**
  * Enterprise MCP Server built with MoroJS
- * 
+ *
  * This implementation demonstrates:
  * - Modular architecture following enterprise patterns
  * - Clean separation between MCP protocol and business logic
@@ -29,14 +29,14 @@ async function createMCPServer() {
   const app = createApp({
     cors: true,
     compression: true,
-    helmet: true
+    helmet: true,
   });
 
   // Mock database for demonstration
   const mockDatabase = {
     tasks: [],
     weather: {},
-    system: {}
+    system: {},
   };
 
   // Register database and event system
@@ -50,7 +50,7 @@ async function createMCPServer() {
 
   // Load enterprise modules
   await app.loadModule(TasksModule);
-  await app.loadModule(WeatherModule); 
+  await app.loadModule(WeatherModule);
   await app.loadModule(SystemModule);
   await app.loadModule(MCPCoreModule);
 
@@ -66,12 +66,12 @@ async function createMCPServer() {
       endpoints: {
         tasks: '/api/v1.0.0/tasks/',
         weather: '/api/v1.0.0/weather/',
-        system: '/api/v1.0.0/system/'
+        system: '/api/v1.0.0/system/',
       },
       modes: {
         mcp: 'Default - Use with AI agents (Claude Desktop, etc.)',
-        http: 'Debug mode - Use "npm run dev http" for HTTP debugging'
-      }
+        http: 'Debug mode - Use "npm run dev http" for HTTP debugging',
+      },
     };
   });
 
@@ -102,27 +102,27 @@ async function createMCPProtocolServer(context: { database: any; events: any }) 
 
 async function startMCPMode() {
   console.error('Starting MoroJS MCP Server in MCP mode...');
-  
+
   // Create context
   const context = {
     database: { tasks: [], weather: {}, system: {} },
-    events: { emit: async (event: string, data: any) => console.error(`Event: ${event}`, data) }
+    events: { emit: async (event: string, data: any) => console.error(`Event: ${event}`, data) },
   };
 
   // Create and start MCP server
   const mcpServer = await createMCPProtocolServer(context);
   const transport = new StdioServerTransport();
   await mcpServer.connect(transport);
-  
+
   console.error('MCP Server connected via stdio transport');
   console.error('Server ready for AI agent connections');
 }
 
 async function startHTTPMode(port: number = 3010) {
   console.log('Starting MoroJS MCP Server in HTTP debug mode...');
-  
+
   const app = await createMCPServer();
-  
+
   app.listen(port, () => {
     console.log(`HTTP Debug Server running on http://localhost:${port}`);
     console.log('');
@@ -150,7 +150,7 @@ async function main() {
 }
 
 // Error handling
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   console.error('Uncaught Exception:', error);
   process.exit(1);
 });
@@ -162,8 +162,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Start the server
 if (require.main === module) {
-  main().catch((error) => {
+  main().catch(error => {
     console.error('Failed to start server:', error);
     process.exit(1);
   });
-} 
+}

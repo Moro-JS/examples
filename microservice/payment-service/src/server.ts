@@ -8,11 +8,11 @@ const app = createApp();
 
 // Service Discovery Setup
 const serviceRegistry = new ServiceRegistry({
-  type: process.env.DISCOVERY_TYPE as any || 'memory',
+  type: (process.env.DISCOVERY_TYPE as any) || 'memory',
   consulUrl: process.env.CONSUL_URL || 'http://consul:8500',
   kubernetesNamespace: process.env.K8S_NAMESPACE || 'default',
   healthCheckInterval: 30000,
-  tags: ['payment-processing', 'transactions', 'v1']
+  tags: ['payment-processing', 'transactions', 'v1'],
 });
 
 // Register this service
@@ -26,8 +26,8 @@ const serviceInfo = {
   metadata: {
     environment: process.env.NODE_ENV || 'development',
     startTime: new Date().toISOString(),
-    capabilities: ['credit-card', 'paypal', 'stripe', 'crypto']
-  }
+    capabilities: ['credit-card', 'paypal', 'stripe', 'crypto'],
+  },
 };
 
 // In-memory payment store (in production, use a database)
@@ -38,10 +38,10 @@ let nextTransactionId = 1001;
 
 // Mock payment providers
 const paymentProviders = {
-  stripe: { status: 'active', processingFee: 0.029, fixedFee: 0.30 },
-  paypal: { status: 'active', processingFee: 0.034, fixedFee: 0.00 },
-  square: { status: 'active', processingFee: 0.026, fixedFee: 0.10 },
-  crypto: { status: 'maintenance', processingFee: 0.015, fixedFee: 0.00 }
+  stripe: { status: 'active', processingFee: 0.029, fixedFee: 0.3 },
+  paypal: { status: 'active', processingFee: 0.034, fixedFee: 0.0 },
+  square: { status: 'active', processingFee: 0.026, fixedFee: 0.1 },
+  crypto: { status: 'maintenance', processingFee: 0.015, fixedFee: 0.0 },
 };
 
 // Service health check
@@ -54,22 +54,24 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     memory: {
       used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024)
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
     },
     environment: process.env.NODE_ENV || 'development',
     dependencies: {
       stripe: paymentProviders.stripe.status,
       paypal: paymentProviders.paypal.status,
       square: paymentProviders.square.status,
-      crypto: paymentProviders.crypto.status
+      crypto: paymentProviders.crypto.status,
     },
     metrics: {
       totalPayments: payments.size,
       totalTransactions: transactions.size,
-      successfulTransactions: Array.from(transactions.values()).filter((t: any) => t.status === 'completed').length
-    }
+      successfulTransactions: Array.from(transactions.values()).filter(
+        (t: any) => t.status === 'completed'
+      ).length,
+    },
   };
-  
+
   res.statusCode = 200;
   return healthStatus;
 });
@@ -90,16 +92,16 @@ app.get('/', (req, res) => {
       'GET /transactions/:id',
       'GET /providers',
       'POST /refunds',
-      'GET /services'
+      'GET /services',
     ],
     supportedProviders: Object.keys(paymentProviders),
     capabilities: serviceInfo.metadata?.capabilities,
     serviceDiscovery: {
       type: serviceRegistry.constructor.name,
       registered: true,
-      tags: serviceInfo.tags
+      tags: serviceInfo.tags,
     },
-    port: serviceInfo.port
+    port: serviceInfo.port,
   };
 });
 
@@ -108,20 +110,26 @@ app.get('/providers', (req, res) => {
   return {
     success: true,
     providers: paymentProviders,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 });
 
 // Process payment
 app.post('/payments/process', async (req, res) => {
-  const { amount, currency = 'USD', provider = 'stripe', paymentMethod, metadata = {} } = req.body || {};
-  
+  const {
+    amount,
+    currency = 'USD',
+    provider = 'stripe',
+    paymentMethod,
+    metadata = {},
+  } = req.body || {};
+
   if (!amount || amount <= 0) {
     res.statusCode = 400;
     return {
       success: false,
       error: 'Invalid amount',
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
 
@@ -131,7 +139,7 @@ app.post('/payments/process', async (req, res) => {
       success: false,
       error: 'Unsupported payment provider',
       supportedProviders: Object.keys(paymentProviders),
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
 
@@ -142,7 +150,7 @@ app.post('/payments/process', async (req, res) => {
       error: 'Payment provider temporarily unavailable',
       provider: provider,
       status: paymentProviders[provider].status,
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
 
@@ -156,7 +164,8 @@ app.post('/payments/process', async (req, res) => {
   const transactionId = `tx_${nextTransactionId++}`;
   const paymentId = nextPaymentId++;
 
-  const providerFee = amount * paymentProviders[provider].processingFee + paymentProviders[provider].fixedFee;
+  const providerFee =
+    amount * paymentProviders[provider].processingFee + paymentProviders[provider].fixedFee;
   const netAmount = amount - providerFee;
 
   const payment: any = {
@@ -169,12 +178,12 @@ app.post('/payments/process', async (req, res) => {
     paymentMethod: paymentMethod || 'card',
     fees: {
       processing: parseFloat(providerFee.toFixed(2)),
-      net: parseFloat(netAmount.toFixed(2))
+      net: parseFloat(netAmount.toFixed(2)),
     },
     metadata,
     createdAt: new Date().toISOString(),
     processedAt: new Date().toISOString(),
-    processingTime: Math.round(processingTime)
+    processingTime: Math.round(processingTime),
   };
 
   if (shouldFail) {
@@ -191,7 +200,7 @@ app.post('/payments/process', async (req, res) => {
     amount,
     currency,
     provider,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   // Emit payment event
@@ -203,14 +212,14 @@ app.post('/payments/process', async (req, res) => {
     currency,
     status: payment.status,
     provider,
-    service: 'payment-service'
+    service: 'payment-service',
   });
 
   res.statusCode = shouldFail ? 402 : 201;
   return {
     success: !shouldFail,
     data: payment,
-    service: 'payment-service'
+    service: 'payment-service',
   };
 });
 
@@ -219,7 +228,7 @@ app.get('/payments', (req, res) => {
   const paymentList = Array.from(payments.values());
   const status = req.query.status as string;
   const provider = req.query.provider as string;
-  
+
   let filteredPayments = paymentList;
   if (status) {
     filteredPayments = filteredPayments.filter((p: any) => p.status === status);
@@ -234,7 +243,7 @@ app.get('/payments', (req, res) => {
     total: filteredPayments.length,
     filters: { status, provider },
     service: 'payment-service',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 });
 
@@ -242,66 +251,66 @@ app.get('/payments', (req, res) => {
 app.get('/payments/:id', (req, res) => {
   const paymentId = parseInt(req.params.id);
   const payment = payments.get(paymentId);
-  
+
   if (!payment) {
     res.statusCode = 404;
     return {
       success: false,
       error: 'Payment not found',
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
-  
+
   return {
     success: true,
     data: payment,
-    service: 'payment-service'
+    service: 'payment-service',
   };
 });
 
 // Get all transactions
 app.get('/transactions', (req, res) => {
   const transactionList = Array.from(transactions.values());
-  
+
   return {
     success: true,
     data: transactionList,
     total: transactionList.length,
     service: 'payment-service',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 });
 
 // Get transaction by ID
 app.get('/transactions/:id', (req, res) => {
   const transaction = transactions.get(req.params.id);
-  
+
   if (!transaction) {
     res.statusCode = 404;
     return {
       success: false,
       error: 'Transaction not found',
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
-  
+
   return {
     success: true,
     data: transaction,
-    service: 'payment-service'
+    service: 'payment-service',
   };
 });
 
 // Process refund
 app.post('/refunds', async (req, res) => {
   const { paymentId, amount, reason = 'customer_request' } = req.body || {};
-  
+
   if (!paymentId) {
     res.statusCode = 400;
     return {
       success: false,
       error: 'Payment ID required',
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
 
@@ -311,7 +320,7 @@ app.post('/refunds', async (req, res) => {
     return {
       success: false,
       error: 'Payment not found',
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
 
@@ -321,7 +330,7 @@ app.post('/refunds', async (req, res) => {
       success: false,
       error: 'Can only refund completed payments',
       paymentStatus: payment.status,
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
 
@@ -331,7 +340,7 @@ app.post('/refunds', async (req, res) => {
     return {
       success: false,
       error: 'Refund amount cannot exceed payment amount',
-      service: 'payment-service'
+      service: 'payment-service',
     };
   }
 
@@ -348,7 +357,7 @@ app.post('/refunds', async (req, res) => {
     status: 'completed',
     provider: payment.provider,
     createdAt: new Date().toISOString(),
-    processedAt: new Date().toISOString()
+    processedAt: new Date().toISOString(),
   };
 
   // Update payment status if full refund
@@ -365,7 +374,7 @@ app.post('/refunds', async (req, res) => {
     amount: refundAmount,
     currency: payment.currency,
     provider: payment.provider,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   // Emit refund event
@@ -376,14 +385,14 @@ app.post('/refunds', async (req, res) => {
     amount: refundAmount,
     currency: payment.currency,
     reason,
-    service: 'payment-service'
+    service: 'payment-service',
   });
 
   res.statusCode = 201;
   return {
     success: true,
     data: refund,
-    service: 'payment-service'
+    service: 'payment-service',
   };
 });
 
@@ -396,16 +405,16 @@ app.get('/services', async (req, res) => {
       services: allServices,
       registry: {
         type: 'memory',
-        healthChecks: true
+        healthChecks: true,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   } catch (error) {
     res.statusCode = 500;
     return {
       success: false,
       error: 'Failed to retrieve services',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 });
@@ -415,10 +424,10 @@ async function startService() {
   try {
     // Register with service discovery
     await serviceRegistry.register(serviceInfo);
-    
+
     // Start the HTTP server
     app.listen(serviceInfo.port);
-    
+
     console.log(`
 💳 Payment Service (Microservice-Ready)
 =======================================
@@ -447,7 +456,6 @@ Containerized: ${!!process.env.KUBERNETES_SERVICE_HOST}
       serviceRegistry.destroy();
       process.exit(0);
     });
-    
   } catch (error) {
     console.error('Failed to start payment service:', error);
     process.exit(1);
@@ -455,4 +463,4 @@ Containerized: ${!!process.env.KUBERNETES_SERVICE_HOST}
 }
 
 // Start the service
-startService(); 
+startService();

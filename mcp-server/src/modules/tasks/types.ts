@@ -27,4 +27,4 @@ export interface TaskFilters {
   completed?: boolean;
   priority?: 'low' | 'medium' | 'high';
   limit?: number;
-} 
+}

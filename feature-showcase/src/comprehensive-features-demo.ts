@@ -5,54 +5,59 @@ import path from 'path';
 const app = createApp();
 
 // Setup middleware
-app.use(httpMiddleware.static({ 
-  root: path.join(__dirname, '../public'),
-  maxAge: 3600,
-  etag: true 
-}));
+app.use(
+  httpMiddleware.static({
+    root: path.join(__dirname, '../public'),
+    maxAge: 3600,
+    etag: true,
+  })
+);
 
-app.use(httpMiddleware.template({
-  views: path.join(__dirname, '../views'),
-  cache: process.env.NODE_ENV === 'production',
-  defaultLayout: 'main'
-}));
+app.use(
+  httpMiddleware.template({
+    views: path.join(__dirname, '../views'),
+    cache: process.env.NODE_ENV === 'production',
+    defaultLayout: 'main',
+  })
+);
 
-app.use(httpMiddleware.upload({
-  maxFileSize: 5 * 1024 * 1024, // 5MB
-  maxFiles: 5,
-  allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'text/plain']
-}));
+app.use(
+  httpMiddleware.upload({
+    maxFileSize: 5 * 1024 * 1024, // 5MB
+    maxFiles: 5,
+    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'text/plain'],
+  })
+);
 
 // Cookie demo routes
 app.get('/cookies/set', (req, res) => {
-  res.cookie('username', 'john_doe', { 
-    httpOnly: true, 
-    maxAge: 86400000 // 24 hours
-  })
-  .cookie('theme', 'dark', { 
-    maxAge: 86400000 
-  })
-  .json({ 
-    success: true, 
-    message: 'Cookies set successfully' 
-  });
+  res
+    .cookie('username', 'john_doe', {
+      httpOnly: true,
+      maxAge: 86400000, // 24 hours
+    })
+    .cookie('theme', 'dark', {
+      maxAge: 86400000,
+    })
+    .json({
+      success: true,
+      message: 'Cookies set successfully',
+    });
 });
 
 app.get('/cookies/get', (req, res) => {
   res.json({
     success: true,
     cookies: req.cookies || {},
-    message: 'Retrieved all cookies'
+    message: 'Retrieved all cookies',
   });
 });
 
 app.get('/cookies/clear', (req, res) => {
-  res.clearCookie('username')
-     .clearCookie('theme')
-     .json({ 
-       success: true, 
-       message: 'Cookies cleared' 
-     });
+  res.clearCookie('username').clearCookie('theme').json({
+    success: true,
+    message: 'Cookies cleared',
+  });
 });
 
 // File upload demo
@@ -60,7 +65,7 @@ app.post('/upload', (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).json({
       success: false,
-      error: 'No files uploaded'
+      error: 'No files uploaded',
     });
   }
 
@@ -68,14 +73,14 @@ app.post('/upload', (req, res) => {
     field: fieldName,
     filename: file.filename,
     size: file.size,
-    mimetype: file.mimetype
+    mimetype: file.mimetype,
   }));
 
   res.json({
     success: true,
     message: 'Files uploaded successfully',
     files: uploadedFiles,
-    formData: req.body.fields || {}
+    formData: req.body.fields || {},
   });
 });
 
@@ -86,15 +91,15 @@ app.get('/template', async (req, res) => {
     message: 'Welcome to the comprehensive features demo!',
     user: {
       name: 'John Doe',
-      email: 'john@example.com'
+      email: 'john@example.com',
     },
     features: [
       { name: 'File Uploads', status: 'Complete' },
       { name: 'Cookie Support', status: 'Complete' },
       { name: 'Static Files', status: 'Complete' },
-      { name: 'Template Rendering', status: 'Complete' }
+      { name: 'Template Rendering', status: 'Complete' },
     ],
-    showAdvanced: true
+    showAdvanced: true,
   });
 });
 
@@ -107,13 +112,13 @@ app.get('/redirect', (req, res) => {
 app.get('/download/:filename', async (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, '../downloads', filename);
-  
+
   try {
     await res.sendFile(filePath);
   } catch (error) {
     res.status(404).json({
       success: false,
-      error: 'File not found'
+      error: 'File not found',
     });
   }
 });
@@ -122,10 +127,10 @@ app.get('/download/:filename', async (req, res) => {
 app.post('/comprehensive', async (req, res) => {
   // Set a cookie
   res.cookie('lastAction', 'comprehensive-demo', { maxAge: 3600000 });
-  
+
   // Handle file uploads
   const files = req.files ? Object.keys(req.files).length : 0;
-  
+
   // Return comprehensive response
   res.json({
     success: true,
@@ -134,8 +139,8 @@ app.post('/comprehensive', async (req, res) => {
       cookies: req.cookies || {},
       filesUploaded: files,
       formData: req.body.fields || {},
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
 });
 
@@ -156,4 +161,4 @@ Available endpoints:
   `);
 });
 
-export default app; 
+export default app;

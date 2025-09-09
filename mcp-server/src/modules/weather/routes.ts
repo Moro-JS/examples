@@ -12,9 +12,9 @@ export const routes: any[] = [
       const locations = await actions.getAvailableLocations(database);
       return { locations };
     },
-    description: 'Get all available weather locations'
+    description: 'Get all available weather locations',
   },
-  
+
   {
     method: 'GET',
     path: '/search',
@@ -24,32 +24,35 @@ export const routes: any[] = [
       const locations = await actions.searchLocations(query, database);
       return { locations, query };
     },
-    description: 'Search for weather locations'
+    description: 'Search for weather locations',
   },
-  
+
   {
-    method: 'GET', 
+    method: 'GET',
     path: '/:location',
     handler: async (req, res) => {
       const database = req.database || {};
       const query = WeatherQuerySchema.parse({
         location: req.params.location,
-        ...req.query
+        ...req.query,
       });
-      
-      const weather = await actions.getWeather({
-        location: req.params.location,
-        units: (req.query.units as 'celsius' | 'fahrenheit') || 'celsius',
-        includeForecast: (req.query.includeForecast as string) !== 'false'
-      }, database);
-      
+
+      const weather = await actions.getWeather(
+        {
+          location: req.params.location,
+          units: (req.query.units as 'celsius' | 'fahrenheit') || 'celsius',
+          includeForecast: (req.query.includeForecast as string) !== 'false',
+        },
+        database
+      );
+
       if (!weather) {
         res.statusCode = 404;
         return { error: 'Weather data not available for this location' };
       }
-      
+
       return { weather };
     },
-    description: 'Get weather data for a specific location'
-  }
-]; 
+    description: 'Get weather data for a specific location',
+  },
+];

@@ -12,4 +12,4 @@ export interface ServiceHealth {
   status: 'up' | 'down' | 'degraded';
   responseTime?: number;
   lastCheck: Date;
-} 
+}

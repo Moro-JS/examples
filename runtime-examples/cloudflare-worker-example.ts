@@ -10,10 +10,12 @@ app.get('/', (req, res) => {
     message: 'Hello from MoroJS on Cloudflare Workers!',
     runtime: 'cloudflare-workers',
     timestamp: new Date().toISOString(),
-    cf: req.headers['cf-ray'] ? {
-      ray: req.headers['cf-ray'],
-      country: req.headers['cf-ipcountry']
-    } : null
+    cf: req.headers['cf-ray']
+      ? {
+          ray: req.headers['cf-ray'],
+          country: req.headers['cf-ipcountry'],
+        }
+      : null,
   };
 });
 
@@ -22,7 +24,7 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     runtime: 'cloudflare-workers',
     worker: true,
-    edge: true
+    edge: true,
   };
 });
 
@@ -32,7 +34,7 @@ app.post('/api/data', (req, res) => {
     runtime: 'cloudflare-workers',
     method: req.method,
     ip: req.ip,
-    country: req.headers['cf-ipcountry']
+    country: req.headers['cf-ipcountry'],
   };
 });
 
@@ -44,8 +46,8 @@ app.get('/api/user/:id', (req, res) => {
     location: {
       country: req.headers['cf-ipcountry'],
       region: req.headers['cf-region'],
-      city: req.headers['cf-city']
-    }
+      city: req.headers['cf-city'],
+    },
   };
 });
 
@@ -56,7 +58,7 @@ app.get('/api/env', (req, res) => {
     hasEnv: !!(req as any).env,
     runtime: 'cloudflare-workers',
     // Don't expose actual env vars for security
-    envKeys: (req as any).env ? Object.keys((req as any).env) : []
+    envKeys: (req as any).env ? Object.keys((req as any).env) : [],
   };
 });
 
@@ -64,7 +66,7 @@ app.get('/api/env', (req, res) => {
 export default {
   async fetch(request: Request, env: WorkersEnv, ctx: WorkersContext) {
     return app.getHandler()(request, env, ctx);
-  }
+  },
 };
 
 /*
@@ -89,4 +91,4 @@ API_KEY = "your-api-key"
 
 [env.production.vars]
 API_KEY = "your-prod-api-key"
-*/ 
+*/

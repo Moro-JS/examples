@@ -19,11 +19,6 @@
       "@morojs/moro": ["../../MoroJS/src/index.ts"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
-} 
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

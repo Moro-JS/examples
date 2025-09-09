@@ -8,7 +8,7 @@ app.get('/', (req, res) => {
   return {
     message: 'Hello from MoroJS on Node.js!',
     runtime: 'node',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 });
 
@@ -16,7 +16,7 @@ app.get('/health', (req, res) => {
   return {
     status: 'healthy',
     runtime: 'node',
-    uptime: process.uptime()
+    uptime: process.uptime(),
   };
 });
 
@@ -24,7 +24,7 @@ app.post('/data', (req, res) => {
   return {
     received: req.body,
     runtime: 'node',
-    method: req.method
+    method: req.method,
   };
 });
 
@@ -37,4 +37,4 @@ app.listen(port, () => {
 // Alternative explicit Node.js runtime (optional)
 // import { createAppNode } from '@morojs/moro';
 // const app = createAppNode();
-// ... rest of the code is identical 
+// ... rest of the code is identical

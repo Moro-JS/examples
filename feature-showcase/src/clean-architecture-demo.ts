@@ -4,72 +4,80 @@ import { createApp, builtInMiddleware } from '@morojs/moro';
 const app = createApp();
 
 // Clean built-in cache middleware with adapter auto-loading
-app.use(builtInMiddleware.cache({
-  adapter: process.env.REDIS_URL ? 'redis' : 'memory',
-  adapterOptions: process.env.REDIS_URL ? {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD
-  } : undefined,
-  
-  strategies: {
-    '^/api/users/': {
-      key: (req) => `user:${req.params.id}:${req.headers['accept-language'] || 'en'}`,
-      ttl: 1800,
-      condition: (req, res) => req.method === 'GET'
+app.use(
+  builtInMiddleware.cache({
+    adapter: process.env.REDIS_URL ? 'redis' : 'memory',
+    adapterOptions: process.env.REDIS_URL
+      ? {
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
+          password: process.env.REDIS_PASSWORD,
+        }
+      : undefined,
+
+    strategies: {
+      '^/api/users/': {
+        key: req => `user:${req.params.id}:${req.headers['accept-language'] || 'en'}`,
+        ttl: 1800,
+        condition: (req, res) => req.method === 'GET',
+      },
+      '^/api/posts/': {
+        key: req => `post:${req.path}:${JSON.stringify(req.query)}`,
+        ttl: 600,
+      },
     },
-    '^/api/posts/': {
-      key: (req) => `post:${req.path}:${JSON.stringify(req.query)}`,
-      ttl: 600
-    }
-  },
-  
-  defaultTtl: 3600,
-  keyPrefix: 'demo:',
-  maxAge: 3600,
-  vary: ['Accept-Language']
-}));
+
+    defaultTtl: 3600,
+    keyPrefix: 'demo:',
+    maxAge: 3600,
+    vary: ['Accept-Language'],
+  })
+);
 
 // Clean built-in CDN middleware with adapter auto-loading
 if (process.env.CLOUDFLARE_API_TOKEN) {
-  app.use(builtInMiddleware.cdn({
-    adapter: 'cloudflare',
-    adapterOptions: {
-      apiToken: process.env.CLOUDFLARE_API_TOKEN,
-      zoneId: process.env.CLOUDFLARE_ZONE_ID
-    },
-    autoInvalidate: true,
-    invalidationPatterns: ['^/api/admin/']
-  }));
+  app.use(
+    builtInMiddleware.cdn({
+      adapter: 'cloudflare',
+      adapterOptions: {
+        apiToken: process.env.CLOUDFLARE_API_TOKEN,
+        zoneId: process.env.CLOUDFLARE_ZONE_ID,
+      },
+      autoInvalidate: true,
+      invalidationPatterns: ['^/api/admin/'],
+    })
+  );
 }
 
 // Other built-in middleware
 app.use(builtInMiddleware.cookie({ secret: 'demo-secret' }));
 app.use(builtInMiddleware.csrf({ secret: 'csrf-secret' }));
-app.use(builtInMiddleware.csp({
-  directives: {
-    defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'unsafe-inline'"]
-  }
-}));
+app.use(
+  builtInMiddleware.csp({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+    },
+  })
+);
 
 // Demo routes
 app.get('/api/users/:id', (req, res) => {
   const userId = req.params.id;
-  
+
   const user = {
     id: userId,
     name: `User ${userId}`,
     email: `user${userId}@example.com`,
     language: req.headers['accept-language'] || 'en',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
-  
+
   res.json({
     success: true,
     data: user,
     cached: false,
-    architecture: 'clean-separation'
+    architecture: 'clean-separation',
   });
 });
 
@@ -79,15 +87,15 @@ app.get('/api/posts', (req, res) => {
     title: `Post ${i + 1}`,
     content: 'This is a sample post content.',
     author: `Author ${i + 1}`,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   }));
-  
+
   res.json({
     success: true,
     data: posts,
     query: req.query,
     cached: false,
-    architecture: 'clean-separation'
+    architecture: 'clean-separation',
   });
 });
 
@@ -97,7 +105,7 @@ app.post('/api/admin/clear-cache', async (req, res) => {
     success: true,
     message: 'Admin action completed',
     timestamp: new Date().toISOString(),
-    cdnInvalidated: !!process.env.CLOUDFLARE_API_TOKEN
+    cdnInvalidated: !!process.env.CLOUDFLARE_API_TOKEN,
   });
 });
 
@@ -113,22 +121,22 @@ app.get('/architecture', (req, res) => {
         'Auto-loading adapters by string name',
         'Memory cache as sensible default',
         'User-defined configuration',
-        'Enterprise-ready scaling'
-      ]
+        'Enterprise-ready scaling',
+      ],
     },
     usage: {
       cache: {
         memory: "adapter: 'memory'",
         redis: "adapter: 'redis'",
         file: "adapter: 'file'",
-        custom: "adapter: new CustomAdapter()"
+        custom: 'adapter: new CustomAdapter()',
       },
       cdn: {
         cloudflare: "adapter: 'cloudflare'",
         cloudfront: "adapter: 'cloudfront'",
         azure: "adapter: 'azure'",
-        custom: "adapter: new CustomCDNAdapter()"
-      }
+        custom: 'adapter: new CustomCDNAdapter()',
+      },
     },
     structure: {
       '/types/cache.ts': 'Cache interfaces and types',
@@ -136,8 +144,8 @@ app.get('/architecture', (req, res) => {
       '/adapters/cache/': 'Cache storage implementations',
       '/adapters/cdn/': 'CDN provider implementations',
       '/built-in/cache.ts': 'Clean cache middleware',
-      '/built-in/cdn.ts': 'Clean CDN middleware'
-    }
+      '/built-in/cdn.ts': 'Clean CDN middleware',
+    },
   });
 });
 
@@ -179,4 +187,4 @@ Current Configuration:
   `);
 });
 
-export default app; 
+export default app;

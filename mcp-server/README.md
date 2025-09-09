@@ -29,21 +29,25 @@ npm run dev http
 This example showcases enterprise-grade MCP integration:
 
 ### **MCP Tools** (Executable Functions)
+
 - **Task Management**: Create, read, update, delete tasks
 - **Weather Information**: Get weather data for various cities
 - **System Monitoring**: Retrieve system performance metrics
 
 ### **MCP Resources** (Data Sources)
+
 - **Task Lists**: All tasks, pending tasks, completed tasks
 - **Weather Locations**: Available weather data cities
 - **System Info**: Current system status and metrics
 
 ### **MCP Prompts** (AI Templates)
+
 - **Task Analysis**: Generate insights about task management
 - **Weather Advice**: Get clothing and activity recommendations
 - **System Analysis**: Performance optimization suggestions
 
 ### **Enterprise Architecture**
+
 - **Modular Design**: Clean separation of business domains
 - **Type Safety**: Full TypeScript with Zod validation
 - **Dual Transport**: stdio for AI agents, HTTP for debugging
@@ -52,6 +56,7 @@ This example showcases enterprise-grade MCP integration:
 ## Available Tools
 
 ### Task Management
+
 ```javascript
 // Create a new task
 {
@@ -74,7 +79,7 @@ This example showcases enterprise-grade MCP integration:
 
 // Update existing task
 {
-  "name": "update-task", 
+  "name": "update-task",
   "arguments": {
     "id": "task-uuid",
     "completed": true
@@ -83,6 +88,7 @@ This example showcases enterprise-grade MCP integration:
 ```
 
 ### Weather Information
+
 ```javascript
 // Get weather for a city
 {
@@ -96,6 +102,7 @@ This example showcases enterprise-grade MCP integration:
 ```
 
 ### System Monitoring
+
 ```javascript
 // Get system information
 {
@@ -134,6 +141,7 @@ npm start
 ```
 
 This starts the server with stdio transport, ready for AI agents like:
+
 - Claude Desktop
 - Cursor IDE
 - Any MCP-compatible client
@@ -145,6 +153,7 @@ npm run dev http
 ```
 
 Starts an HTTP server at `http://localhost:3010` with debug endpoints:
+
 - `GET /` - Server information
 - `GET /api/tools` - List all tasks
 - `GET /api/weather/:location` - Get weather data
@@ -153,11 +162,13 @@ Starts an HTTP server at `http://localhost:3010` with debug endpoints:
 ## Testing with Claude Desktop
 
 1. **Build the server**:
+
    ```bash
    npm run build
    ```
 
 2. **Configure Claude Desktop** by editing `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
    ```json
    {
      "mcpServers": {
@@ -186,6 +197,7 @@ npm run test:mcp
 ```
 
 This opens a web interface where you can:
+
 - View available tools, resources, and prompts
 - Test tool calls with custom parameters
 - Inspect raw MCP messages
@@ -274,6 +286,7 @@ mcp-server/
 ### Adding New Tools
 
 1. **Create the tool definition** in `setupMCPHandlers()`:
+
    ```javascript
    {
      name: 'my-new-tool',
@@ -310,16 +323,19 @@ mcp-server/
 ## Benefits of This Approach
 
 ### For AI Development
+
 - **Standardized Interface**: Works with any MCP-compatible AI client
 - **Type Safety**: Prevents runtime errors with TypeScript + Zod
 - **Discoverable**: AI agents can explore available capabilities automatically
 
 ### For Development
+
 - **Debuggable**: HTTP mode allows easy testing without AI clients
 - **Scalable**: Clean architecture supports complex business logic
 - **Maintainable**: Clear separation between MCP protocol and business logic
 
 ### For Production
+
 - **Enterprise Ready**: Built with MoroJS production patterns
 - **Error Handling**: Comprehensive error management and logging
 - **Monitoring**: System information tools for operational insight
@@ -327,12 +343,15 @@ mcp-server/
 ## Integration Examples
 
 ### With Claude Desktop
+
 Perfect for enhancing Claude with custom tools and data access.
 
-### With Cursor IDE  
+### With Cursor IDE
+
 Extend your development environment with project-specific tools.
 
 ### With Custom AI Agents
+
 Build specialized AI assistants with domain-specific capabilities.
 
 ## Learning Path
@@ -368,4 +387,4 @@ This example is part of the MoroJS Examples collection. Contributions are welcom
 
 ---
 
-**Built with MoroJS and the Model Context Protocol** 
+**Built with MoroJS and the Model Context Protocol**

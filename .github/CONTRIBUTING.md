@@ -29,6 +29,7 @@ Before contributing, ensure you have:
 All pull requests must pass the following status checks before they can be merged:
 
 ### 1. **lint-and-format** ✨
+
 - **ESLint**: Code must pass linting with no warnings
 - **Prettier**: Code must be properly formatted
 - **Run locally**:
@@ -40,6 +41,7 @@ All pull requests must pass the following status checks before they can be merge
   ```
 
 ### 2. **test** 🧪
+
 - All existing tests must pass
 - New features should include appropriate tests
 - **Run locally**:
@@ -48,6 +50,7 @@ All pull requests must pass the following status checks before they can be merge
   ```
 
 ### 3. **build** 🔨
+
 - All TypeScript examples must compile successfully
 - No build errors allowed
 - **Run locally**:
@@ -56,6 +59,7 @@ All pull requests must pass the following status checks before they can be merge
   ```
 
 ### 4. **security-audit** 🔒
+
 - No high or critical security vulnerabilities
 - Dependencies must pass security audit
 - **Run locally**:
@@ -67,13 +71,16 @@ All pull requests must pass the following status checks before they can be merge
 ## 📝 Contribution Guidelines
 
 ### Code Style
+
 - Follow the existing code style and conventions
 - Use TypeScript for all new code
 - Include proper JSDoc comments for public APIs
 - Follow the existing project structure
 
 ### Commit Messages
+
 Use conventional commit format:
+
 ```
 type(scope): description
 
@@ -85,6 +92,7 @@ docs(readme): update installation instructions
 ### Pull Request Process
 
 1. **Create a feature branch**:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -92,6 +100,7 @@ docs(readme): update installation instructions
 2. **Make your changes** following the guidelines above
 
 3. **Test locally**:
+
    ```bash
    npm run lint
    npm run format:check
@@ -101,12 +110,14 @@ docs(readme): update installation instructions
    ```
 
 4. **Commit your changes**:
+
    ```bash
    git add .
    git commit -m "feat: add new feature"
    ```
 
 5. **Push to your fork**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -140,6 +151,7 @@ MoroJS Examples/
 ## 🐛 Reporting Issues
 
 When reporting issues:
+
 1. Use the issue templates if available
 2. Include reproduction steps
 3. Provide environment information
@@ -148,6 +160,7 @@ When reporting issues:
 ## 💡 Suggesting Features
 
 For feature requests:
+
 1. Check existing issues first
 2. Explain the use case and benefits
 3. Provide implementation suggestions if possible
@@ -155,14 +168,14 @@ For feature requests:
 
 ## 🔧 Development Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev:*` | Start development server for specific example |
-| `npm run build:all` | Build all examples |
-| `npm run test:all` | Run all tests |
-| `npm run lint` | Check code style |
-| `npm run format` | Format code |
-| `npm run install:all` | Install dependencies for all examples |
+| Script                | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `npm run dev:*`       | Start development server for specific example |
+| `npm run build:all`   | Build all examples                            |
+| `npm run test:all`    | Run all tests                                 |
+| `npm run lint`        | Check code style                              |
+| `npm run format`      | Format code                                   |
+| `npm run install:all` | Install dependencies for all examples         |
 
 ## 📞 Getting Help
 
@@ -176,4 +189,4 @@ By contributing to MoroJS Examples, you agree that your contributions will be li
 
 ---
 
-Thank you for contributing to MoroJS Examples! 🎉 
+Thank you for contributing to MoroJS Examples! 🎉

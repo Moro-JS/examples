@@ -34,6 +34,7 @@ This example demonstrates a **complete, production-ready microservice architectu
 ## Quick Start
 
 ### Prerequisites
+
 ```bash
 # Install dependencies for all services
 npm run install:all
@@ -44,6 +45,7 @@ cp config.example.env .env
 ```
 
 ### Development Mode
+
 ```bash
 # Start all services concurrently
 npm run dev
@@ -58,6 +60,7 @@ docker-compose up nginx
 ```
 
 ### Production Mode
+
 ```bash
 # Build all services
 npm run build:all
@@ -69,7 +72,9 @@ npm run start:all
 ## 🏢 Services Overview
 
 ### 🌐 Nginx Load Balancer (Port 3000)
+
 **External load balancer and API gateway**
+
 - Request routing to appropriate services
 - Load balancing with health checks
 - SSL termination and security headers
@@ -77,6 +82,7 @@ npm run start:all
 - Production-ready reverse proxy
 
 **Routes:**
+
 ```
 GET  /                    # Gateway info page
 GET  /health             # Gateway health check
@@ -87,13 +93,16 @@ GET  /status             # Nginx status page
 ```
 
 ### 👤 User Service (Port 3010)
+
 **User management and authentication**
+
 - CRUD operations for users
 - User status management (active/inactive)
 - Event emission for user lifecycle
 - Role-based access control
 
 **Endpoints:**
+
 ```
 GET    /users            # List all users
 GET    /users/:id        # Get user by ID
@@ -105,7 +114,9 @@ POST   /users/:id/deactivate  # Deactivate user
 ```
 
 ### 💳 Payment Service (Port 3011) **IMPLEMENTED**
+
 **Payment processing and transaction management**
+
 - Multiple payment providers (Stripe, PayPal, Square, Crypto)
 - Real-time payment processing with fees calculation
 - Transaction history and status tracking
@@ -114,6 +125,7 @@ POST   /users/:id/deactivate  # Deactivate user
 - Event emission for payment lifecycle
 
 **Endpoints:**
+
 ```
 GET    /payments            # List all payments
 GET    /payments/:id        # Get payment by ID
@@ -125,7 +137,9 @@ POST   /refunds             # Process refund
 ```
 
 ### Order Service (Port 3012) **IMPLEMENTED**
+
 **Order management and fulfillment with inter-service coordination**
+
 - Complete order lifecycle management
 - Real-time inventory tracking and reservation
 - Integration with User and Payment services
@@ -134,6 +148,7 @@ POST   /refunds             # Process refund
 - Service dependency health checking
 
 **Endpoints:**
+
 ```
 GET    /orders              # List all orders
 GET    /orders/:id          # Get order by ID
@@ -146,6 +161,7 @@ GET    /inventory           # View product inventory
 ## Inter-Service Communication
 
 ### Event-Driven Architecture
+
 Services communicate through events for loose coupling:
 
 ```typescript
@@ -165,6 +181,7 @@ events.on('order.created', ({ data }) => {
 ```
 
 ### HTTP Communication
+
 Direct service-to-service calls for immediate responses:
 
 ```typescript
@@ -178,70 +195,80 @@ const paymentResult = await processWithProvider(paymentData);
 ## Resilience Patterns
 
 ### Circuit Breaker
+
 ```typescript
 const circuitBreaker = new CircuitBreaker(userServiceCall, {
   failureThreshold: 5,
   resetTimeout: 30000,
-  timeout: 5000
+  timeout: 5000,
 });
 
 const result = await circuitBreaker.execute();
 ```
 
 ### Retry with Backoff
+
 ```typescript
-const result = await retryWithBackoff(async () => {
-  return await serviceCall();
-}, { maxRetries: 3, baseDelay: 1000 });
+const result = await retryWithBackoff(
+  async () => {
+    return await serviceCall();
+  },
+  { maxRetries: 3, baseDelay: 1000 }
+);
 ```
 
 ### Health Checks
+
 ```typescript
 app.get('/health', () => ({
   service: 'user-service',
   status: 'healthy',
   dependencies: ['database', 'redis'],
-  uptime: process.uptime()
+  uptime: process.uptime(),
 }));
 ```
 
 ## Observability
 
 ### Distributed Logging
+
 ```typescript
 // Correlated logs across services
 logger.info('Processing order', 'OrderService', {
   orderId: '12345',
   userId: '67890',
-  correlationId: 'req_abc123'
+  correlationId: 'req_abc123',
 });
 ```
 
 ### Metrics Collection
+
 ```typescript
 // Service metrics
 const metrics = {
   requestsPerSecond: 150,
   averageResponseTime: '45ms',
   errorRate: '0.1%',
-  activeConnections: 23
+  activeConnections: 23,
 };
 ```
 
 ### Distributed Tracing
+
 ```typescript
 // Request tracing across services
 const trace = {
   traceId: 'trace_xyz789',
   spanId: 'span_order_create',
   parentSpanId: 'span_api_gateway',
-  service: 'order-service'
+  service: 'order-service',
 };
 ```
 
 ## Development Tools
 
 ### Service Discovery
+
 Services automatically register with the API Gateway:
 
 ```typescript
@@ -249,11 +276,12 @@ Services automatically register with the API Gateway:
 await gateway.registerService({
   name: 'user-service',
   url: 'http://localhost:3010',
-  healthCheck: '/health'
+  healthCheck: '/health',
 });
 ```
 
 ### Load Testing
+
 ```bash
 # Test individual service
 curl -X POST http://localhost:3010/users \
@@ -267,6 +295,7 @@ curl -X POST http://localhost:3000/users \
 ```
 
 ### Monitoring Dashboard
+
 ```bash
 # Service health overview
 curl http://localhost:3000/health
@@ -280,29 +309,31 @@ curl http://localhost:3012/health
 ## 🐳 Container Deployment
 
 ### Docker Compose
+
 ```yaml
 version: '3.8'
 services:
   api-gateway:
     build: ./api-gateway
-    ports: ["3000:3000"]
+    ports: ['3000:3000']
     depends_on: [user-service, payment-service, order-service]
-    
+
   user-service:
     build: ./user-service
-    ports: ["3010:3010"]
-    
+    ports: ['3010:3010']
+
   payment-service:
     build: ./payment-service
-    ports: ["3011:3011"]
-    
+    ports: ['3011:3011']
+
   order-service:
     build: ./order-service
-    ports: ["3012:3012"]
+    ports: ['3012:3012']
     depends_on: [user-service, payment-service]
 ```
 
 ### Kubernetes Deployment
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -319,10 +350,10 @@ spec:
         app: user-service
     spec:
       containers:
-      - name: user-service
-        image: user-service:latest
-        ports:
-        - containerPort: 3010
+        - name: user-service
+          image: user-service:latest
+          ports:
+            - containerPort: 3010
 ```
 
 ## Related Examples
@@ -336,4 +367,4 @@ spec:
 - [Moro Documentation](https://morojs.com)
 - [Microservices Patterns](../../moro/docs/microservices.md)
 - [Service Mesh Guide](../../moro/docs/service-mesh.md)
-- [Production Deployment](../../moro/docs/production.md) 
+- [Production Deployment](../../moro/docs/production.md)

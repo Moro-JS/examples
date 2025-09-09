@@ -8,6 +8,7 @@ This repository supports **two development modes** to accommodate different use 
 ## 🎯 NPM Mode (GitHub Ready)
 
 This mode uses the published `@morojs/moro` package from npm. Perfect for:
+
 - Public repository distribution
 - Users trying the examples
 - Production deployments
@@ -29,6 +30,7 @@ npm install  # This will install @morojs/moro from npm
 ## 🔧 Local Development Mode
 
 This mode uses local file references to the MoroJS framework. Perfect for:
+
 - Framework development and testing
 - Real-time changes to the framework
 - Development workflow before publishing
@@ -36,6 +38,7 @@ This mode uses local file references to the MoroJS framework. Perfect for:
 ### Prerequisites
 
 Ensure the MoroJS framework repository is available at the expected location:
+
 ```
 My Projects/
 ├── MoroJS/                 # Main framework repository
@@ -46,7 +49,7 @@ My Projects/
 ### Setup for Local Mode
 
 ```bash
-# Quick setup for all examples  
+# Quick setup for all examples
 npm run setup:local
 
 # Or manually for individual examples
@@ -71,13 +74,13 @@ npm run update:imports
 
 ## 📋 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run setup:npm` | Configure all examples to use `@morojs/moro` from npm |
-| `npm run setup:local` | Configure all examples to use local file references |
+| Script                   | Description                                                 |
+| ------------------------ | ----------------------------------------------------------- |
+| `npm run setup:npm`      | Configure all examples to use `@morojs/moro` from npm       |
+| `npm run setup:local`    | Configure all examples to use local file references         |
 | `npm run update:imports` | Update all TypeScript imports from 'moro' to '@morojs/moro' |
-| `npm run install:all` | Install dependencies for all examples |
-| `npm run dev:all` | Start all examples in development mode |
+| `npm run install:all`    | Install dependencies for all examples                       |
+| `npm run dev:all`        | Start all examples in development mode                      |
 
 ## 🏗️ Project Structure
 
@@ -99,11 +102,13 @@ MoroJS Examples/
 When preparing for public release:
 
 1. **Switch to NPM mode**:
+
    ```bash
    npm run setup:npm
    ```
 
 2. **Verify all examples work**:
+
    ```bash
    npm run install:all
    npm run build:all
@@ -116,6 +121,7 @@ When preparing for public release:
 When developing the framework:
 
 1. **Switch to Local mode**:
+
    ```bash
    npm run setup:local
    ```
@@ -138,7 +144,7 @@ To ensure everything works in both modes:
 npm run setup:npm
 cd simple-api && npm run dev
 
-# Test Local mode  
+# Test Local mode
 npm run setup:local
 cd simple-api && npm run dev
 ```
@@ -146,6 +152,7 @@ cd simple-api && npm run dev
 ## 📝 Package.json Differences
 
 ### NPM Mode
+
 ```json
 {
   "dependencies": {
@@ -155,6 +162,7 @@ cd simple-api && npm run dev
 ```
 
 ### Local Mode
+
 ```json
 {
   "dependencies": {
@@ -188,8 +196,8 @@ cd simple-api && npm run dev
 This dual-mode system provides:
 
 - ✅ **Seamless development** with local file references
-- ✅ **Public distribution** with npm packages  
+- ✅ **Public distribution** with npm packages
 - ✅ **Easy switching** between modes
 - ✅ **Automated setup** scripts
 - ✅ **Consistent imports** across all examples
-- ✅ **Real-time testing** during framework development 
+- ✅ **Real-time testing** during framework development

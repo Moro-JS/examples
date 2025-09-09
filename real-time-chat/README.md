@@ -26,13 +26,14 @@ A complete real-time chat application built with MoroJS, featuring WebSockets, u
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - PostgreSQL 14+
 - Redis 6+
 
 ### Installation
 
 1. **Clone and install dependencies:**
+
    ```bash
    git clone https://github.com/MoroJS/examples.git
    cd examples/real-time-chat
@@ -40,35 +41,39 @@ A complete real-time chat application built with MoroJS, featuring WebSockets, u
    ```
 
 2. **Setup environment variables:**
+
    ```bash
    cp .env.example .env
    # Edit .env with your database and Redis URLs
    ```
 
 3. **Setup database:**
+
    ```bash
    # Create database
    createdb chat_app
-   
+
    # Run schema
    psql -d chat_app -f database/schema.sql
-   
+
    # Optional: Run seed data
    npm run db:seed
    ```
 
 4. **Start development server:**
+
    ```bash
    npm run dev
    ```
 
 5. **Test the application:**
+
    ```bash
    # Register a user
    curl -X POST http://localhost:3000/auth/register \\
      -H "Content-Type: application/json" \\
      -d '{"username": "testuser", "email": "test@example.com", "password": "password123"}'
-   
+
    # Login
    curl -X POST http://localhost:3000/auth/login \\
      -H "Content-Type: application/json" \\
@@ -78,23 +83,28 @@ A complete real-time chat application built with MoroJS, featuring WebSockets, u
 ## API Endpoints
 
 ### Authentication
+
 - `POST /auth/register` - Register new user
 - `POST /auth/login` - Login user
 
 ### Rooms
+
 - `GET /rooms` - Get user's rooms
 - `POST /rooms` - Create new room
 
 ### Messages
+
 - `GET /rooms/:roomId/messages` - Get room messages (paginated)
 - `POST /rooms/:roomId/messages` - Send message to room
 
 ### WebSocket
+
 - `WS /chat/:roomId?token=JWT_TOKEN` - Join room for real-time chat
 
 ## WebSocket Events
 
 ### Client to Server
+
 ```javascript
 // Send message
 {
@@ -121,6 +131,7 @@ A complete real-time chat application built with MoroJS, featuring WebSockets, u
 ```
 
 ### Server to Client
+
 ```javascript
 // New message
 {
@@ -197,7 +208,7 @@ const ws = new WebSocket(\`ws://localhost:3000/chat/\${roomId}?token=\${token}\`
 // Listen for messages
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  
+
   switch (data.type) {
     case 'new_message':
       displayMessage(data.message);
@@ -225,6 +236,7 @@ function sendMessage(content) {
 For production deployment:
 
 1. **Environment Variables:**
+
    ```bash
    NODE_ENV=production
    JWT_SECRET=your-super-secret-jwt-key
@@ -253,4 +265,4 @@ For production deployment:
 
 ## License
 
-MIT License - see LICENSE file for details. 
+MIT License - see LICENSE file for details.

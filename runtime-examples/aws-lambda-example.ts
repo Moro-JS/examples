@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
     message: 'Hello from MoroJS on AWS Lambda!',
     runtime: 'aws-lambda',
     timestamp: new Date().toISOString(),
-    requestId: req.requestId
+    requestId: req.requestId,
   };
 });
 
@@ -19,7 +19,7 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     runtime: 'aws-lambda',
     lambda: true,
-    region: process.env.AWS_REGION
+    region: process.env.AWS_REGION,
   };
 });
 
@@ -28,7 +28,7 @@ app.post('/api/data', (req, res) => {
     received: req.body,
     runtime: 'aws-lambda',
     method: req.method,
-    pathParameters: req.params
+    pathParameters: req.params,
   };
 });
 
@@ -37,7 +37,7 @@ app.get('/api/user/:id', (req, res) => {
     userId: req.params.id,
     runtime: 'aws-lambda',
     query: req.query,
-    sourceIp: req.ip
+    sourceIp: req.ip,
   };
 });
 
@@ -73,4 +73,4 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
-*/ 
+*/

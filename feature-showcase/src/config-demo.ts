@@ -1,12 +1,12 @@
 // Configuration System Demo - Type-Safe Environment Configuration
-import { 
-  createApp, 
-  z, 
-  getConfig, 
-  createModuleConfig, 
-  getEnvVar, 
-  isDevelopment, 
-  isProduction 
+import {
+  createApp,
+  z,
+  getConfig,
+  createModuleConfig,
+  getEnvVar,
+  isDevelopment,
+  isProduction,
 } from '@morojs/moro';
 
 const app = createApp();
@@ -28,22 +28,22 @@ console.log(`  - CORS Enabled: ${globalConfig.security.cors.enabled}`);
 // ============================================
 const UserModuleConfigSchema = z.object({
   cache: z.object({
-    ttl: z.coerce.number().default(600) // Users cache longer
+    ttl: z.coerce.number().default(600), // Users cache longer
   }),
   rateLimit: z.object({
     requests: z.coerce.number().default(50), // Users have stricter rate limits
-    window: z.coerce.number().default(60000)
+    window: z.coerce.number().default(60000),
   }),
   features: z.object({
     registration: z.coerce.boolean().default(true),
     passwordReset: z.coerce.boolean().default(true),
-    emailVerification: z.coerce.boolean().default(false)
+    emailVerification: z.coerce.boolean().default(false),
   }),
   security: z.object({
     passwordMinLength: z.coerce.number().min(6).default(8),
     requireSpecialChars: z.coerce.boolean().default(false),
-    sessionTimeout: z.coerce.number().default(3600000) // 1 hour
-  })
+    sessionTimeout: z.coerce.number().default(3600000), // 1 hour
+  }),
 });
 
 // Create module config with environment overrides
@@ -55,20 +55,22 @@ const userModuleConfig = createModuleConfig(
     features: {
       registration: true,
       passwordReset: true,
-      emailVerification: false
+      emailVerification: false,
     },
     security: {
       passwordMinLength: 8,
       requireSpecialChars: false,
-      sessionTimeout: 3600000
-    }
+      sessionTimeout: 3600000,
+    },
   },
   'USER_' // Environment prefix: USER_CACHE_TTL, USER_RATE_LIMIT_REQUESTS, etc.
 );
 
 console.log('\n👤 User Module Configuration:');
 console.log(`  - Cache TTL: ${userModuleConfig.cache.ttl}s`);
-console.log(`  - Rate Limit: ${userModuleConfig.rateLimit.requests}/${userModuleConfig.rateLimit.window}ms`);
+console.log(
+  `  - Rate Limit: ${userModuleConfig.rateLimit.requests}/${userModuleConfig.rateLimit.window}ms`
+);
 console.log(`  - Registration Enabled: ${userModuleConfig.features.registration}`);
 console.log(`  - Password Min Length: ${userModuleConfig.security.passwordMinLength}`);
 
@@ -94,7 +96,7 @@ if (isProduction()) {
 // ============================================
 // 4. Type-Safe Environment Variable Access
 // ============================================
-const customPort = getEnvVar('CUSTOM_PORT', 8080, (val) => parseInt(val));
+const customPort = getEnvVar('CUSTOM_PORT', 8080, val => parseInt(val));
 const enableDebug = getEnvVar('DEBUG_ENABLED', false);
 const appName = getEnvVar('APP_NAME', 'Moro Demo App');
 
@@ -108,40 +110,42 @@ console.log(`  - App Name: ${appName}`);
 // ============================================
 
 // Configuration endpoint
-app.get('/config')
+app
+  .get('/config')
   .describe('Get application configuration')
   .tag('system')
   .handler((req, res) => {
     const config = app.getConfig();
-    
+
     return {
       success: true,
       data: {
         environment: config.server.environment,
         server: {
           port: config.server.port,
-          host: config.server.host
+          host: config.server.host,
         },
         features: {
           cacheEnabled: config.modules.cache.enabled,
           rateLimitEnabled: config.modules.rateLimit.enabled,
-          corsEnabled: config.security.cors.enabled
+          corsEnabled: config.security.cors.enabled,
         },
         performance: {
           compressionEnabled: config.performance.compression.enabled,
-          circuitBreakerEnabled: config.performance.circuitBreaker.enabled
-        }
-      }
+          circuitBreakerEnabled: config.performance.circuitBreaker.enabled,
+        },
+      },
     };
   });
 
 // Health check with configuration info
-app.get('/health')
+app
+  .get('/health')
   .describe('Health check with configuration status')
   .tag('system')
   .handler((req, res) => {
     const config = app.getConfig();
-    
+
     return {
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -150,39 +154,42 @@ app.get('/health')
       configuration: {
         loaded: true,
         environment: config.server.environment,
-        features: Object.keys(config.modules).length
-      }
+        features: Object.keys(config.modules).length,
+      },
     };
   });
 
 // Users endpoint using module configuration
-app.post('/users')
-  .body(z.object({
-    name: z.string().min(2),
-    email: z.string().email(),
-    password: z.string().min(userModuleConfig.security.passwordMinLength)
-  }))
-  .rateLimit({ 
-    requests: userModuleConfig.rateLimit.requests, 
-    window: userModuleConfig.rateLimit.window 
+app
+  .post('/users')
+  .body(
+    z.object({
+      name: z.string().min(2),
+      email: z.string().email(),
+      password: z.string().min(userModuleConfig.security.passwordMinLength),
+    })
+  )
+  .rateLimit({
+    requests: userModuleConfig.rateLimit.requests,
+    window: userModuleConfig.rateLimit.window,
   })
   .cache({ ttl: userModuleConfig.cache.ttl })
   .describe('Create user with module-specific configuration')
   .tag('users')
   .handler((req, res) => {
     const { name, email, password } = req.body;
-    
+
     // Password validation based on configuration
     if (userModuleConfig.security.requireSpecialChars) {
       const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
       if (!specialCharRegex.test(password)) {
         return {
           success: false,
-          error: 'Password must contain special characters'
+          error: 'Password must contain special characters',
         };
       }
     }
-    
+
     return {
       success: true,
       message: 'User created successfully',
@@ -192,51 +199,55 @@ app.post('/users')
         email,
         features: {
           registrationEnabled: userModuleConfig.features.registration,
-          emailVerificationRequired: userModuleConfig.features.emailVerification
-        }
+          emailVerificationRequired: userModuleConfig.features.emailVerification,
+        },
       },
       configuration: {
         cacheExpiry: userModuleConfig.cache.ttl,
-        rateLimitApplied: `${userModuleConfig.rateLimit.requests}/${userModuleConfig.rateLimit.window}ms`
-      }
+        rateLimitApplied: `${userModuleConfig.rateLimit.requests}/${userModuleConfig.rateLimit.window}ms`,
+      },
     };
   });
 
 // Configuration validation demo
-app.get('/validate-config')
+app
+  .get('/validate-config')
   .describe('Demonstrate configuration validation')
   .tag('demo')
   .handler((req, res) => {
     try {
       const config = app.getConfig();
-      
+
       const validationResults = {
         server: {
           portValid: config.server.port >= 1 && config.server.port <= 65535,
-          environmentValid: ['development', 'staging', 'production'].includes(config.server.environment)
+          environmentValid: ['development', 'staging', 'production'].includes(
+            config.server.environment
+          ),
         },
         security: {
           corsConfigured: config.security.cors.enabled,
-          helmetEnabled: config.security.helmet.enabled
+          helmetEnabled: config.security.helmet.enabled,
         },
         performance: {
           compressionLevel: config.performance.compression.level,
-          circuitBreakerThreshold: config.performance.circuitBreaker.failureThreshold
-        }
+          circuitBreakerThreshold: config.performance.circuitBreaker.failureThreshold,
+        },
       };
-      
+
       return {
         success: true,
         message: 'Configuration validation completed',
         results: validationResults,
-        allValid: Object.values(validationResults.server).every(Boolean) &&
-                  Object.values(validationResults.security).every(Boolean)
+        allValid:
+          Object.values(validationResults.server).every(Boolean) &&
+          Object.values(validationResults.security).every(Boolean),
       };
     } catch (error) {
       return {
         success: false,
         error: 'Configuration validation failed',
-        details: String(error)
+        details: String(error),
       };
     }
   });
@@ -259,8 +270,10 @@ app.listen(port, () => {
   console.log(`\nTry these commands:`);
   console.log(`   curl http://localhost:${port}/config`);
   console.log(`   curl http://localhost:${port}/health`);
-  console.log(`   curl -X POST http://localhost:${port}/users -H "Content-Type: application/json" -d '{"name":"John","email":"john@example.com","password":"secret123"}'`);
-  
+  console.log(
+    `   curl -X POST http://localhost:${port}/users -H "Content-Type: application/json" -d '{"name":"John","email":"john@example.com","password":"secret123"}'`
+  );
+
   if (isDevelopment()) {
     console.log(`\nDevelopment Tips:`);
     console.log(`   - Set USER_CACHE_TTL=1200 to override user cache TTL`);
@@ -268,4 +281,4 @@ app.listen(port, () => {
     console.log(`   - Set DEBUG_ENABLED=true for extra debug info`);
     console.log(`   - Check .env.example for all available configuration options`);
   }
-}); 
+});
