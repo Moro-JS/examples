@@ -23,6 +23,10 @@ Before contributing, ensure you have:
    npm ci
    npm run install:all
    ```
+4. **Set up git hooks** (automatically formats code before commits):
+   ```bash
+   npx husky init  # Only needed if .husky folder doesn't exist
+   ```
 
 ## 🔍 Status Checks
 
@@ -32,6 +36,7 @@ All pull requests must pass the following status checks before they can be merge
 
 - **ESLint**: Code must pass linting with no warnings
 - **Prettier**: Code must be properly formatted
+- **Auto-formatting**: Git hooks automatically format staged files on commit
 - **Run locally**:
   ```bash
   npm run lint        # Check for linting issues
@@ -39,6 +44,8 @@ All pull requests must pass the following status checks before they can be merge
   npm run format      # Format code
   npm run format:check # Check formatting
   ```
+
+> **Note**: With git hooks enabled, your code will be automatically formatted when you commit, ensuring consistent formatting across the project.
 
 ### 2. **test** 🧪
 

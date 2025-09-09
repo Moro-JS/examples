@@ -27,7 +27,8 @@
     "format": "prettier --write \"**/*.{ts,js,mjs,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
     "audit:security": "npm audit --audit-level moderate",
-    "check:deps": "depcheck --ignores=\"@types/*,ts-node*,typescript,concurrently\""
+    "check:deps": "depcheck --ignores=\"@types/*,ts-node*,typescript,concurrently\"",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
@@ -39,12 +40,23 @@
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
     "prettier": "^3.4.2",
     "typescript": "^5.9.2"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "keywords": [
     "moro",
