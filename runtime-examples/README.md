@@ -191,5 +191,5 @@ Each example includes deployment instructions and runtime-specific configuration
 
 - [MoroJS Documentation](https://morojs.com)
 - [Report Issues](https://github.com/Moro-JS/moro/issues)
-- [Community Discord](https://discord.gg/morojs)
+- [Community Discord](https://morojs.com/discord)
 - [Email Support](mailto:support@morojs.com)

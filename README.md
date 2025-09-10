@@ -302,7 +302,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - **Documentation**: [https://morojs.com](https://morojs.com)
 - **GitHub Issues**: [Report bugs or request features](https://github.com/Moro-JS/examples/issues)
-- **Discord**: [Join our community](https://discord.gg/morojs)
+- **Discord**: [Join our community](https://morojs.com/discord)
 - **Twitter**: [@MoroJS](https://twitter.com/morojs)
 
 ---
