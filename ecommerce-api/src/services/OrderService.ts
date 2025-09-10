@@ -83,7 +83,7 @@ export class OrderService {
       }
 
       // Calculate totals
-      let subtotal = cart.totalAmount;
+      const subtotal = cart.totalAmount;
       let discount = 0;
       let tax = 0;
 
@@ -93,7 +93,7 @@ export class OrderService {
           `
           SELECT id, type, value, minimum_amount
           FROM coupons
-          WHERE code = $1 AND active = true 
+          WHERE code = $1 AND active = true
             AND (expires_at IS NULL OR expires_at > NOW())
             AND (usage_limit IS NULL OR usage_count < usage_limit)
         `,
@@ -113,8 +113,8 @@ export class OrderService {
             // Update coupon usage
             await this.db.query(
               `
-              UPDATE coupons 
-              SET usage_count = usage_count + 1 
+              UPDATE coupons
+              SET usage_count = usage_count + 1
               WHERE id = $1
             `,
               [coupon.id]
@@ -131,7 +131,7 @@ export class OrderService {
       const orderResult = await this.db.query(
         `
         INSERT INTO orders (
-          id, user_id, subtotal, discount, tax, total, status, 
+          id, user_id, subtotal, discount, tax, total, status,
           shipping_address, payment_status, created_at, updated_at
         )
         VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7, 'pending', NOW(), NOW())
@@ -236,7 +236,9 @@ export class OrderService {
         );
 
         await this.db.query('COMMIT');
-        throw new Error(`Payment failed: ${paymentError.message}`);
+        throw new Error(
+          `Payment failed: ${(paymentError as Error).message || 'Unknown payment error'}`
+        );
       }
     } catch (error) {
       await this.db.query('ROLLBACK');
@@ -261,7 +263,7 @@ export class OrderService {
     const [ordersResult, countResult] = await Promise.all([
       this.db.query(
         `
-        SELECT 
+        SELECT
           o.id, o.user_id, o.subtotal, o.discount, o.tax, o.total,
           o.status, o.shipping_address, o.payment_id, o.payment_status,
           o.created_at, o.updated_at
@@ -337,7 +339,7 @@ export class OrderService {
   async getOrder(orderId: string, userId: string): Promise<Order | null> {
     const orderResult = await this.db.query(
       `
-      SELECT 
+      SELECT
         o.id, o.user_id, o.subtotal, o.discount, o.tax, o.total,
         o.status, o.shipping_address, o.payment_id, o.payment_status,
         o.created_at, o.updated_at

@@ -2,7 +2,7 @@
 // Handles user management and authentication
 
 import { createApp, z } from '@morojs/moro';
-import { ServiceRegistry } from 'moro/src/core/networking/service-discovery';
+import { ServiceRegistry } from '@morojs/moro';
 
 const app = createApp();
 

@@ -34,15 +34,11 @@ app.use(
 );
 
 app.use(
-  builtInMiddleware.advancedCache({
+  builtInMiddleware.cache({
     maxAge: 3600,
     staleWhileRevalidate: 86400,
     vary: ['Accept-Encoding', 'User-Agent'],
     etag: 'strong',
-    cdnHeaders: {
-      cloudflare: true,
-      fastly: true,
-    },
   })
 );
 

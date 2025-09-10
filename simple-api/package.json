@@ -5,8 +5,8 @@
   "description": "Simple API demonstration showing basic Moro framework usage",
   "main": "src/server.ts",
   "scripts": {
-    "dev": "NODE_ENV=development ts-node src/server.ts",
-    "dev:watch": "NODE_ENV=development ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node src/server.ts",
+    "dev:watch": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "NODE_ENV=production node dist/server.js",
     "test": "echo \"No tests specified\"",
@@ -14,7 +14,7 @@
     "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
   },
   "dependencies": {
-    "@morojs/moro": "^1.0.0"
+    "@morojs/moro": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

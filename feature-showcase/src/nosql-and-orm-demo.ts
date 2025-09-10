@@ -130,26 +130,29 @@ app.get('/api/mongo/users/search', async (req, res) => {
   }
 });
 
-app.post('/api/mongo/users', validate({ body: UserSchema }), async (req, res) => {
-  try {
-    const userData = req.body;
-    const newUser = await mongoDb.insert('users', userData);
+app.post(
+  '/api/mongo/users',
+  validate({ body: UserSchema }, async (req, res) => {
+    try {
+      const userData = req.validatedBody;
+      const newUser = await mongoDb.insert('users', userData);
 
-    res.status(201);
-    return {
-      success: true,
-      data: newUser,
-      message: 'User created in MongoDB',
-    };
-  } catch (error) {
-    res.status(500);
-    return {
-      success: false,
-      error: 'Failed to create user in MongoDB',
-      details: error instanceof Error ? error.message : String(error),
-    };
-  }
-});
+      res.status(201);
+      return {
+        success: true,
+        data: newUser,
+        message: 'User created in MongoDB',
+      };
+    } catch (error) {
+      res.status(500);
+      return {
+        success: false,
+        error: 'Failed to create user in MongoDB',
+        details: error instanceof Error ? error.message : String(error),
+      };
+    }
+  })
+);
 
 // MongoDB Aggregation example
 app.get('/api/mongo/users/stats', async (req, res) => {
@@ -215,37 +218,39 @@ app.get('/api/redis/cache/:key', async (req, res) => {
 
 app.post(
   '/api/redis/cache',
-  validate({
-    body: z.object({
-      key: z.string().min(1),
-      value: z.any(),
-      ttl: z.number().int().positive().optional(),
-    }),
-  }),
-  async (req, res) => {
-    try {
-      const { key, value, ttl } = req.body;
+  validate(
+    {
+      body: z.object({
+        key: z.string().min(1),
+        value: z.any(),
+        ttl: z.number().int().positive().optional(),
+      }),
+    },
+    async (req, res) => {
+      try {
+        const { key, value, ttl } = req.body;
 
-      if (redisDb instanceof RedisAdapter) {
-        await redisDb.set(key, value, ttl);
-      } else {
-        await redisDb.insert(key, { value });
+        if (redisDb instanceof RedisAdapter) {
+          await redisDb.set(key, value, ttl);
+        } else {
+          await redisDb.insert(key, { value });
+        }
+
+        return {
+          success: true,
+          message: `Value stored in Redis${ttl ? ` with TTL ${ttl}s` : ''}`,
+          data: { key, value, ttl },
+        };
+      } catch (error) {
+        res.status(500);
+        return {
+          success: false,
+          error: 'Failed to store value in Redis',
+          details: error instanceof Error ? error.message : String(error),
+        };
       }
-
-      return {
-        success: true,
-        message: `Value stored in Redis${ttl ? ` with TTL ${ttl}s` : ''}`,
-        data: { key, value, ttl },
-      };
-    } catch (error) {
-      res.status(500);
-      return {
-        success: false,
-        error: 'Failed to store value in Redis',
-        details: error instanceof Error ? error.message : String(error),
-      };
     }
-  }
+  )
 );
 
 // Redis counters example
@@ -277,67 +282,72 @@ app.post('/api/redis/counter/:name/incr', async (req, res) => {
 // Redis pub/sub example
 app.post(
   '/api/redis/publish',
-  validate({
-    body: z.object({
-      channel: z.string().min(1),
-      message: z.any(),
-    }),
-  }),
-  async (req, res) => {
-    try {
-      const { channel, message } = req.body;
+  validate(
+    {
+      body: z.object({
+        channel: z.string().min(1),
+        message: z.any(),
+      }),
+    },
+    async (req, res) => {
+      try {
+        const { channel, message } = req.body;
 
-      if (!(redisDb instanceof RedisAdapter)) {
-        res.status(400);
-        return { success: false, error: 'Not a Redis adapter' };
+        if (!(redisDb instanceof RedisAdapter)) {
+          res.status(400);
+          return { success: false, error: 'Not a Redis adapter' };
+        }
+
+        const subscribers = await redisDb.publish(channel, message);
+        return {
+          success: true,
+          data: { channel, message, subscribers },
+          message: `Message published to ${subscribers} subscribers`,
+        };
+      } catch (error) {
+        res.status(500);
+        return {
+          success: false,
+          error: 'Failed to publish message',
+          details: error instanceof Error ? error.message : String(error),
+        };
+      }
+    }
+  )
+);
+
+// Cross-database operations
+app.post(
+  '/api/hybrid/user-with-cache',
+  validate({ body: UserSchema }, async (req, res) => {
+    try {
+      const userData = req.validatedBody;
+
+      // Store in MongoDB
+      const user = await mongoDb.insert('users', userData);
+
+      // Cache in Redis
+      if (redisDb instanceof RedisAdapter) {
+        await redisDb.set(`user:${user._id}`, user, 3600); // 1 hour TTL
       }
 
-      const subscribers = await redisDb.publish(channel, message);
+      res.status(201);
       return {
         success: true,
-        data: { channel, message, subscribers },
-        message: `Message published to ${subscribers} subscribers`,
+        data: user,
+        message: 'User created in MongoDB and cached in Redis',
+        operations: ['mongodb:insert', 'redis:cache'],
       };
     } catch (error) {
       res.status(500);
       return {
         success: false,
-        error: 'Failed to publish message',
+        error: 'Failed to create user with cache',
         details: error instanceof Error ? error.message : String(error),
       };
     }
-  }
+  })
 );
-
-// Cross-database operations
-app.post('/api/hybrid/user-with-cache', validate({ body: UserSchema }), async (req, res) => {
-  try {
-    const userData = req.body;
-
-    // Store in MongoDB
-    const user = await mongoDb.insert('users', userData);
-
-    // Cache in Redis
-    if (redisDb instanceof RedisAdapter) {
-      await redisDb.set(`user:${user._id}`, user, 3600); // 1 hour TTL
-    }
-
-    res.status(201);
-    return {
-      success: true,
-      data: user,
-      message: 'User created in MongoDB and cached in Redis',
-      operations: ['mongodb:insert', 'redis:cache'],
-    };
-  } catch (error) {
-    res.status(500);
-    return {
-      success: false,
-      error: 'Failed to create user with cache',
-      details: error instanceof Error ? error.message : String(error),
-    };
-  }
-});
 
 // Database comparison endpoint
 app.get('/api/databases/info', (req, res) => {
@@ -390,7 +400,7 @@ app.get('/api/health/databases', async (req, res) => {
   try {
     // Test MongoDB
     try {
-      await mongoDb.query('users', {}, { limit: 1 });
+      await mongoDb.query('SELECT * FROM users LIMIT 1');
       health.databases.mongodb = { status: 'healthy', type: 'NoSQL Document' };
     } catch (error) {
       health.databases.mongodb = {

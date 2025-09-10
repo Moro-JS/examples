@@ -2,7 +2,7 @@
 // Handles payment processing and transaction management
 
 import { createApp } from '@morojs/moro';
-import { ServiceRegistry } from 'moro/src/core/networking/service-discovery';
+import { ServiceRegistry } from '@morojs/moro';
 
 const app = createApp();
 
@@ -133,7 +133,7 @@ app.post('/payments/process', async (req, res) => {
     };
   }
 
-  if (!paymentProviders[provider]) {
+  if (!paymentProviders[provider as keyof typeof paymentProviders]) {
     res.statusCode = 400;
     return {
       success: false,
@@ -143,13 +143,13 @@ app.post('/payments/process', async (req, res) => {
     };
   }
 
-  if (paymentProviders[provider].status !== 'active') {
+  if (paymentProviders[provider as keyof typeof paymentProviders].status !== 'active') {
     res.statusCode = 503;
     return {
       success: false,
       error: 'Payment provider temporarily unavailable',
       provider: provider,
-      status: paymentProviders[provider].status,
+      status: paymentProviders[provider as keyof typeof paymentProviders].status,
       service: 'payment-service',
     };
   }
@@ -164,8 +164,9 @@ app.post('/payments/process', async (req, res) => {
   const transactionId = `tx_${nextTransactionId++}`;
   const paymentId = nextPaymentId++;
 
+  const providerKey = provider as keyof typeof paymentProviders;
   const providerFee =
-    amount * paymentProviders[provider].processingFee + paymentProviders[provider].fixedFee;
+    amount * paymentProviders[providerKey].processingFee + paymentProviders[providerKey].fixedFee;
   const netAmount = amount - providerFee;
 
   const payment: any = {

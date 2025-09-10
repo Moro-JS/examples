@@ -1,7 +1,6 @@
 // Session Management Demo - Built-in Session Support
 import { createApp, builtInMiddleware } from '@morojs/moro';
-import { session } from '../../../MoroJS/src/core/middleware/built-in/session';
-import { createFrameworkLogger } from '../../../MoroJS/src/core/logger';
+import { createFrameworkLogger } from '@morojs/moro';
 
 const logger = createFrameworkLogger('SessionDemo');
 
@@ -10,7 +9,7 @@ const app = createApp();
 // Example 1: Memory sessions (development)
 app.use(builtInMiddleware.cookie()); // Required for session cookies
 app.use(
-  session({
+  builtInMiddleware.session({
     store: 'memory',
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours

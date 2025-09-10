@@ -12,11 +12,7 @@
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "baseUrl": ".",
-    "paths": {
-      "moro": ["../../moro/src/index.ts"],
-      "moro/*": ["../../moro/src/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],

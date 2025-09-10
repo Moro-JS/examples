@@ -1,5 +1,5 @@
 // Advanced Features Demo - HTTP/2, SSE, Range Requests, CSRF, CSP, Advanced Caching
-import { createApp, httpMiddleware, MoroCore, MoroOptions } from '@morojs/moro';
+import { createApp, httpMiddleware, Moro, MoroOptions, builtInMiddleware } from '@morojs/moro';
 import path from 'path';
 import fs from 'fs';
 
@@ -16,7 +16,7 @@ const http2Options: MoroOptions = {
   },
 };
 
-const app = new MoroCore(http2Options);
+const app = new Moro(http2Options);
 
 // Advanced Security Middleware
 app.use(
@@ -45,15 +45,11 @@ app.use(
 
 // Advanced Caching Middleware
 app.use(
-  httpMiddleware.advancedCache({
+  builtInMiddleware.cache({
     maxAge: 3600,
     staleWhileRevalidate: 86400,
     vary: ['Accept-Encoding', 'User-Agent'],
     etag: 'strong',
-    cdnHeaders: {
-      cloudflare: true,
-      fastly: true,
-    },
   })
 );
 
@@ -193,33 +189,27 @@ app.post('/csp-report', (req, res) => {
 });
 
 // WebSocket with Advanced Features
-const io = app.getIOServer();
+// Using MoroJS WebSocket API
+app.websocket('/advanced-ws', {
+  connect: (socket: any) => {
+    console.log(`Client connected with custom ID: ${socket.id}`);
 
-io.on('connection', socket => {
-  console.log(`Client connected with custom ID: ${socket.id}`);
+    // Send welcome message
+    socket.emit('welcome', {
+      message: 'Welcome to advanced WebSocket features!',
+      features: ['compression', 'custom-ids', 'binary-support'],
+      largeData: Array.from({ length: 1000 }, (_, i) => ({ id: i, data: `item-${i}` })),
+    });
+  },
 
-  // Send compressed message if large
-  (socket as any).compressedEmit('welcome', {
-    message: 'Welcome to advanced WebSocket features!',
-    features: ['compression', 'custom-ids', 'binary-support'],
-    largeData: Array.from({ length: 1000 }, (_, i) => ({ id: i, data: `item-${i}` })),
-  });
-
-  // Heartbeat mechanism
-  const heartbeat = setInterval(() => {
-    (socket as any).heartbeat();
-  }, 30000);
-
-  socket.on('disconnect', () => {
-    clearInterval(heartbeat);
+  disconnect: (socket: any) => {
     console.log('Client disconnected');
-  });
+  },
 
-  // Handle binary data
-  socket.on('binary-data', (buffer: Buffer) => {
+  'binary-data': (socket: any, buffer: Buffer) => {
     console.log(`Received binary data: ${buffer.length} bytes`);
     socket.emit('binary-response', Buffer.from(`Processed ${buffer.length} bytes`));
-  });
+  },
 });
 
 // Health Check with Advanced Features
@@ -255,18 +245,18 @@ app.listen(PORT, undefined, () => {
   GET  /dashboard       - HTTP/2 server push demo
   POST /csp-report      - CSP violation reports
   GET  /health          - Health check with feature status
-  
+
 🌐 WebSocket Features:
   - Custom ID generation
   - Message compression
   - Binary data support
   - Heartbeat mechanism
-  
+
 Security Features:
   - CSRF protection with tokens
   - Content Security Policy with nonce
   - Secure headers
-  
+
  Performance Features:
   - HTTP/2 server push
   - Advanced caching with stale-while-revalidate

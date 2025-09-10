@@ -2,7 +2,7 @@
 // Handles order management and coordinates with other services
 
 import { createApp } from '@morojs/moro';
-import { ServiceRegistry } from 'moro/src/core/networking/service-discovery';
+import { ServiceRegistry } from '@morojs/moro';
 
 const app = createApp();
 
@@ -270,8 +270,8 @@ app.post('/orders', async (req, res) => {
     const order: any = {
       id: orderId,
       userId,
-      userName: userData.data.name,
-      userEmail: userData.data.email,
+      userName: (userData as any).data.name,
+      userEmail: (userData as any).data.email,
       items: orderItems,
       totalAmount: parseFloat(totalAmount.toFixed(2)),
       shippingAddress,
@@ -305,11 +305,11 @@ app.post('/orders', async (req, res) => {
 
       const paymentData = await paymentResponse.json();
 
-      if (paymentData.success) {
+      if ((paymentData as any).success) {
         // Payment successful
         order.status = ORDER_STATUSES.CONFIRMED;
-        order.paymentId = paymentData.data.id;
-        order.transactionId = paymentData.data.transactionId;
+        order.paymentId = (paymentData as any).data.id;
+        order.transactionId = (paymentData as any).data.transactionId;
         order.paidAt = new Date().toISOString();
       } else {
         // Payment failed - restore inventory
@@ -323,7 +323,7 @@ app.post('/orders', async (req, res) => {
 
         order.status = ORDER_STATUSES.CANCELLED;
         order.cancelReason = 'Payment failed';
-        order.paymentError = paymentData.error || 'Unknown payment error';
+        order.paymentError = (paymentData as any).error || 'Unknown payment error';
       }
     } catch (error) {
       // Payment service error - restore inventory
@@ -488,7 +488,7 @@ app.post('/orders/:id/cancel', async (req, res) => {
 
       if (refundResponse.ok) {
         const refundData = await refundResponse.json();
-        order.refundId = refundData.data.id;
+        order.refundId = (refundData as any).data.id;
         order.refundedAt = new Date().toISOString();
         order.status = ORDER_STATUSES.REFUNDED;
       }

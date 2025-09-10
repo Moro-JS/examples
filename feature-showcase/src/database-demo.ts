@@ -101,48 +101,54 @@ app.get('/api/users/:id', async (req, res) => {
   }
 });
 
-app.post('/api/users', validate({ body: UserSchema }), async (req, res) => {
-  try {
-    const userData = req.body;
-    const newUser = await sqliteDb.insert('users', userData);
+app.post(
+  '/api/users',
+  validate({ body: UserSchema }, async (req, res) => {
+    try {
+      const userData = req.validatedBody;
+      const newUser = await sqliteDb.insert('users', userData);
 
-    res.status(201);
-    return {
-      success: true,
-      data: newUser,
-      message: 'User created successfully',
-    };
-  } catch (error) {
-    res.status(500);
-    return {
-      success: false,
-      error: 'Failed to create user',
-      details: error instanceof Error ? error.message : String(error),
-    };
-  }
-});
+      res.status(201);
+      return {
+        success: true,
+        data: newUser,
+        message: 'User created successfully',
+      };
+    } catch (error) {
+      res.status(500);
+      return {
+        success: false,
+        error: 'Failed to create user',
+        details: error instanceof Error ? error.message : String(error),
+      };
+    }
+  })
+);
 
-app.put('/api/users/:id', validate({ body: UserSchema.partial() }), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
+app.put(
+  '/api/users/:id',
+  validate({ body: UserSchema.partial() }, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.validatedBody;
 
-    const updatedUser = await sqliteDb.update('users', updateData, { id: parseInt(id) });
+      const updatedUser = await sqliteDb.update('users', updateData, { id: parseInt(id) });
 
-    return {
-      success: true,
-      data: updatedUser,
-      message: 'User updated successfully',
-    };
-  } catch (error) {
-    res.status(500);
-    return {
-      success: false,
-      error: 'Failed to update user',
-      details: error instanceof Error ? error.message : String(error),
-    };
-  }
-});
+      return {
+        success: true,
+        data: updatedUser,
+        message: 'User updated successfully',
+      };
+    } catch (error) {
+      res.status(500);
+      return {
+        success: false,
+        error: 'Failed to update user',
+        details: error instanceof Error ? error.message : String(error),
+      };
+    }
+  })
+);
 
 app.delete('/api/users/:id', async (req, res) => {
   try {
@@ -172,42 +178,44 @@ app.delete('/api/users/:id', async (req, res) => {
 // Transaction example
 app.post(
   '/api/users/bulk',
-  validate({
-    body: z.object({
-      users: z.array(UserSchema).min(1).max(10),
-    }),
-  }),
-  async (req, res) => {
-    try {
-      const { users } = req.body;
+  validate(
+    {
+      body: z.object({
+        users: z.array(UserSchema).min(1).max(10),
+      }),
+    },
+    async (req, res) => {
+      try {
+        const { users } = req.validatedBody;
 
-      const result = await sqliteDb.transaction(async tx => {
-        const createdUsers = [];
+        const result = await sqliteDb.transaction(async tx => {
+          const createdUsers = [];
 
-        for (const userData of users) {
-          const newUser = await tx.insert('users', userData);
-          createdUsers.push(newUser);
-        }
+          for (const userData of users) {
+            const newUser = await tx.insert('users', userData);
+            createdUsers.push(newUser);
+          }
 
-        return createdUsers;
-      });
+          return createdUsers;
+        });
 
-      res.status(201);
-      return {
-        success: true,
-        data: result,
-        message: `${result.length} users created successfully`,
-        adapter: 'SQLite with Transaction',
-      };
-    } catch (error) {
-      res.status(500);
-      return {
-        success: false,
-        error: 'Failed to create users in bulk',
-        details: error instanceof Error ? error.message : String(error),
-      };
+        res.status(201);
+        return {
+          success: true,
+          data: result,
+          message: `${result.length} users created successfully`,
+          adapter: 'SQLite with Transaction',
+        };
+      } catch (error) {
+        res.status(500);
+        return {
+          success: false,
+          error: 'Failed to create users in bulk',
+          details: error instanceof Error ? error.message : String(error),
+        };
+      }
     }
-  }
+  )
 );
 
 // Adapter switching demo

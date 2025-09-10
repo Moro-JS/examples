@@ -14,10 +14,7 @@
     "declaration": true,
     "experimentalDecorators": false,
     "emitDecoratorMetadata": false,
-    "baseUrl": "./",
-    "paths": {
-      "@morojs/moro": ["../../MoroJS/src/index.ts"]
-    }
+    "baseUrl": "./"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

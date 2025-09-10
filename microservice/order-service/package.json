@@ -13,7 +13,7 @@
     "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
   },
   "dependencies": {
-    "@morojs/moro": "^1.0.0"
+    "@morojs/moro": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

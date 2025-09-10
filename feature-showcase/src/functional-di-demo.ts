@@ -8,8 +8,8 @@ import {
   withTimeout,
   ServiceScope,
   ServiceLifecycle,
-} from '../../../moro/src/core/utilities/container';
-import { createFrameworkLogger } from '../../../moro/src/core/logger';
+  createFrameworkLogger,
+} from '@morojs/moro';
 
 const app = createApp();
 const logger = createFrameworkLogger('DI-Demo');
@@ -373,7 +373,7 @@ app.get('/container/analytics', async (req, res) => {
       analytics: {
         totalEvents: events.length,
         recentEvents: events.slice(-10),
-        eventTypes: [...new Set(events.map(e => e.event))],
+        eventTypes: Array.from(new Set(events.map(e => e.event))),
       },
     });
   } catch (error) {
@@ -444,7 +444,6 @@ Try these:
     process.exit(1);
   }
 }
-
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('Shutting down DI demo...');

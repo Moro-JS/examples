@@ -1,23 +1,16 @@
 // Enterprise Cache Demo - Real Caching with Redis, CDN, and Strategies
 import { createApp, builtInMiddleware } from '@morojs/moro';
-import {
-  RedisCacheAdapter,
-  MemoryCacheAdapter,
-  FileCacheAdapter,
-} from '../../../moro/src/core/middleware/built-in/cache-adapters';
-import {
-  CloudflareCDNAdapter,
-  CloudFrontCDNAdapter,
-} from '../../../moro/src/core/middleware/built-in/cdn-adapters';
+import { RedisCacheAdapter, MemoryCacheAdapter, FileCacheAdapter } from '@morojs/moro';
+import { CloudflareCDNAdapter, CloudFrontCDNAdapter } from '@morojs/moro';
 
 const app = createApp();
 
 // Enterprise-grade caching configuration
 app.use(
-  builtInMiddleware.advancedCache({
+  builtInMiddleware.cache({
     // Storage options - Use Redis for production, memory for demo
-    storage: process.env.REDIS_URL ? 'redis' : 'memory',
-    storageOptions: process.env.REDIS_URL
+    adapter: process.env.REDIS_URL ? 'redis' : 'memory',
+    adapterOptions: process.env.REDIS_URL
       ? {
           host: process.env.REDIS_HOST || 'localhost',
           port: parseInt(process.env.REDIS_PORT || '6379'),
@@ -67,14 +60,8 @@ app.use(
     vary: ['Accept-Encoding', 'Accept-Language', 'User-Agent'],
     etag: 'strong',
 
-    // CDN integration (configure based on environment)
-    cdn: process.env.CLOUDFLARE_API_TOKEN ? 'cloudflare' : undefined,
-    cdnOptions: process.env.CLOUDFLARE_API_TOKEN
-      ? {
-          apiToken: process.env.CLOUDFLARE_API_TOKEN,
-          zoneId: process.env.CLOUDFLARE_ZONE_ID,
-        }
-      : undefined,
+    // CDN integration (configure based on environment) - removed for now
+    // Note: CDN configuration would be handled separately with CDN middleware
   })
 );
 

@@ -51,6 +51,44 @@ function updatePackageJsonForLocal(examplePath, depth = 2) {
   return false;
 }
 
+function updateTsConfigForLocal(examplePath, depth = 2) {
+  const tsConfigPath = path.join(examplePath, 'tsconfig.json');
+
+  if (!fs.existsSync(tsConfigPath)) {
+    return false;
+  }
+
+  try {
+    const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath, 'utf8'));
+
+    // Ensure compilerOptions exists
+    if (!tsConfig.compilerOptions) {
+      tsConfig.compilerOptions = {};
+    }
+
+    // Ensure baseUrl exists
+    if (!tsConfig.compilerOptions.baseUrl) {
+      tsConfig.compilerOptions.baseUrl = '.';
+    }
+
+    // Set up path mappings for local development
+    const localPath = depth === 3 ? '../../../MoroJS/src/index.ts' : '../../MoroJS/src/index.ts';
+
+    if (!tsConfig.compilerOptions.paths) {
+      tsConfig.compilerOptions.paths = {};
+    }
+
+    // Add path mapping for @morojs/moro to point to local source
+    tsConfig.compilerOptions.paths['@morojs/moro'] = [localPath];
+
+    fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2));
+    return true;
+  } catch (error) {
+    console.log(`   Warning: Could not update tsconfig.json - ${error.message}`);
+    return false;
+  }
+}
+
 let successCount = 0;
 let errorCount = 0;
 
@@ -74,6 +112,12 @@ for (const example of examples) {
     if (!updated) {
       console.log(`⚠️  ${example} - No @morojs/moro dependency found to update`);
       continue;
+    }
+
+    // Update TypeScript configuration to use local path mappings
+    const tsConfigUpdated = updateTsConfigForLocal(examplePath, depth);
+    if (tsConfigUpdated) {
+      console.log(`   ✓ Updated tsconfig.json for local development`);
     }
 
     // Remove node_modules to force fresh install

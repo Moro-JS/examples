@@ -62,8 +62,8 @@ export class ChatService {
     roomConnections.push(connection);
 
     // Update user presence in Redis
-    await this.redis.sadd(`room:${roomId}:users`, userId);
-    await this.redis.setex(`user:${userId}:last_seen`, 300, Date.now().toString());
+    await this.redis.sAdd(`room:${roomId}:users`, userId);
+    await this.redis.setEx(`user:${userId}:last_seen`, 300, Date.now().toString());
   }
 
   async leaveRoom(roomId: string, userId: string): Promise<void> {
@@ -80,7 +80,7 @@ export class ChatService {
     }
 
     // Remove user from Redis presence
-    await this.redis.srem(`room:${roomId}:users`, userId);
+    await this.redis.sRem(`room:${roomId}:users`, userId);
   }
 
   broadcastToRoom(roomId: string, message: any, excludeUserId?: string): void {
@@ -228,7 +228,7 @@ export class ChatService {
     roomId: string
   ): Promise<Array<{ id: string; username: string; isOnline: boolean }>> {
     // Get users from Redis (online users)
-    const onlineUserIds = await this.redis.smembers(`room:${roomId}:users`);
+    const onlineUserIds = await this.redis.sMembers(`room:${roomId}:users`);
 
     // Get all room members from database
     const result = await this.db.query(

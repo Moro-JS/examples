@@ -34,6 +34,12 @@ for (const example of examples) {
   console.log(`📦 Installing dependencies for ${example}...`);
 
   try {
+    // Remove package-lock.json to ensure fresh install with latest versions
+    const lockfilePath = path.join(examplePath, 'package-lock.json');
+    if (fs.existsSync(lockfilePath)) {
+      fs.unlinkSync(lockfilePath);
+    }
+
     execSync('npm install', {
       cwd: examplePath,
       stdio: ['inherit', 'pipe', 'pipe'],

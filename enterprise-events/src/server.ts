@@ -2,7 +2,7 @@
 // Demonstrates secure, scalable, observable event-driven architecture
 
 import { createApp, z } from '@morojs/moro';
-import { EventPayload } from 'moro/src/types/events';
+import type { EventPayload } from '@morojs/moro';
 
 const app = createApp();
 
@@ -264,7 +264,7 @@ console.log(`
 Framework Features:
 •  Isolated module event buses
 • 🌐 Global system events
-• Real-time metrics & monitoring  
+• Real-time metrics & monitoring
 • Audit logging for compliance
 • Type-safe event payloads
 • 🏷 Automatic namespacing

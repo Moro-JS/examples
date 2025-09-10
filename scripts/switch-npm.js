@@ -20,6 +20,53 @@ const examples = [
   'microservice/payment-service',
 ];
 
+function updateTsConfigForNpm(examplePath) {
+  const tsConfigPath = path.join(examplePath, 'tsconfig.json');
+
+  if (!fs.existsSync(tsConfigPath)) {
+    return false;
+  }
+
+  try {
+    const tsConfig = JSON.parse(fs.readFileSync(tsConfigPath, 'utf8'));
+
+    // Remove path mappings that point to local development files
+    if (tsConfig.compilerOptions && tsConfig.compilerOptions.paths) {
+      const paths = tsConfig.compilerOptions.paths;
+      let modified = false;
+
+      // Remove mappings for @morojs/moro, moro, and moro/*
+      if (paths['@morojs/moro']) {
+        delete paths['@morojs/moro'];
+        modified = true;
+      }
+      if (paths['moro']) {
+        delete paths['moro'];
+        modified = true;
+      }
+      if (paths['moro/*']) {
+        delete paths['moro/*'];
+        modified = true;
+      }
+
+      // If paths object is now empty, remove it entirely
+      if (Object.keys(paths).length === 0) {
+        delete tsConfig.compilerOptions.paths;
+        modified = true;
+      }
+
+      if (modified) {
+        fs.writeFileSync(tsConfigPath, JSON.stringify(tsConfig, null, 2));
+        return true;
+      }
+    }
+  } catch (error) {
+    console.log(`   Warning: Could not update tsconfig.json - ${error.message}`);
+  }
+
+  return false;
+}
+
 let successCount = 0;
 let errorCount = 0;
 
@@ -59,6 +106,12 @@ for (const example of examples) {
 
     if (fs.existsSync(lockfilePath)) {
       execSync(`rm -f "${lockfilePath}"`, { cwd: examplePath });
+    }
+
+    // Update TypeScript configuration to remove path mappings
+    const tsConfigUpdated = updateTsConfigForNpm(examplePath);
+    if (tsConfigUpdated) {
+      console.log(`   ✓ Updated tsconfig.json to use npm packages`);
     }
 
     // Install @morojs/moro from npm

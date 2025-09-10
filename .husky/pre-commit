@@ -1,1 +1,9 @@
+#!/bin/sh
+
+# Load nvm if it exists
+if [ -f ~/.nvm/nvm.sh ]; then
+  . ~/.nvm/nvm.sh
+fi
+
+# Use npx which is more reliable in git hooks
 npx lint-staged
