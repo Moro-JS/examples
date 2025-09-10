@@ -186,9 +186,9 @@ For feature requests:
 
 ## 📞 Getting Help
 
-- 📖 [MoroJS Documentation](https://github.com/morojs/moro)
-- 💬 [GitHub Discussions](https://github.com/morojs/MoroJS-Examples/discussions)
-- 🐛 [Report Issues](https://github.com/morojs/MoroJS-Examples/issues)
+- 📖 [MoroJS Documentation](https://github.com/Moro-JS/moro)
+- 💬 [GitHub Discussions](https://github.com/Moro-JS/MoroJS-Examples/discussions)
+- 🐛 [Report Issues](https://github.com/Moro-JS/MoroJS-Examples/issues)
 
 ## 📜 License
 

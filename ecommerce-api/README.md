@@ -38,7 +38,7 @@ A complete e-commerce backend API built with MoroJS, featuring product catalog, 
 1. **Clone and install:**
 
    ```bash
-   git clone https://github.com/MoroJS/examples.git
+   git clone https://github.com/Moro-JS/examples.git
    cd examples/ecommerce-api
    npm install
    ```

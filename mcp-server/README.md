@@ -383,7 +383,7 @@ This example is part of the MoroJS Examples collection. Contributions are welcom
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/docs)
 - [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
 - [Claude Desktop MCP Setup](https://claude.ai/chat)
-- [MoroJS Documentation](https://github.com/morojs/moro)
+- [MoroJS Documentation](https://github.com/Moro-JS/moro)
 
 ---
 

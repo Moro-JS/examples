@@ -35,7 +35,7 @@ A complete real-time chat application built with MoroJS, featuring WebSockets, u
 1. **Clone and install dependencies:**
 
    ```bash
-   git clone https://github.com/MoroJS/examples.git
+   git clone https://github.com/Moro-JS/examples.git
    cd examples/real-time-chat
    npm install
    ```

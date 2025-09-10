@@ -190,6 +190,6 @@ Each example includes deployment instructions and runtime-specific configuration
 ## Need Help?
 
 - [MoroJS Documentation](https://morojs.com)
-- [Report Issues](https://github.com/morojs/moro/issues)
+- [Report Issues](https://github.com/Moro-JS/moro/issues)
 - [Community Discord](https://discord.gg/morojs)
 - [Email Support](mailto:support@morojs.com)

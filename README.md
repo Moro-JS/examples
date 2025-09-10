@@ -110,7 +110,7 @@ Choose an example based on your needs:
 
 ```bash
 # Clone the repository
-git clone https://github.com/MoroJS/examples.git
+git clone https://github.com/Moro-JS/examples.git
 cd examples
 
 # Choose and run an example
@@ -178,7 +178,7 @@ example-name/
 
 ```bash
 # Clone the repository
-git clone https://github.com/MoroJS/examples.git
+git clone https://github.com/Moro-JS/examples.git
 cd examples
 
 # Install dependencies for all examples (uses @morojs/moro from npm)
@@ -273,7 +273,7 @@ cd simple-api && npm test
 ## Documentation
 
 - **[MoroJS Documentation](https://morojs.com/docs)** - Framework documentation
-- **[API Reference](https://github.com/MoroJS/moro/blob/main/API.md)** - Complete API reference
+- **[API Reference](https://github.com/Moro-JS/moro/blob/main/API.md)** - Complete API reference
 - **[Deployment Guide](https://morojs.com/docs/deployment)** - Production deployment
 - **[Best Practices](https://morojs.com/docs/best-practices)** - Recommended patterns
 
@@ -281,7 +281,7 @@ cd simple-api && npm test
 
 We welcome contributions! Here's how to help:
 
-1. **Report Issues**: Found a bug? [Create an issue](https://github.com/MoroJS/examples/issues)
+1. **Report Issues**: Found a bug? [Create an issue](https://github.com/Moro-JS/examples/issues)
 2. **Suggest Examples**: Need an example for your use case? Let us know!
 3. **Improve Examples**: Submit PRs to enhance existing examples
 4. **Add Examples**: Contribute new examples following our structure
@@ -301,7 +301,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🙋‍♂Support
 
 - **Documentation**: [https://morojs.com](https://morojs.com)
-- **GitHub Issues**: [Report bugs or request features](https://github.com/MoroJS/examples/issues)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/Moro-JS/examples/issues)
 - **Discord**: [Join our community](https://discord.gg/morojs)
 - **Twitter**: [@MoroJS](https://twitter.com/morojs)
 
