@@ -7,7 +7,7 @@ import {
   VercelEdgeAdapter,
   AWSLambdaAdapter,
   CloudflareWorkersAdapter,
-} from '../../MoroJS/src';
+} from '@morojs/moro';
 
 async function runTests() {
   console.log('Testing MoroJS Runtime Adapters...\n');
@@ -39,7 +39,7 @@ async function runTests() {
 
     // Add a simple route to each
     [edgeApp, lambdaApp, workerApp].forEach(app => {
-      app.get('/test', (req, res) => {
+      app.get('/test', (req: any, res: any) => {
         return { message: 'Hello from ' + app.getRuntimeType() };
       });
     });
@@ -187,7 +187,7 @@ async function runTests() {
   try {
     // Create a simple app with a route
     const app = createAppEdge();
-    app.get('/api/hello', (req, res) => {
+    app.get('/api/hello', (req: any, res: any) => {
       return {
         message: 'Hello from MoroJS!',
         runtime: 'vercel-edge',

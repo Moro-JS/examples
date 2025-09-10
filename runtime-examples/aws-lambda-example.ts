@@ -1,11 +1,11 @@
 // AWS Lambda Runtime Example
-import { createAppLambda } from '../../MoroJS/src';
-import type { LambdaEvent, LambdaContext } from '../../MoroJS/src';
+import { createAppLambda } from '@morojs/moro';
+import type { LambdaEvent, LambdaContext } from '@morojs/moro';
 
 const app = createAppLambda();
 
 // Define routes exactly the same way
-app.get('/', (req, res) => {
+app.get('/', (req: any, res: any) => {
   return {
     message: 'Hello from MoroJS on AWS Lambda!',
     runtime: 'aws-lambda',
@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
   };
 });
 
-app.get('/health', (req, res) => {
+app.get('/health', (req: any, res: any) => {
   return {
     status: 'healthy',
     runtime: 'aws-lambda',
@@ -23,7 +23,7 @@ app.get('/health', (req, res) => {
   };
 });
 
-app.post('/api/data', (req, res) => {
+app.post('/api/data', (req: any, res: any) => {
   return {
     received: req.body,
     runtime: 'aws-lambda',
@@ -32,7 +32,7 @@ app.post('/api/data', (req, res) => {
   };
 });
 
-app.get('/api/user/:id', (req, res) => {
+app.get('/api/user/:id', (req: any, res: any) => {
   return {
     userId: req.params.id,
     runtime: 'aws-lambda',

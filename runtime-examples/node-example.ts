@@ -1,10 +1,10 @@
 // Node.js Runtime Example - Existing code works unchanged
-import { createApp } from '../../MoroJS/src';
+import { createApp } from '@morojs/moro';
 
 const app = createApp();
 
 // All existing routes work exactly the same
-app.get('/', (req, res) => {
+app.get('/', (req: any, res: any) => {
   return {
     message: 'Hello from MoroJS on Node.js!',
     runtime: 'node',
@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
   };
 });
 
-app.get('/health', (req, res) => {
+app.get('/health', (req: any, res: any) => {
   return {
     status: 'healthy',
     runtime: 'node',
@@ -20,7 +20,7 @@ app.get('/health', (req, res) => {
   };
 });
 
-app.post('/data', (req, res) => {
+app.post('/data', (req: any, res: any) => {
   return {
     received: req.body,
     runtime: 'node',

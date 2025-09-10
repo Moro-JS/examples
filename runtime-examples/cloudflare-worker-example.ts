@@ -1,11 +1,11 @@
 // Cloudflare Workers Runtime Example
-import { createAppWorker } from '../../MoroJS/src';
-import type { WorkersEnv, WorkersContext } from '../../MoroJS/src';
+import { createAppWorker } from '@morojs/moro';
+import type { WorkersEnv, WorkersContext } from '@morojs/moro';
 
 const app = createAppWorker();
 
 // Define routes exactly the same way
-app.get('/', (req, res) => {
+app.get('/', (req: any, res: any) => {
   return {
     message: 'Hello from MoroJS on Cloudflare Workers!',
     runtime: 'cloudflare-workers',
@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
   };
 });
 
-app.get('/health', (req, res) => {
+app.get('/health', (req: any, res: any) => {
   return {
     status: 'healthy',
     runtime: 'cloudflare-workers',
@@ -28,7 +28,7 @@ app.get('/health', (req, res) => {
   };
 });
 
-app.post('/api/data', (req, res) => {
+app.post('/api/data', (req: any, res: any) => {
   return {
     received: req.body,
     runtime: 'cloudflare-workers',
@@ -38,7 +38,7 @@ app.post('/api/data', (req, res) => {
   };
 });
 
-app.get('/api/user/:id', (req, res) => {
+app.get('/api/user/:id', (req: any, res: any) => {
   return {
     userId: req.params.id,
     runtime: 'cloudflare-workers',
@@ -52,7 +52,7 @@ app.get('/api/user/:id', (req, res) => {
 });
 
 // Cloudflare Workers with environment variables
-app.get('/api/env', (req, res) => {
+app.get('/api/env', (req: any, res: any) => {
   // Access Cloudflare Workers environment through req.env
   return {
     hasEnv: !!(req as any).env,

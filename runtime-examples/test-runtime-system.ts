@@ -1,5 +1,5 @@
 // Simple test to verify runtime system works
-import { createApp, createAppEdge, createAppLambda, createAppWorker } from '../../MoroJS/src';
+import { createApp, createAppEdge, createAppLambda, createAppWorker } from '@morojs/moro';
 
 console.log('Testing MoroJS Runtime System...\n');
 
@@ -38,11 +38,11 @@ console.log('   Runtime type:', workerApp.getRuntimeType());
     'Cloudflare Workers',
   ];
 
-  app.get('/test', (req, res) => {
+  app.get('/test', (req: any, res: any) => {
     return { message: `Hello from ${runtimeNames[index]}!` };
   });
 
-  app.post('/echo', (req, res) => {
+  app.post('/echo', (req: any, res: any) => {
     return { echo: req.body, runtime: app.getRuntimeType() };
   });
 });

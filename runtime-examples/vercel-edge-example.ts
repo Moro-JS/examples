@@ -1,10 +1,10 @@
 // Vercel Edge Runtime Example
-import { createAppEdge } from '../../MoroJS/src';
+import { createAppEdge } from '@morojs/moro';
 
 const app = createAppEdge();
 
 // Define routes exactly the same way
-app.get('/', (req, res) => {
+app.get('/', (req: any, res: any) => {
   return {
     message: 'Hello from MoroJS on Vercel Edge!',
     runtime: 'vercel-edge',
@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
   };
 });
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: any, res: any) => {
   return {
     status: 'healthy',
     runtime: 'vercel-edge',
@@ -21,7 +21,7 @@ app.get('/api/health', (req, res) => {
   };
 });
 
-app.post('/api/data', (req, res) => {
+app.post('/api/data', (req: any, res: any) => {
   return {
     received: req.body,
     runtime: 'vercel-edge',
@@ -30,7 +30,7 @@ app.post('/api/data', (req, res) => {
   };
 });
 
-app.get('/api/user/:id', (req, res) => {
+app.get('/api/user/:id', (req: any, res: any) => {
   return {
     userId: req.params.id,
     runtime: 'vercel-edge',
@@ -44,7 +44,7 @@ export default app.getHandler();
 // For local development/testing, you can also use:
 // export const handler = app.getHandler();
 
-/* 
+/*
 To deploy to Vercel Edge:
 
 1. Create api/[...slug].ts in your project
