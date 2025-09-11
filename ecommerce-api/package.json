@@ -17,7 +17,7 @@
     "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
   },
   "dependencies": {
-    "@morojs/moro": "^1.0.2",
+    "@morojs/moro": "^1.2.1",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.0",
     "multer": "^2.0.2",

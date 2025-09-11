@@ -3,22 +3,15 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { findExampleDirectories, hasScript } = require('./utils');
 
 console.log('🏗️ Building all examples...\n');
 
-const examples = [
-  'simple-api',
-  'enterprise-app',
-  'enterprise-events',
-  'feature-showcase',
-  'runtime-examples',
-  'real-time-chat',
-  'ecommerce-api',
-  'mcp-server',
-  'microservice/user-service',
-  'microservice/order-service',
-  'microservice/payment-service',
-];
+const examples = findExampleDirectories();
+
+console.log(`Found ${examples.length} examples:`);
+examples.forEach(example => console.log(`  • ${example}`));
+console.log('');
 
 let successCount = 0;
 let errorCount = 0;
@@ -39,10 +32,7 @@ for (const example of examples) {
   }
 
   // Check if example has build script
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-  const buildScript = packageJson.scripts && packageJson.scripts.build;
-
-  if (!buildScript) {
+  if (!hasScript(examplePath, 'build')) {
     console.log(`⏭️  Skipping ${example} - no build script configured`);
     skippedCount++;
     continue;

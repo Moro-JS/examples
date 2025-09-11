@@ -3,22 +3,15 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { findExampleDirectories } = require('./utils');
 
 console.log('📦 Installing dependencies for all examples...\n');
 
-const examples = [
-  'simple-api',
-  'enterprise-app',
-  'enterprise-events',
-  'feature-showcase',
-  'runtime-examples',
-  'real-time-chat',
-  'ecommerce-api',
-  'mcp-server',
-  'microservice/user-service',
-  'microservice/order-service',
-  'microservice/payment-service',
-];
+const examples = findExampleDirectories();
+
+console.log(`Found ${examples.length} examples:`);
+examples.forEach(example => console.log(`  • ${example}`));
+console.log('');
 
 let successCount = 0;
 let errorCount = 0;

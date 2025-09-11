@@ -1,8 +1,8 @@
 {
-  "name": "simple-api-example",
+  "name": "enterprise-auth-example",
   "version": "1.0.0",
   "private": true,
-  "description": "Simple API demonstration showing basic Moro framework usage",
+  "description": "Enterprise authentication example with RBAC, multiple providers, and advanced security features",
   "main": "src/server.ts",
   "scripts": {
     "dev": "ts-node src/server.ts",
@@ -24,8 +24,10 @@
   },
   "keywords": [
     "moro",
-    "api",
-    "simple",
+    "auth",
+    "enterprise",
+    "rbac",
+    "security",
     "example"
   ]
 }

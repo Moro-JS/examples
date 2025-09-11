@@ -1,8 +1,8 @@
 {
-  "name": "simple-api-example",
+  "name": "simple-auth-example",
   "version": "1.0.0",
   "private": true,
-  "description": "Simple API demonstration showing basic Moro framework usage",
+  "description": "Simple authentication example showing basic Auth.js integration with Moro framework",
   "main": "src/server.ts",
   "scripts": {
     "dev": "ts-node src/server.ts",
@@ -24,7 +24,8 @@
   },
   "keywords": [
     "moro",
-    "api",
+    "auth",
+    "authentication",
     "simple",
     "example"
   ]

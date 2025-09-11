@@ -3,22 +3,25 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { findExampleDirectories } = require('./utils');
 
 console.log('🎯 Switching all examples to NPM mode (GitHub-ready)...\n');
 
-const examples = [
-  'simple-api',
-  'enterprise-app',
-  'enterprise-events',
-  'feature-showcase',
-  'runtime-examples',
-  'real-time-chat',
-  'ecommerce-api',
-  'mcp-server',
-  'microservice/user-service',
-  'microservice/order-service',
-  'microservice/payment-service',
-];
+// Get latest version from npm
+let latestVersion;
+try {
+  latestVersion = execSync('npm view @morojs/moro version', { encoding: 'utf8' }).trim();
+  console.log(`📦 Latest MoroJS version: ${latestVersion}\n`);
+} catch (error) {
+  console.log('⚠️  Could not fetch latest version, using @latest tag\n');
+  latestVersion = 'latest';
+}
+
+const examples = findExampleDirectories();
+
+console.log(`Found ${examples.length} examples:`);
+examples.forEach(example => console.log(`  • ${example}`));
+console.log('');
 
 function updateTsConfigForNpm(examplePath) {
   const tsConfigPath = path.join(examplePath, 'tsconfig.json');
@@ -115,7 +118,7 @@ for (const example of examples) {
     }
 
     // Install @morojs/moro from npm
-    execSync('npm install @morojs/moro@latest', {
+    execSync(`npm install @morojs/moro@${latestVersion}`, {
       cwd: examplePath,
       stdio: ['inherit', 'pipe', 'pipe'],
     });

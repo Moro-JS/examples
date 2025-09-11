@@ -15,6 +15,18 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 
 **Use when**: Learning MoroJS basics or building simple APIs
 
+### 🔐 [Simple Authentication](./simple-auth-example/)
+
+**Basic authentication with OAuth providers**
+
+- GitHub and Google OAuth integration
+- JWT-based session management
+- Protected route examples
+- Demo mode for testing without OAuth setup
+- Programmatic sign in/out APIs
+
+**Use when**: Adding basic authentication to your app
+
 ### 🏢 [Enterprise Application](./enterprise-app/)
 
 **Production-ready enterprise system**
@@ -27,6 +39,20 @@ A collection of complete, production-ready examples built with MoroJS. Each exam
 - Event-driven communication between modules
 
 **Use when**: Building large-scale business applications
+
+### 🔒 [Enterprise Authentication](./enterprise-auth-example/)
+
+**Advanced authentication with RBAC and enterprise features**
+
+- Role-Based Access Control (Admin, Manager, User)
+- Multiple OAuth providers (GitHub, Google, Microsoft, Okta)
+- Permission-based authorization system
+- Security audit logging and event tracking
+- Enterprise SSO integration (Azure AD, Okta)
+- Advanced session management with security features
+- Webhook security with API key authentication
+
+**Use when**: Building enterprise applications with complex security requirements
 
 ### [Real-time Chat](./real-time-chat/)
 
