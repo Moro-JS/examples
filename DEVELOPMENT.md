@@ -87,8 +87,8 @@ npm run update:imports
 ```
 MoroJS Examples/
 ├── scripts/
-│   ├── setup-npm.js       # NPM mode setup script
-│   ├── setup-local.js     # Local mode setup script
+│   ├── switch-npm.js       # NPM mode setup script
+│   ├── switch-local.js     # Local mode setup script
 │   └── update-imports.js  # Import statement updater
 ├── simple-api/
 ├── enterprise-app/

@@ -24,7 +24,7 @@
   "author": "MoroJS Team",
   "license": "MIT",
   "dependencies": {
-    "@morojs/moro": "^1.2.1"
+    "@morojs/moro": "latest"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

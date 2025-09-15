@@ -6,16 +6,18 @@ const path = require('path');
 const { findExampleDirectories } = require('./utils');
 
 console.log('🎯 Switching all examples to NPM mode (GitHub-ready)...\n');
-
+// Always use latest for better compatibility
+const latestVersion = 'latest';
 // Get latest version from npm
-let latestVersion;
-try {
-  latestVersion = execSync('npm view @morojs/moro version', { encoding: 'utf8' }).trim();
-  console.log(`📦 Latest MoroJS version: ${latestVersion}\n`);
-} catch (error) {
-  console.log('⚠️  Could not fetch latest version, using @latest tag\n');
-  latestVersion = 'latest';
-}
+// let latestVersion;
+// try {
+//   latestVersion = execSync('npm view @morojs/moro version', { encoding: 'utf8' }).trim();
+//   console.log(`📦 Latest MoroJS version: ${latestVersion}\n`);
+// } catch (error) {
+//   console.log('⚠️  Could not fetch latest version, using @latest tag\n');
+//   latestVersion = 'latest';
+// }
+console.log(`📦 Using MoroJS version: ${latestVersion}\n`);
 
 const examples = findExampleDirectories();
 

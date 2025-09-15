@@ -3,8 +3,9 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { findExampleDirectories } = require('./utils');
 
-console.log('🔧 Setting up MoroJS Examples for LOCAL DEVELOPMENT...\n');
+console.log('🔧 Switching all examples to LOCAL DEVELOPMENT mode...\n');
 
 // Check if MoroJS framework exists
 const moroJSPath = path.resolve('../MoroJS');
@@ -16,20 +17,13 @@ if (!fs.existsSync(moroJSPath)) {
 
 console.log(`✅ Found MoroJS framework at: ${moroJSPath}\n`);
 
-const examples = [
-  'simple-api',
-  'enterprise-app',
-  'enterprise-events',
-  'feature-showcase',
-  'runtime-examples',
-  'real-time-chat',
-  'ecommerce-api',
-  'microservice/user-service',
-  'microservice/order-service',
-  'microservice/payment-service',
-];
+const examples = findExampleDirectories();
 
-function updatePackageJsonForLocal(examplePath, depth = 2) {
+console.log(`Found ${examples.length} examples:`);
+examples.forEach(example => console.log(`  • ${example}`));
+console.log('');
+
+function updatePackageJsonForLocal(examplePath, example) {
   const packageJsonPath = path.join(examplePath, 'package.json');
 
   if (!fs.existsSync(packageJsonPath)) {
@@ -39,7 +33,9 @@ function updatePackageJsonForLocal(examplePath, depth = 2) {
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
   // Update @morojs/moro dependency to use local file
-  const localPath = depth === 3 ? '../../../MoroJS' : '../../MoroJS';
+  // Calculate depth based on directory structure
+  const depth = example.split('/').length;
+  const localPath = depth === 1 ? '../../MoroJS' : '../../../MoroJS';
 
   if (packageJson.dependencies && packageJson.dependencies['@morojs/moro']) {
     packageJson.dependencies['@morojs/moro'] = `file:${localPath}`;
@@ -51,7 +47,7 @@ function updatePackageJsonForLocal(examplePath, depth = 2) {
   return false;
 }
 
-function updateTsConfigForLocal(examplePath, depth = 2) {
+function updateTsConfigForLocal(examplePath, example) {
   const tsConfigPath = path.join(examplePath, 'tsconfig.json');
 
   if (!fs.existsSync(tsConfigPath)) {
@@ -72,7 +68,9 @@ function updateTsConfigForLocal(examplePath, depth = 2) {
     }
 
     // Set up path mappings for local development
-    const localPath = depth === 3 ? '../../../MoroJS/src/index.ts' : '../../MoroJS/src/index.ts';
+    // Calculate depth based on directory structure
+    const depth = example.split('/').length;
+    const localPath = depth === 1 ? '../../MoroJS/src/index.ts' : '../../../MoroJS/src/index.ts';
 
     if (!tsConfig.compilerOptions.paths) {
       tsConfig.compilerOptions.paths = {};
@@ -94,33 +92,45 @@ let errorCount = 0;
 
 for (const example of examples) {
   const examplePath = path.join(process.cwd(), example);
+  const packageJsonPath = path.join(examplePath, 'package.json');
 
   if (!fs.existsSync(examplePath)) {
     console.log(`⚠️  Skipping ${example} - directory not found`);
     continue;
   }
 
-  console.log(`🔧 Setting up ${example} for local development...`);
+  if (!fs.existsSync(packageJsonPath)) {
+    console.log(`⚠️  Skipping ${example} - no package.json found`);
+    continue;
+  }
+
+  // Check if example has switch:local script
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const switchScript = packageJson.scripts && packageJson.scripts['switch:local'];
+
+  if (!switchScript) {
+    console.log(`⚠️  Skipping ${example} - no switch:local script found`);
+    continue;
+  }
+
+  console.log(`🔄 Switching ${example} to LOCAL mode...`);
 
   try {
-    // Determine depth for relative path
-    const depth = example.includes('/') ? 3 : 2;
-
     // Update package.json to use local file reference
-    const updated = updatePackageJsonForLocal(examplePath, depth);
+    const packageUpdated = updatePackageJsonForLocal(examplePath, example);
 
-    if (!updated) {
+    if (!packageUpdated) {
       console.log(`⚠️  ${example} - No @morojs/moro dependency found to update`);
       continue;
     }
 
     // Update TypeScript configuration to use local path mappings
-    const tsConfigUpdated = updateTsConfigForLocal(examplePath, depth);
+    const tsConfigUpdated = updateTsConfigForLocal(examplePath, example);
     if (tsConfigUpdated) {
       console.log(`   ✓ Updated tsconfig.json for local development`);
     }
 
-    // Remove node_modules to force fresh install
+    // Remove node_modules and package-lock.json to ensure clean install
     const nodeModulesPath = path.join(examplePath, 'node_modules');
     const lockfilePath = path.join(examplePath, 'package-lock.json');
 
@@ -138,22 +148,22 @@ for (const example of examples) {
       stdio: ['inherit', 'pipe', 'pipe'],
     });
 
-    console.log(`✅ ${example} - Configured for local development`);
+    console.log(`✅ ${example} - Switched to LOCAL mode successfully`);
     successCount++;
   } catch (error) {
-    console.log(`❌ ${example} - Failed to setup local development`);
+    console.log(`❌ ${example} - Failed to switch to LOCAL mode`);
     console.log(`   Error: ${error.message.split('\n')[0]}`);
     errorCount++;
   }
 }
 
 console.log('\n' + '='.repeat(50));
-console.log(`🎉 Local development setup complete!`);
+console.log(`🎉 Local development mode switch complete!`);
 console.log(`✅ Success: ${successCount} examples`);
 if (errorCount > 0) {
-  console.log(`❌ Errors: ${errorCount} examples`);
+  console.log(`❌ Failed: ${errorCount} examples`);
 }
 
 console.log('\n🔧 All examples now use local MoroJS framework');
 console.log('⚡ Changes to the framework will be reflected immediately!');
-console.log('\n💡 To switch back to npm packages, run: npm run setup:npm');
+console.log('\n💡 To switch back to npm packages, run: npm run switch:npm');

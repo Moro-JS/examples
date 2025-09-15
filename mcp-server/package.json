@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
-    "@morojs/moro": "^1.2.1",
+    "@morojs/moro": "latest",
     "uuid": "^9.0.0",
     "zod": "^3.24.2"
   },

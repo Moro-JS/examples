@@ -22,9 +22,9 @@
     "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
   },
   "dependencies": {
-    "@morojs/moro": "^1.2.1",
+    "@morojs/moro": "latest",
     "reflect-metadata": "^0.2.2",
-    "swagger-ui-dist": "^5.28.1"
+    "swagger-ui-dist": "^5.29.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
