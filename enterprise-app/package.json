@@ -5,9 +5,9 @@
   "private": true,
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --ignore-watch ../../moro/dist src/server.ts",
-    "dev:pure": "ts-node --transpile-only src/server.ts",
-    "dev:framework": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "dev:pure": "tsx src/server.ts",
+    "dev:framework": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "clean": "rm -rf dist",
@@ -23,8 +23,7 @@
   "devDependencies": {
     "@types/node": "^20.10.0",
     "concurrently": "^8.2.2",
-    "ts-node": "^10.9.1",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.2"
   }
 }

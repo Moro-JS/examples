@@ -4,13 +4,13 @@
   "description": "Complete e-commerce API built with MoroJS featuring products, cart, and payment processing",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "db:migrate": "node -r ts-node/register database/migrate.ts",
-    "db:seed": "node -r ts-node/register database/seed.ts",
+    "db:migrate": "tsx database/migrate.ts",
+    "db:seed": "tsx database/seed.ts",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
     "switch:local": "rm -rf node_modules package-lock.json && npm install file:../../MoroJS",
@@ -41,8 +41,7 @@
     "jest": "^29.5.0",
     "prettier": "^3.0.0",
     "ts-jest": "^29.1.0",
-    "ts-node": "^10.9.0",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.0.0"
   },
   "keywords": [

@@ -12,7 +12,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "downlevelIteration": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "."
   },
   "include": ["./**/*"],
   "exclude": ["node_modules", "dist"]

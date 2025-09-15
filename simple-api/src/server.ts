@@ -98,12 +98,12 @@ app.get('/users/:id', (req, res) => {
   return { user };
 });
 
-// Start the server
-app.listen(3001, () => {
-  console.log('Simple API server running on http://localhost:3001');
+// Start the server (automatically uses port from moro.config.ts)
+app.listen(() => {
+  console.log('Simple API server running!');
   console.log('Try these endpoints:');
-  console.log('   GET  http://localhost:3001/');
-  console.log('   GET  http://localhost:3001/users');
-  console.log('   POST http://localhost:3001/users');
-  console.log('   GET  http://localhost:3001/users/1');
+  console.log('   GET  http://localhost:3000/');
+  console.log('   GET  http://localhost:3000/users');
+  console.log('   POST http://localhost:3000/users');
+  console.log('   GET  http://localhost:3000/users/1');
 });
