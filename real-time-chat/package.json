@@ -1,16 +1,18 @@
 {
   "name": "@morojs/example-real-time-chat",
   "version": "1.0.0",
+  "private": true,
   "description": "Real-time chat application built with MoroJS WebSockets",
+  "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "db:migrate": "node -r ts-node/register database/migrate.ts",
-    "db:seed": "node -r ts-node/register database/seed.ts",
+    "db:migrate": "tsx database/migrate.ts",
+    "db:seed": "tsx database/seed.ts",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
     "switch:local": "rm -rf node_modules package-lock.json && npm install file:../../MoroJS",
@@ -22,6 +24,7 @@
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.11.0",
     "redis": "^4.6.0",
+    "socket.io": "^4.8.1",
     "uuid": "^9.0.0",
     "zod": "^3.22.0"
   },
@@ -40,7 +43,8 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.0.0"
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.2"
   },
   "keywords": [
     "morojs",

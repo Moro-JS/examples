@@ -1,8 +1,9 @@
 {
   "name": "enterprise-app-example",
   "version": "1.0.0",
-  "description": "Enterprise App example using Moro framework with full module system",
   "private": true,
+  "type": "module",
+  "description": "Enterprise App example using Moro framework with full module system",
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",

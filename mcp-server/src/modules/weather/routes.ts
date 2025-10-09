@@ -6,6 +6,24 @@ import { WeatherQuerySchema, LocationSearchSchema } from './schemas';
 export const routes: any[] = [
   {
     method: 'GET',
+    path: '/',
+    handler: async (req, res) => {
+      return {
+        message: 'Weather API',
+        description: 'Weather information service with forecast data',
+        endpoints: {
+          locations: '/locations',
+          search: '/search',
+          weather: '/:location',
+        },
+        version: '1.0.0',
+      };
+    },
+    description: 'Weather API information',
+  },
+
+  {
+    method: 'GET',
     path: '/locations',
     handler: async (req, res) => {
       const database = req.database || {};

@@ -257,7 +257,8 @@ app.get('/audit-log', (req, res) => {
   };
 });
 
-console.log(`
+app.listen(3003, () => {
+  console.log(`
 🎭 Enterprise Event System Demo
 ================================
 
@@ -270,16 +271,14 @@ Framework Features:
 • 🏷 Automatic namespacing
 
 Try these endpoints:
-• GET / - Welcome and overview
-• GET /users - See module events
-• GET /orders - Inter-module communication
-• GET /notifications - Event-driven notifications
-• GET /error-example - Error event handling
-• GET /security-demo - Security isolation
-• GET /metrics - Event system metrics
-• GET /audit-log - Compliance audit log
+• GET http://localhost:3003/ - Welcome and overview
+• GET http://localhost:3003/users - See module events
+• GET http://localhost:3003/orders - Inter-module communication
+• GET http://localhost:3003/notifications - Event-driven notifications
+• GET http://localhost:3003/error-example - Error event handling
+• GET http://localhost:3003/security-demo - Security isolation
+• GET http://localhost:3003/metrics - Event system metrics
+• GET http://localhost:3003/audit-log - Compliance audit log
 
-Watch the console for real-time event activity!
-`);
-
-app.listen(3003);
+Watch the console for real-time event activity!`);
+});

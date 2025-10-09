@@ -1,14 +1,16 @@
 {
   "name": "morojs-runtime-examples",
   "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "description": "MoroJS Runtime Examples - Multi-environment support",
   "main": "node-example.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only node-example.ts",
-    "dev:node": "ts-node-dev --respawn --transpile-only node-example.ts",
+    "dev": "tsx node-example.ts",
+    "dev:watch": "tsx watch node-example.ts",
     "build": "tsc",
     "start": "node dist/node-example.js",
-    "test:runtime": "ts-node --transpile-only test-runtime-system.ts",
+    "test:runtime": "tsx test-runtime-system.ts",
     "switch:local": "rm -rf node_modules package-lock.json && npm install file:../../MoroJS",
     "switch:npm": "rm -rf node_modules package-lock.json && npm install @morojs/moro@latest"
   },
@@ -28,8 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "ts-node": "^10.9.0",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^2.0.0",
     "typescript": "^5.0.0"
   }
 }

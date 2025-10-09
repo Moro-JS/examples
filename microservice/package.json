@@ -1,5 +1,7 @@
 {
   "name": "microservice-example",
+  "private": true,
+  "type": "module",
   "version": "1.0.0",
   "description": "Microservice Architecture Example - Demonstrates service mesh patterns with Moro",
   "scripts": {

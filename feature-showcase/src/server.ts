@@ -9,6 +9,9 @@ const app = createApp({
   cors: true,
   compression: true,
   helmet: true,
+  websocket: {
+    enabled: true,
+  },
 });
 
 // Simple hello world
@@ -275,15 +278,15 @@ app.get('/docs/simple', (req, res) => {
   <div class="container">
     <h1>Simple API Documentation</h1>
     <p>Generated from Moro intelligent routes with Zod validation</p>
-    
+
     <h2>Documentation Links:</h2>
     <ul>
       <li><a href="/docs">Interactive Swagger UI</a></li>
       <li><a href="/api/openapi.json">OpenAPI JSON Spec</a></li>
     </ul>
-    
+
     <h2>API Endpoints:</h2>
-    
+
     ${routes
       .map(
         (route: any) => `
@@ -301,7 +304,7 @@ app.get('/docs/simple', (req, res) => {
     `
       )
       .join('')}
-    
+
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #dee2e6; text-align: center;">
       <p>Built with Moro Framework - Intelligent Routing + Type-Safe Validation</p>
     </div>

@@ -838,19 +838,47 @@ app.listen(PORT, () => {
   console.log('  user-token    - Basic user access');
   console.log('');
   console.log('📋 API Endpoints:');
-  console.log('  🌐 GET  /                      - Public home page');
-  console.log('  🔓 GET  /auth/status           - Authentication status');
-  console.log('  🔒 GET  /dashboard             - User dashboard (any user)');
-  console.log('  👔 GET  /manager               - Manager dashboard (manager/admin)');
-  console.log('  ⚡ GET  /admin                 - Admin panel (admin only)');
-  console.log('  🏢 GET  /organization/:id/data - Organization data (custom auth)');
-  console.log('  👥 GET  /api/users             - Users API (permission: users:read)');
-  console.log('  ⚙️  GET  /profile/settings      - User settings (manual checks)');
-  console.log('  🔄 POST /auth/refresh-session  - Refresh session');
-  console.log('  🚪 POST /auth/logout           - Enhanced logout');
-  console.log('  📊 GET  /admin/security/audit  - Security audit (admin only)');
-  console.log('  🔗 POST /webhooks/auth-event   - Auth webhooks (API key)');
-  console.log('  ❤️  GET  /health               - Health check with security status');
+  console.log('  🌐 GET  http://localhost:' + PORT + '/                      - Public home page');
+  console.log(
+    '  🔓 GET  http://localhost:' + PORT + '/auth/status           - Authentication status'
+  );
+  console.log(
+    '  🔒 GET  http://localhost:' + PORT + '/dashboard             - User dashboard (any user)'
+  );
+  console.log(
+    '  👔 GET  http://localhost:' +
+      PORT +
+      '/manager               - Manager dashboard (manager/admin)'
+  );
+  console.log(
+    '  ⚡ GET  http://localhost:' + PORT + '/admin                 - Admin panel (admin only)'
+  );
+  console.log(
+    '  🏢 GET  http://localhost:' +
+      PORT +
+      '/organization/:id/data - Organization data (custom auth)'
+  );
+  console.log(
+    '  👥 GET  http://localhost:' +
+      PORT +
+      '/api/users             - Users API (permission: users:read)'
+  );
+  console.log(
+    '  ⚙️  GET  http://localhost:' + PORT + '/profile/settings      - User settings (manual checks)'
+  );
+  console.log('  🔄 POST http://localhost:' + PORT + '/auth/refresh-session  - Refresh session');
+  console.log('  🚪 POST http://localhost:' + PORT + '/auth/logout           - Enhanced logout');
+  console.log(
+    '  📊 GET  http://localhost:' + PORT + '/admin/security/audit  - Security audit (admin only)'
+  );
+  console.log(
+    '  🔗 POST http://localhost:' + PORT + '/webhooks/auth-event   - Auth webhooks (API key)'
+  );
+  console.log(
+    '  ❤️  GET  http://localhost:' +
+      PORT +
+      '/health               - Health check with security status'
+  );
   console.log('');
   console.log('💡 Example Commands:');
   console.log('  # Public access');

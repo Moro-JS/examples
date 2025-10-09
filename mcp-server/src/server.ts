@@ -161,9 +161,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start the server
-if (require.main === module) {
-  main().catch(error => {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  });
-}
+main().catch(error => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});

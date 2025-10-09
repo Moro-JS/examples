@@ -1,6 +1,8 @@
 {
   "name": "@morojs/example-ecommerce-api",
   "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "description": "Complete e-commerce API built with MoroJS featuring products, cart, and payment processing",
   "main": "dist/server.js",
   "scripts": {
@@ -19,6 +21,7 @@
   "dependencies": {
     "@morojs/moro": "latest",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.0",
     "multer": "^2.0.2",
     "pg": "^8.11.0",

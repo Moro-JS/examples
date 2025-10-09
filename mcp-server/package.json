@@ -2,8 +2,9 @@
   "name": "mcp-server-example",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Model Context Protocol (MCP) server built with MoroJS - demonstrating AI agent integration",
-  "main": "src/server.ts",
+  "main": "dist/server.js",
   "bin": {
     "mcp-server": "./dist/server.js"
   },

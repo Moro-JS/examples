@@ -5,6 +5,9 @@ import { OrderService } from './services/OrderService';
 import { AuthService } from './services/AuthService';
 import { PaymentService } from './services/PaymentService';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 const app = createApp({
   cors: true,
   compression: true,

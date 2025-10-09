@@ -1,17 +1,21 @@
-import { createApp, z, validate } from '@morojs/moro';
+import { createApp, z, validate, SocketIOAdapter } from '@morojs/moro';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Create app with WebSocket support
-const app = createApp();
+const app = createApp({ websocket: { enabled: true, adapter: new SocketIOAdapter() } });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Simple in-memory storage for demo
-let users: any[] = [];
-let rooms: any[] = [
+const users: any[] = [];
+const rooms: any[] = [
   { id: 'general', name: 'General Chat', description: 'Main chat room' },
   { id: 'random', name: 'Random', description: 'Random discussions' },
 ];
-let messages: any[] = [];
+const messages: any[] = [];
 
 // Basic welcome endpoint
 app.get('/', (req, res) => {
@@ -264,38 +268,38 @@ class SimpleSocketIO {
     this.eventHandlers = {};
     this.connected = false;
   }
-  
+
   on(event, handler) {
     if (!this.eventHandlers[event]) {
       this.eventHandlers[event] = [];
     }
     this.eventHandlers[event].push(handler);
   }
-  
+
   emit(event, data) {
     if (this.connected && this.ws) {
       this.ws.send(JSON.stringify({ event, data }));
     }
   }
-  
+
   connect() {
     const wsUrl = this.url.replace('http', 'ws') + '/socket.io/';
     this.ws = new WebSocket(wsUrl);
-    
+
     this.ws.onopen = () => {
       this.connected = true;
       this.trigger('connect');
     };
-    
+
     this.ws.onclose = () => {
       this.connected = false;
       this.trigger('disconnect');
     };
-    
+
     this.ws.onerror = (error) => {
       this.trigger('connect_error', error);
     };
-    
+
     this.ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -304,10 +308,10 @@ class SimpleSocketIO {
         console.error('Failed to parse message:', event.data);
       }
     };
-    
+
     return this;
   }
-  
+
   trigger(event, data) {
     if (this.eventHandlers[event]) {
       this.eventHandlers[event].forEach(handler => handler(data));

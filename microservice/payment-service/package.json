@@ -1,11 +1,13 @@
 {
   "name": "payment-service",
   "version": "1.0.0",
+  "private": true,
+  "type": "module",
   "description": "Payment Processing Microservice",
   "main": "src/server.ts",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules src/server.ts",
-    "dev:pure": "ts-node src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "dev:pure": "tsx src/server.ts",
     "start": "node dist/server.js",
     "build": "tsc",
     "clean": "rm -rf dist",
@@ -17,8 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "ts-node": "^10.9.0",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.0.0"
   }
 }

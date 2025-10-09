@@ -2,6 +2,7 @@
   "name": "feature-showcase-example",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Comprehensive feature showcase demonstrating advanced Moro framework capabilities",
   "main": "src/server.ts",
   "scripts": {
@@ -24,7 +25,9 @@
   "dependencies": {
     "@morojs/moro": "latest",
     "reflect-metadata": "^0.2.2",
-    "swagger-ui-dist": "^5.29.0"
+    "socket.io": "^4.8.1",
+    "swagger-ui-dist": "^5.29.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -6,6 +6,26 @@ import { CreateTaskSchema, UpdateTaskSchema, TaskIdSchema, TaskFiltersSchema } f
 export const routes: any[] = [
   {
     method: 'GET',
+    path: '/',
+    handler: async (req, res) => {
+      return {
+        message: 'Tasks API',
+        description: 'Task management system with full CRUD operations',
+        endpoints: {
+          list: '/tasks',
+          create: 'POST /tasks',
+          get: '/tasks/:id',
+          update: 'PUT /tasks/:id',
+          delete: 'DELETE /tasks/:id',
+        },
+        version: '1.0.0',
+      };
+    },
+    description: 'Tasks API information',
+  },
+
+  {
+    method: 'GET',
     path: '/tasks',
     handler: async (req, res) => {
       const database = req.database || { tasks: [] };
