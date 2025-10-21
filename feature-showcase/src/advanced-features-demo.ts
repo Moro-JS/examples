@@ -230,10 +230,10 @@ app.get('/health', (req, res) => {
   });
 });
 
-const PORT = parseInt(process.env.PORT || '3006');
-app.listen(PORT, undefined, () => {
+app.listen(() => {
+  const config = app.getConfig();
   console.log(
-    `Advanced Features Demo running on ${http2Options.http2 ? 'https' : 'http'}://localhost:${PORT}`
+    `Advanced Features Demo running on ${http2Options.http2 ? 'https' : 'http'}://localhost:${config.server.port}`
   );
   console.log(`
 🔥 Advanced Features Available:

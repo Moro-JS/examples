@@ -357,10 +357,9 @@ app.get('/health', (req, res) => ({
   },
 }));
 
-const PORT = parseInt(process.env.PORT || '3000');
-
-app.listen(PORT, () => {
-  console.log(`🛒 E-commerce API running on port ${PORT}`);
-  console.log(`API endpoint: http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
+app.listen(() => {
+  const config = app.getConfig();
+  console.log(`🛒 E-commerce API running on http://${config.server.host}:${config.server.port}`);
+  console.log(`API endpoint: http://${config.server.host}:${config.server.port}`);
+  console.log(`Health check: http://${config.server.host}:${config.server.port}/health`);
 });

@@ -4,7 +4,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Create app with WebSocket support
-const app = createApp({ websocket: { enabled: true, adapter: new SocketIOAdapter() } });
+const app = createApp({
+  server: { port: 3000, host: '0.0.0.0' },
+  websocket: { enabled: true, adapter: new SocketIOAdapter() },
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -353,12 +356,11 @@ app.get('/health', (req, res) => {
   };
 });
 
-const PORT = Number(process.env.PORT) || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Real-time Chat Server running on port ${PORT}`);
-  console.log(`API endpoint: http://localhost:${PORT}`);
-  console.log(`WebSocket endpoint: ws://localhost:${PORT}/chat`);
+app.listen(() => {
+  const config = app.getConfig();
+  console.log(`Real-time Chat Server running on port ${config.server.port}`);
+  console.log(`API endpoint: http://localhost:${config.server.port}`);
+  console.log(`WebSocket endpoint: ws://localhost:${config.server.port}/chat`);
   console.log(`\nSimple demo endpoints:`);
   console.log(`  GET / - API documentation`);
   console.log(`  GET /test - WebSocket test client (open in browser)`);
@@ -366,6 +368,8 @@ app.listen(PORT, () => {
   console.log(`  POST /auth/login - User login (in-memory)`);
   console.log(`  GET /rooms - Available chat rooms`);
   console.log(`  WebSocket events: join, message, leave`);
-  console.log(`\n🎯 To test real-time chat: Open http://localhost:${PORT}/test in your browser!`);
+  console.log(
+    `\n🎯 To test real-time chat: Open http://localhost:${config.server.port}/test in your browser!`
+  );
   console.log(`Note: This is a simplified demo without database persistence`);
 });

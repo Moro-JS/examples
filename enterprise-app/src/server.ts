@@ -118,7 +118,8 @@ async function createEnterpriseApp() {
 async function bootstrap() {
   try {
     const app = await createEnterpriseApp();
-    const port = parseInt(process.env.PORT || '3002');
+    const config = app.getConfig();
+    const port = config.server.port;
 
     app.listen(port, () => {
       console.log('🏢 Enterprise Application Started');

@@ -817,10 +817,10 @@ async function getActiveUserCount(): Promise<number> {
 }
 
 // Start the server
-const PORT = parseInt(process.env.PORT || '3001', 10);
-
-app.listen(PORT, () => {
-  console.log(`🚀 Enterprise Auth Example running on http://localhost:${PORT}`);
+app.listen(() => {
+  const config = app.getConfig();
+  const port = config.server.port;
+  console.log(`🚀 Enterprise Auth Example running on http://localhost:${port}`);
   console.log('');
   console.log('🏢 Enterprise Authentication Features:');
   console.log('  ✅ Multi-Provider OAuth (GitHub, Google, Microsoft, Okta)');
@@ -838,69 +838,69 @@ app.listen(PORT, () => {
   console.log('  user-token    - Basic user access');
   console.log('');
   console.log('📋 API Endpoints:');
-  console.log('  🌐 GET  http://localhost:' + PORT + '/                      - Public home page');
+  console.log('  🌐 GET  http://localhost:' + port + '/                      - Public home page');
   console.log(
-    '  🔓 GET  http://localhost:' + PORT + '/auth/status           - Authentication status'
+    '  🔓 GET  http://localhost:' + port + '/auth/status           - Authentication status'
   );
   console.log(
-    '  🔒 GET  http://localhost:' + PORT + '/dashboard             - User dashboard (any user)'
+    '  🔒 GET  http://localhost:' + port + '/dashboard             - User dashboard (any user)'
   );
   console.log(
     '  👔 GET  http://localhost:' +
-      PORT +
+      port +
       '/manager               - Manager dashboard (manager/admin)'
   );
   console.log(
-    '  ⚡ GET  http://localhost:' + PORT + '/admin                 - Admin panel (admin only)'
+    '  ⚡ GET  http://localhost:' + port + '/admin                 - Admin panel (admin only)'
   );
   console.log(
     '  🏢 GET  http://localhost:' +
-      PORT +
+      port +
       '/organization/:id/data - Organization data (custom auth)'
   );
   console.log(
     '  👥 GET  http://localhost:' +
-      PORT +
+      port +
       '/api/users             - Users API (permission: users:read)'
   );
   console.log(
-    '  ⚙️  GET  http://localhost:' + PORT + '/profile/settings      - User settings (manual checks)'
+    '  ⚙️  GET  http://localhost:' + port + '/profile/settings      - User settings (manual checks)'
   );
-  console.log('  🔄 POST http://localhost:' + PORT + '/auth/refresh-session  - Refresh session');
-  console.log('  🚪 POST http://localhost:' + PORT + '/auth/logout           - Enhanced logout');
+  console.log('  🔄 POST http://localhost:' + port + '/auth/refresh-session  - Refresh session');
+  console.log('  🚪 POST http://localhost:' + port + '/auth/logout           - Enhanced logout');
   console.log(
-    '  📊 GET  http://localhost:' + PORT + '/admin/security/audit  - Security audit (admin only)'
+    '  📊 GET  http://localhost:' + port + '/admin/security/audit  - Security audit (admin only)'
   );
   console.log(
-    '  🔗 POST http://localhost:' + PORT + '/webhooks/auth-event   - Auth webhooks (API key)'
+    '  🔗 POST http://localhost:' + port + '/webhooks/auth-event   - Auth webhooks (API key)'
   );
   console.log(
     '  ❤️  GET  http://localhost:' +
-      PORT +
+      port +
       '/health               - Health check with security status'
   );
   console.log('');
   console.log('💡 Example Commands:');
   console.log('  # Public access');
-  console.log('  curl http://localhost:' + PORT + '/');
+  console.log('  curl http://localhost:' + port + '/');
   console.log('');
   console.log('  # User dashboard');
   console.log(
-    '  curl -H "Authorization: Bearer user-token" http://localhost:' + PORT + '/dashboard'
+    '  curl -H "Authorization: Bearer user-token" http://localhost:' + port + '/dashboard'
   );
   console.log('');
   console.log('  # Manager dashboard');
   console.log(
-    '  curl -H "Authorization: Bearer manager-token" http://localhost:' + PORT + '/manager'
+    '  curl -H "Authorization: Bearer manager-token" http://localhost:' + port + '/manager'
   );
   console.log('');
   console.log('  # Admin panel');
-  console.log('  curl -H "Authorization: Bearer admin-token" http://localhost:' + PORT + '/admin');
+  console.log('  curl -H "Authorization: Bearer admin-token" http://localhost:' + port + '/admin');
   console.log('');
   console.log('  # Security audit');
   console.log(
     '  curl -H "Authorization: Bearer admin-token" http://localhost:' +
-      PORT +
+      port +
       '/admin/security/audit'
   );
   console.log('');

@@ -3,7 +3,7 @@ import { AppConfig } from '@morojs/moro';
 export default {
   server: {
     port: 3000,
-    host: 'localhost',
+    host: '0.0.0.0',
     environment: 'development',
   },
   logging: {

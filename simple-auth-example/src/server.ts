@@ -4,6 +4,10 @@
 import { createApp } from '@morojs/moro';
 
 const app = createApp({
+  server: {
+    port: 3001,
+    host: '0.0.0.0',
+  },
   logger: { level: 'info', enableColors: true },
 });
 
@@ -266,11 +270,11 @@ app.get('/health', (req, res) => {
   };
 });
 
-// Start the server
-const PORT = parseInt(process.env.PORT || '3000', 10);
-
-app.listen(PORT, () => {
-  console.log(`🚀 Simple Auth Example running on http://localhost:${PORT}`);
+app.listen(() => {
+  const config = app.getConfig();
+  console.log(
+    `🚀 Simple Auth Example running on http://${config.server.host}:${config.server.port}`
+  );
   console.log('');
   console.log('🔐 Authentication Features:');
   console.log('  ✅ GitHub OAuth (demo)');
@@ -299,9 +303,11 @@ app.listen(PORT, () => {
   console.log('  GOOGLE_CLIENT_SECRET - Google OAuth client secret');
   console.log('');
   console.log('💡 Try these commands:');
-  console.log('  curl http://localhost:' + PORT + '/');
+  console.log('  curl http://localhost:' + config.server.port + '/');
   console.log(
-    '  curl -H "Authorization: Bearer demo-token" http://localhost:' + PORT + '/dashboard'
+    '  curl -H "Authorization: Bearer demo-token" http://localhost:' +
+      config.server.port +
+      '/dashboard'
   );
 });
 
