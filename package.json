@@ -8,6 +8,7 @@
     "setup:local": "node scripts/switch-local.js",
     "switch:npm": "node scripts/switch-npm.js",
     "switch:local": "node scripts/switch-local.js",
+    "prepare": "husky",
     "prepare:git": "node scripts/prepare-for-git.js",
     "update:imports": "node scripts/update-imports.js",
     "install:all": "node scripts/install-all.js",
@@ -28,8 +29,7 @@
     "format": "prettier --write \"**/*.{ts,js,mjs,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,js,mjs,json,md}\"",
     "audit:security": "npm audit --audit-level moderate",
-    "check:deps": "depcheck --ignores=\"@types/*,ts-node*,typescript,concurrently\"",
-    "prepare": "husky"
+    "check:deps": "depcheck --ignores=\"@types/*,ts-node*,typescript,concurrently\""
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
